@@ -35,6 +35,8 @@ model User {
   ownedAnomalies        Anomaly[]     @relation("AnomalyOwner")
   activityLogs          ActivityLog[]
   apiTokens             APIToken[]
+  webhooks              Webhook[]
+  customAliases         CustomAlias[]
   wells                 Well[]
 }
 
@@ -74,7 +76,7 @@ model Well {
   qualityScore Int             @default(0) // 0 - 100
   qualityGrade String          @default("UNKNOWN") // EXCELLENT, GOOD, POOR, CRITICAL
   ownerId      String?
-  owner        User?           @relation(fields: [ownerId], references: [id], onDelete: SetNull)
+  owner        User?           @relation(fields: [ownerId], references: [id], onDelete: Cascade)
 
   field        Field?          @relation(fields: [fieldName], references: [name])
   operator     Operator?       @relation(fields: [operatorName], references: [name])
@@ -106,10 +108,10 @@ model LASFile {
   status       String          @default("PROCESSED") // UPLOADED, PARSING, PROCESSED, ERROR
 
   uploadedById String?
-  uploadedBy   User?           @relation("UserUploads", fields: [uploadedById], references: [id])
+  uploadedBy   User?           @relation("UserUploads", fields: [uploadedById], references: [id], onDelete: Cascade)
 
   ownerId      String?
-  owner        User?           @relation("LASFileOwner", fields: [ownerId], references: [id], onDelete: SetNull)
+  owner        User?           @relation("LASFileOwner", fields: [ownerId], references: [id], onDelete: Cascade)
 
   curves       Curve[]
   reports      QualityReport[]
@@ -139,7 +141,7 @@ model Curve {
   dataJson         String          @default("[]")
 
   ownerId          String?
-  owner            User?           @relation("CurveOwner", fields: [ownerId], references: [id], onDelete: SetNull)
+  owner            User?           @relation("CurveOwner", fields: [ownerId], references: [id], onDelete: Cascade)
 
   anomalies        Anomaly[]
   createdAt        DateTime        @default(now())
@@ -165,7 +167,7 @@ model QualityReport {
   reportJson        String      @default("{}") // Full JSON audit details
 
   ownerId           String?
-  owner             User?       @relation("QualityReportOwner", fields: [ownerId], references: [id], onDelete: SetNull)
+  owner             User?       @relation("QualityReportOwner", fields: [ownerId], references: [id], onDelete: Cascade)
 
   anomalies         Anomaly[]
   createdAt         DateTime    @default(now())
@@ -189,7 +191,7 @@ model Anomaly {
   status              String         @default("OPEN") // OPEN, REVIEWED, RESOLVED, IGNORED
 
   ownerId             String?
-  owner               User?          @relation("AnomalyOwner", fields: [ownerId], references: [id], onDelete: SetNull)
+  owner               User?          @relation("AnomalyOwner", fields: [ownerId], references: [id], onDelete: Cascade)
 
   createdAt           DateTime       @default(now())
 
@@ -227,7 +229,11 @@ model Webhook {
   secret    String
   events    String   // JSON string of subscribed events
   active    Boolean  @default(true)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now())
+
+  @@index([userId])
 }
 
 model CustomAlias {
@@ -236,7 +242,8 @@ model CustomAlias {
   standardMnemonic String
   addedBy          String
   addedAt          DateTime @default(now())
-  userId           String?
+  userId           String
+  user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   userEmail        String?
 
   createdAt        DateTime @default(now())

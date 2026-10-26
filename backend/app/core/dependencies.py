@@ -60,10 +60,7 @@ def get_current_user_optional(
         return None
     
     try:
-        user = db.query(User).filter(User.id == session_data["id"]).first()
-        if not user and session_data.get("email"):
-            user = db.query(User).filter(User.email == session_data["email"]).first()
-        return user
+        return db.query(User).filter(User.id == session_data["id"]).first()
     except Exception as e:
         logger.error(f"Error querying user session: {e}", exc_info=True)
         return None

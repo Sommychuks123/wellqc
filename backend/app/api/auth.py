@@ -321,7 +321,7 @@ def forgot_password(req: ForgotPasswordRequest, request: Request, db: Session = 
         "message": "If an account exists with this email address, password reset instructions have been dispatched.",
     }
     # Return resetToken in development mode for automated testing and local debugging convenience
-    if settings.ENVIRONMENT != "production" and reset_token:
+    if settings.ENVIRONMENT == "development" and reset_token:
         resp_data["resetToken"] = reset_token
 
     return resp_data
