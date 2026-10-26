@@ -71,10 +71,12 @@ class User(Base):
     createdAt = Column(DateTime, default=now_utc, nullable=False)
     updatedAt = Column(DateTime, default=now_utc, onupdate=now_utc, nullable=False)
 
-    wells = relationship("Well", back_populates="owner", foreign_keys="[Well.ownerId]")
-    lasFiles = relationship("LASFile", back_populates="uploadedBy", foreign_keys="[LASFile.uploadedById]")
+    wells = relationship("Well", back_populates="owner", foreign_keys="[Well.ownerId]", passive_deletes=True)
+    lasFiles = relationship("LASFile", back_populates="uploadedBy", foreign_keys="[LASFile.uploadedById]", passive_deletes=True)
     activityLogs = relationship("ActivityLog", back_populates="user", passive_deletes=True)
     apiTokens = relationship("APIToken", back_populates="user", passive_deletes=True)
+    webhooks = relationship("Webhook", back_populates="user", cascade="all, delete-orphan", passive_deletes=True)
+    customAliases = relationship("CustomAlias", back_populates="user", cascade="all, delete-orphan", passive_deletes=True)
 
 
 class Field(Base):
@@ -120,7 +122,7 @@ class Well(Base):
     status = Column(String, default="ACTIVE", nullable=False)
     qualityScore = Column(Integer, default=0, nullable=False)
     qualityGrade = Column(String, default="UNKNOWN", nullable=False)
-    ownerId = Column(String, ForeignKey("User.id", ondelete="SET NULL"), nullable=True, index=True)
+    ownerId = Column(String, ForeignKey("User.id", ondelete="CASCADE"), nullable=True, index=True)
 
     createdAt = Column(DateTime, default=now_utc, nullable=False)
     updatedAt = Column(DateTime, default=now_utc, onupdate=now_utc, nullable=False)
@@ -151,8 +153,8 @@ class LASFile(Base):
     pointCount = Column(Integer, default=0, nullable=False)
     status = Column(String, default="PROCESSED", nullable=False)
 
-    uploadedById = Column(String, ForeignKey("User.id", ondelete="SET NULL"), nullable=True)
-    ownerId = Column(String, ForeignKey("User.id", ondelete="SET NULL"), nullable=True, index=True)
+    uploadedById = Column(String, ForeignKey("User.id", ondelete="CASCADE"), nullable=True)
+    ownerId = Column(String, ForeignKey("User.id", ondelete="CASCADE"), nullable=True, index=True)
 
     createdAt = Column(DateTime, default=now_utc, nullable=False)
 
@@ -181,7 +183,7 @@ class Curve(Base):
     status = Column(String, default="VALID", nullable=False)
     dataJson = Column(Text, default="[]", nullable=False)
 
-    ownerId = Column(String, ForeignKey("User.id", ondelete="SET NULL"), nullable=True, index=True)
+    ownerId = Column(String, ForeignKey("User.id", ondelete="CASCADE"), nullable=True, index=True)
     createdAt = Column(DateTime, default=now_utc, nullable=False)
 
     lasFile = relationship("LASFile", back_populates="curves")
@@ -205,7 +207,7 @@ class QualityReport(Base):
     recommendations = Column(Text, default="", nullable=False)
     reportJson = Column(Text, default="{}", nullable=False)
 
-    ownerId = Column(String, ForeignKey("User.id", ondelete="SET NULL"), nullable=True, index=True)
+    ownerId = Column(String, ForeignKey("User.id", ondelete="CASCADE"), nullable=True, index=True)
     createdAt = Column(DateTime, default=now_utc, nullable=False)
 
     well = relationship("Well", back_populates="reports")
@@ -228,7 +230,7 @@ class Anomaly(Base):
     suggestedCorrection = Column(Text, nullable=False)
     status = Column(String, default="OPEN", nullable=False)
 
-    ownerId = Column(String, ForeignKey("User.id", ondelete="SET NULL"), nullable=True, index=True)
+    ownerId = Column(String, ForeignKey("User.id", ondelete="CASCADE"), nullable=True, index=True)
     createdAt = Column(DateTime, default=now_utc, nullable=False)
 
     qualityReport = relationship("QualityReport", back_populates="anomalies")
@@ -274,7 +276,10 @@ class Webhook(Base):
     secret = Column(String, nullable=False)
     events = Column(Text, nullable=False)
     active = Column(Boolean, default=True, nullable=False)
+    userId = Column(String, ForeignKey("User.id", ondelete="CASCADE"), nullable=False, index=True)
     createdAt = Column(DateTime, default=now_utc, nullable=False)
+
+    user = relationship("User", back_populates="webhooks")
 
 
 class CustomAlias(Base):
@@ -285,11 +290,13 @@ class CustomAlias(Base):
     standardMnemonic = Column(String, nullable=False)
     addedBy = Column(String, nullable=False)
     addedAt = Column(DateTime, default=now_utc, nullable=False)
-    userId = Column(String, nullable=True, index=True)
+    userId = Column(String, ForeignKey("User.id", ondelete="CASCADE"), nullable=False, index=True)
     userEmail = Column(String, nullable=True, index=True)
 
     createdAt = Column(DateTime, default=now_utc, nullable=False)
     updatedAt = Column(DateTime, default=now_utc, onupdate=now_utc, nullable=False)
+
+    user = relationship("User", back_populates="customAliases")
 
     __table_args__ = (
         UniqueConstraint("standardMnemonic", "alias", "userId", name="CustomAlias_standardMnemonic_alias_userId_key"),
