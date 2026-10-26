@@ -77,9 +77,8 @@ def test_blocks_adding_custom_alias_already_claimed():
         addedBy="Alice",
         addedAt="2026-01-01T00:00:00Z",
     )
-    set_custom_aliases([custom_entry])
 
-    validation = validate_alias_for_curve("MY_GAMMA_TOOL", "RHOB")
+    validation = validate_alias_for_curve("MY_GAMMA_TOOL", "RHOB", custom_aliases_list=[custom_entry])
     assert validation.valid is False
     assert validation.error == "MY_GAMMA_TOOL is already mapped to GR. Remove or choose a different alias."
     assert validation.mappedCurve == "GR"

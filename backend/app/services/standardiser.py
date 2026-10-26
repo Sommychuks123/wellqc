@@ -16,8 +16,7 @@ R = TypeVar("R")
 
 MatchType = Literal["CUSTOM", "EXACT", "ALIAS", "PATTERN", "UNKNOWN"]
 
-# Flip to False once every caller passes custom aliases explicitly.
-USE_GLOBAL_ALIAS_FALLBACK = True
+USE_GLOBAL_ALIAS_FALLBACK = False
 
 
 class CustomAliasEntry(BaseModel):
@@ -390,31 +389,19 @@ _CONFIDENCE: Dict[str, float] = {
 CUSTOM_ALIASES_KEY = "wellqc_custom_aliases_v2"
 LEGACY_CUSTOM_ALIASES_KEY = "wellqc_custom_aliases"
 
-# Runtime in-memory storage for custom aliases (deprecated fallback)
-_in_memory_custom_aliases: List[CustomAliasEntry] = []
-
-
 def get_custom_aliases() -> List[CustomAliasEntry]:
-    """Deprecated. Returns the process-wide aliases; pass `custom_list` explicitly instead."""
-    return list(_in_memory_custom_aliases)
+    """Deprecated. Returns an empty list; pass `custom_list` explicitly instead."""
+    return []
 
 
 def set_custom_aliases(entries: List[CustomAliasEntry]) -> None:
-    """Deprecated. Shared across requests, so one user's aliases can leak to another."""
-    warnings.warn(
-        "set_custom_aliases is deprecated; pass custom aliases explicitly.",
-        DeprecationWarning,
-        stacklevel=2,
-    )
-    global _in_memory_custom_aliases
-    _in_memory_custom_aliases = list(entries)
+    """Deprecated no-op. Pass custom aliases explicitly instead."""
+    pass
 
 
 def _resolve_custom(custom_list: Optional[Sequence[CustomAliasEntry]]) -> Sequence[CustomAliasEntry]:
     if custom_list is not None:
         return custom_list
-    if USE_GLOBAL_ALIAS_FALLBACK:
-        return _in_memory_custom_aliases
     return []
 
 
@@ -534,12 +521,8 @@ def _same_alias(entry: CustomAliasEntry, mnemonic: str, alias: str) -> bool:
 
 
 def _commit(updated: List[CustomAliasEntry], custom_list: Optional[List[CustomAliasEntry]]) -> None:
-    """Explicit list: caller owns persistence and nothing is shared. No list: legacy global state."""
-    if custom_list is None:
-        with warnings.catch_warnings():
-            warnings.simplefilter("ignore", DeprecationWarning)
-            set_custom_aliases(updated)
-    else:
+    """Explicit list: caller owns persistence and nothing is shared."""
+    if custom_list is not None:
         custom_list[:] = updated
 
 
@@ -568,7 +551,7 @@ def add_custom_alias(
         addedAt=_iso_now(),
     )
 
-    current = list(custom_list) if custom_list is not None else get_custom_aliases()
+    current = list(custom_list) if custom_list is not None else []
     _commit(current + [new_entry], custom_list)
 
     return AddAliasResult(success=True, mappedCurve=clean_mnem, entry=new_entry)
@@ -585,7 +568,7 @@ def edit_custom_alias(
     clean_new = normalise_mnemonic(new_alias)
     clean_mnem = _canon_target(standard_mnemonic)
 
-    current = list(custom_list) if custom_list is not None else get_custom_aliases()
+    current = list(custom_list) if custom_list is not None else []
 
     if clean_old == clean_new:
         existing = next((e for e in current if _same_alias(e, clean_mnem, clean_old)), None)
@@ -617,7 +600,7 @@ def remove_custom_alias(
     clean_alias = normalise_mnemonic(alias_to_remove)
     clean_mnem = _canon_target(standard_mnemonic)
 
-    current = list(custom_list) if custom_list is not None else get_custom_aliases()
+    current = list(custom_list) if custom_list is not None else []
     updated = [e for e in current if not _same_alias(e, clean_mnem, clean_alias)]
 
     if len(updated) == len(current):

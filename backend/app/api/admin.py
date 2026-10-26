@@ -101,53 +101,19 @@ def update_user_role(
 
 def _clean_user_dependencies(db: Session, user_ids: List[str]):
     """
-    Safely disassociate or clean up dependent rows before deleting users
-    to prevent foreign key constraint violations in PostgreSQL.
+    Safely disassociate or clean up dependent rows before deleting users.
+    Foreign key cascading in PostgreSQL handles child rows (Wells, Files, Tokens, Aliases)
+    and ActivityLog.userId is set to NULL automatically by the database on delete.
     """
     if not user_ids:
         return
 
-    # 1. Nullify ActivityLog.userId so historical audit logs remain preserved without FK conflicts.
-    # Wrapped in a nested savepoint so any table privilege restrictions do not abort user deletion.
-    try:
-        with db.begin_nested():
-            db.query(ActivityLog).filter(ActivityLog.userId.in_(user_ids)).update(
-                {ActivityLog.userId: None}, synchronize_session=False
-            )
-    except Exception as exc:
-        logger.warning(f"Could not nullify ActivityLog.userId for deleted users {user_ids}: {exc}")
-
-    # 2. Delete APITokens belonging to deleted users
+    # Delete APITokens and CustomAliases explicitly if cascading is not active (e.g. SQLite tests)
     db.query(APIToken).filter(APIToken.userId.in_(user_ids)).delete(
         synchronize_session=False
     )
-
-    # 3. Clean up CustomAliases
     db.query(CustomAlias).filter(CustomAlias.userId.in_(user_ids)).delete(
         synchronize_session=False
-    )
-
-    # 4. Nullify Well owners
-    db.query(Well).filter(Well.ownerId.in_(user_ids)).update(
-        {Well.ownerId: None}, synchronize_session=False
-    )
-
-    # 5. Nullify LASFile uploaders/owners
-    db.query(LASFile).filter(LASFile.uploadedById.in_(user_ids)).update(
-        {LASFile.uploadedById: None}, synchronize_session=False
-    )
-    db.query(LASFile).filter(LASFile.ownerId.in_(user_ids)).update(
-        {LASFile.ownerId: None}, synchronize_session=False
-    )
-
-    # 6. Nullify QualityReport owners
-    db.query(QualityReport).filter(QualityReport.ownerId.in_(user_ids)).update(
-        {QualityReport.ownerId: None}, synchronize_session=False
-    )
-
-    # 7. Nullify Anomaly owners
-    db.query(Anomaly).filter(Anomaly.ownerId.in_(user_ids)).update(
-        {Anomaly.ownerId: None}, synchronize_session=False
     )
     db.flush()
 
@@ -590,6 +556,7 @@ def list_webhooks(
             "maskedSecret": f"{w.secret[:4]}...{w.secret[-4:]}" if len(w.secret) > 8 else "****",
             "events": evs,
             "active": w.active,
+            "userId": w.userId,
             "createdAt": w.createdAt.isoformat() if w.createdAt else None,
         })
     return {"webhooks": res}
@@ -622,6 +589,7 @@ def create_webhook(
         secret=secret,
         events=events_json,
         active=True,
+        userId=admin.id,
     )
     db.add(webhook)
 
