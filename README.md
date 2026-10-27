@@ -353,14 +353,19 @@ Payment channels supported: **Verve, Mastercard, Visa**, **Bank Transfer**, **US
 
 ---
 
-## 📖 Documentation Suite
+## 📖 Documentation & Schedule Suite
 
-| Document | Purpose |
-|---|---|
-| [**System Overview & Architecture**](Documentations/README.md) | Platform features, technology stack, setup guide, and physical curve limits. |
-| [**Agile User Stories & Acceptance Criteria**](Documentations/user_stories.md) | 22 formal user stories across 10 epics with Gherkin acceptance criteria, personas, and MoSCoW priorities. |
-| [**Master Sprint Plan & Ownership Matrix**](Documentations/sprint_plan.md) | 12-week development roadmap, sprint breakdowns (Sprints 1–6), and team ownership matrix (SE1–CE2). |
-| [**Database Entity-Relationship Schema**](Documentations/database_erd.md) | Relational schema diagrams, Prisma & SQLAlchemy models, and index specifications. |
+| Document | Format / Type | Purpose |
+|---|---|---|
+| [**System Overview & Architecture**](Documentations/README.md) | Markdown | Platform features, technology stack, setup guide, and physical curve limits. |
+| [**Agile User Stories & Acceptance Criteria**](Documentations/user_stories.md) | Markdown | 22 formal user stories across 11 epics with Gherkin acceptance criteria, personas, and MoSCoW priorities. |
+| [**Master Sprint Plan & Ownership Matrix**](Documentations/sprint_plan.md) | Markdown | Master 14-week development roadmap, 7-sprint breakdowns, responsibility matrix, and Gantt charts. |
+| [**Visual Kanban Board & Trello Guide**](Documentations/trello_kanban_board.md) | Markdown | Interactive visual Kanban board with 1-click import guides for Trello. |
+| [**Trello CSV Board Import**](Documentations/wellqc_trello_import.csv) | CSV | Standard Trello CSV import file (50 cards with descriptions, members, labels, and due dates). |
+| [**Trello Native JSON Board**](Documentations/wellqc_trello_board.json) | JSON | Complete native Trello board JSON export (7 sprint lists, colored labels, and cards). |
+| [**Microsoft Project Schedule (CSV)**](Documentations/wellqc_project_schedule.csv) | CSV | Standard WBS CSV schedule for Microsoft Project or Excel Gantt import. |
+| [**Microsoft Project Schedule (XML)**](Documentations/wellqc_project_schedule.xml) | XML (MSPDI) | 1-Click native Microsoft Project XML file with complete task dependencies and predecessor links. |
+| [**Database Entity-Relationship Schema**](Documentations/database_erd.md) | Markdown | Relational schema diagrams, Prisma & SQLAlchemy models, and index specifications. |
 
 ---
 

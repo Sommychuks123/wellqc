@@ -25,7 +25,7 @@
       <Finish>2026-10-23T17:00:00</Finish>
       <Milestone>0</Milestone>
       <Summary>1</Summary>
-      <PercentComplete>95</PercentComplete>
+      <PercentComplete>98</PercentComplete>
     </Task>
     <Task>
       <UID>2</UID>
@@ -912,7 +912,7 @@
       <Finish>2026-10-23T17:00:00</Finish>
       <Milestone>0</Milestone>
       <Summary>1</Summary>
-      <PercentComplete>75</PercentComplete>
+      <PercentComplete>88</PercentComplete>
       <PredecessorLink>
         <PredecessorUID>47</PredecessorUID>
         <Type>1</Type>
@@ -946,7 +946,7 @@
       <Finish>2026-10-19T17:00:00</Finish>
       <Milestone>0</Milestone>
       <Summary>0</Summary>
-      <PercentComplete>90</PercentComplete>
+      <PercentComplete>95</PercentComplete>
       <PredecessorLink>
         <PredecessorUID>49</PredecessorUID>
         <Type>1</Type>
@@ -963,7 +963,7 @@
       <Finish>2026-10-20T17:00:00</Finish>
       <Milestone>0</Milestone>
       <Summary>0</Summary>
-      <PercentComplete>80</PercentComplete>
+      <PercentComplete>85</PercentComplete>
       <PredecessorLink>
         <PredecessorUID>49</PredecessorUID>
         <Type>1</Type>
@@ -980,7 +980,7 @@
       <Finish>2026-10-20T17:00:00</Finish>
       <Milestone>0</Milestone>
       <Summary>0</Summary>
-      <PercentComplete>85</PercentComplete>
+      <PercentComplete>90</PercentComplete>
       <PredecessorLink>
         <PredecessorUID>47</PredecessorUID>
         <Type>1</Type>
@@ -1014,7 +1014,7 @@
       <Finish>2026-10-19T17:00:00</Finish>
       <Milestone>0</Milestone>
       <Summary>0</Summary>
-      <PercentComplete>90</PercentComplete>
+      <PercentComplete>95</PercentComplete>
       <PredecessorLink>
         <PredecessorUID>53</PredecessorUID>
         <Type>1</Type>
@@ -1031,7 +1031,7 @@
       <Finish>2026-10-21T17:00:00</Finish>
       <Milestone>0</Milestone>
       <Summary>0</Summary>
-      <PercentComplete>75</PercentComplete>
+      <PercentComplete>85</PercentComplete>
       <PredecessorLink>
         <PredecessorUID>47</PredecessorUID>
         <Type>1</Type>
@@ -1048,7 +1048,7 @@
       <Finish>2026-10-22T17:00:00</Finish>
       <Milestone>0</Milestone>
       <Summary>0</Summary>
-      <PercentComplete>70</PercentComplete>
+      <PercentComplete>80</PercentComplete>
       <PredecessorLink>
         <PredecessorUID>47</PredecessorUID>
         <Type>1</Type>
@@ -1065,7 +1065,7 @@
       <Finish>2026-10-23T17:00:00</Finish>
       <Milestone>0</Milestone>
       <Summary>0</Summary>
-      <PercentComplete>60</PercentComplete>
+      <PercentComplete>95</PercentComplete>
       <PredecessorLink>
         <PredecessorUID>50</PredecessorUID>
         <Type>1</Type>
@@ -1102,7 +1102,7 @@
       <Finish>2026-10-23T17:00:00</Finish>
       <Milestone>1</Milestone>
       <Summary>0</Summary>
-      <PercentComplete>0</PercentComplete>
+      <PercentComplete>75</PercentComplete>
       <PredecessorLink>
         <PredecessorUID>57</PredecessorUID>
         <Type>1</Type>
