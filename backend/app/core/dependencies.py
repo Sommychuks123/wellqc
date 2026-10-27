@@ -10,7 +10,7 @@ from typing import Optional
 from fastapi import Depends, HTTPException, Request, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from sqlalchemy.orm import Session
-from backend.app.core.database import get_db
+from backend.app.core.database import get_db, set_rls_context
 from backend.app.core.security import read_session_token
 from backend.app.models.models import User
 from backend.app.core.config import settings
@@ -22,10 +22,10 @@ logger = logging.getLogger("uvicorn.error")
 # OpenAPI security scheme for Swagger UI (/docs) Authorize button
 security_bearer = HTTPBearer(auto_error=False)
 
-def get_current_user_optional(
+def _resolve_session_user(
     request: Request,
-    bearer_creds: Optional[HTTPAuthorizationCredentials] = Depends(security_bearer),
-    db: Session = Depends(get_db),
+    bearer_creds: Optional[HTTPAuthorizationCredentials],
+    db: Session,
 ) -> Optional[User]:
     """
     Extracts and resolves the active user from the request context if present.
@@ -64,6 +64,22 @@ def get_current_user_optional(
     except Exception as e:
         logger.error(f"Error querying user session: {e}", exc_info=True)
         return None
+
+def get_current_user_optional(
+    request: Request,
+    bearer_creds: Optional[HTTPAuthorizationCredentials] = Depends(security_bearer),
+    db: Session = Depends(get_db),
+) -> Optional[User]:
+    """
+    Resolves the active user (see _resolve_session_user) and records that user in
+    the database session's row-level-security context. Every return path of the
+    resolver passes through here, including the "no token" and "unknown user"
+    paths, which set the no-user (default-deny) context.
+    """
+    user = _resolve_session_user(request, bearer_creds, db)
+    set_rls_context(db, user)
+    return user
+
 
 def get_current_user(
     current_user: Optional[User] = Depends(get_current_user_optional),
