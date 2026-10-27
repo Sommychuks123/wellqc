@@ -26,7 +26,9 @@ from backend.app.schemas.well import (
     WellListItem,
     BulkDeleteWellsRequest,
     BulkDeleteWellsResponse,
+    CompareWellsRequest,
 )
+from backend.app.services.comparison import compare_two_wells, WellComparisonResult
 
 logger = logging.getLogger("uvicorn.error")
 
@@ -297,6 +299,127 @@ def create_well(
     invalidate_wells_cache()
 
     return {"well": _to_well_list_item(well)}
+
+
+def _extract_curves_matrix(well: Well) -> Tuple[Dict[str, Any], float, float, str]:
+    """Extract depth array and curves dict from the well's latest LAS file."""
+    latest_las_file = None
+    if well.lasFiles:
+        sorted_las = sorted(
+            well.lasFiles,
+            key=lambda lf: lf.createdAt or datetime.min.replace(tzinfo=timezone.utc),
+            reverse=True,
+        )
+        latest_las_file = sorted_las[0]
+
+    depth_array: List[float] = []
+    curves_dict: Dict[str, List[float]] = {}
+    start_depth = latest_las_file.startDepth if latest_las_file and latest_las_file.startDepth is not None else 0.0
+    stop_depth = latest_las_file.stopDepth if latest_las_file and latest_las_file.stopDepth is not None else (well.tdFt or 0.0)
+    depth_unit = latest_las_file.depthUnit if latest_las_file and latest_las_file.depthUnit else (well.depthUnit or "FT")
+
+    if latest_las_file and latest_las_file.curves:
+        for c in latest_las_file.curves:
+            try:
+                pts = json.loads(c.dataJson) if c.dataJson else []
+            except Exception:
+                pts = []
+
+            # Extract depth array from first curve with valid points
+            if not depth_array and pts:
+                depth_array = [float(p.get("depth", 0.0)) for p in pts if isinstance(p, dict) and "depth" in p]
+
+            vals = [float(p.get("value", -999.25)) for p in pts if isinstance(p, dict) and "value" in p]
+            curves_dict[c.originalMnemonic.upper()] = vals
+            if c.standardMnemonic and c.standardMnemonic.upper() != c.originalMnemonic.upper():
+                curves_dict[c.standardMnemonic.upper()] = vals
+
+    curves_matrix = {
+        "depth": depth_array,
+        "curves": curves_dict,
+    }
+    return curves_matrix, start_depth, stop_depth, depth_unit
+
+
+@router.post("/compare")
+def compare_wells_endpoint(
+    payload: CompareWellsRequest,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    primary_id = (payload.primary_well_id or "").strip()
+    offset_id = (payload.offset_well_id or "").strip()
+
+    if not primary_id or not offset_id:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Both primary_well_id and offset_well_id are required.",
+        )
+
+    # Fetch both wells
+    wells = (
+        db.query(Well)
+        .options(
+            selectinload(Well.owner),
+            selectinload(Well.lasFiles).selectinload(LASFile.curves),
+        )
+        .filter(
+            or_(
+                Well.id == primary_id,
+                Well.apiNo == primary_id,
+                Well.name == primary_id,
+                Well.id == offset_id,
+                Well.apiNo == offset_id,
+                Well.name == offset_id,
+            )
+        )
+        .all()
+    )
+
+    well_a = next((w for w in wells if w.id == primary_id or w.apiNo == primary_id or w.name == primary_id), None)
+    well_b = next((w for w in wells if w.id == offset_id or w.apiNo == offset_id or w.name == offset_id), None)
+
+    if not well_a:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Primary well '{primary_id}' not found.",
+        )
+    if not well_b:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Offset comparison well '{offset_id}' not found.",
+        )
+
+    # RBAC check: ADMIN or well owner
+    is_admin = (normalize_role(current_user.role) == "ADMIN")
+    if not is_admin:
+        if well_a.ownerId != current_user.id:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail=f"Access denied: You do not own primary well '{well_a.name}'.",
+            )
+        if well_b.ownerId != current_user.id:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail=f"Access denied: You do not own offset well '{well_b.name}'.",
+            )
+
+    matrix_a, _, _, unit_a = _extract_curves_matrix(well_a)
+    matrix_b, _, _, unit_b = _extract_curves_matrix(well_b)
+
+    num_pts = min(1000, max(50, payload.num_resample_points or 400))
+    result = compare_two_wells(
+        well_a_id=well_a.id,
+        well_a_name=well_a.name,
+        curves_data_a=matrix_a,
+        well_b_id=well_b.id,
+        well_b_name=well_b.name,
+        curves_data_b=matrix_b,
+        depth_unit=unit_a or unit_b or "FT",
+        num_resample_points=num_pts,
+    )
+
+    return result.model_dump()
 
 
 @router.get("/{id}")

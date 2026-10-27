@@ -114,3 +114,16 @@ class BulkDeleteWellsResponse(BaseModel):
     deletedCount: int
     deletedIds: List[str]
     message: str
+
+class CompareWellsRequest(BaseModel):
+    primary_well_id: str
+    offset_well_id: str
+    num_resample_points: Optional[int] = 400
+
+    @field_validator("primary_well_id", "offset_well_id")
+    @classmethod
+    def validate_well_id(cls, v: str) -> str:
+        threat = detect_sql_injection(v, "well_id")
+        if threat:
+            raise ValueError(f"Malicious identifier detected: {threat}")
+        return validate_safe_identifier(v, "Well ID", max_len=64)

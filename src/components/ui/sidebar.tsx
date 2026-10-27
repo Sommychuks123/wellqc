@@ -17,6 +17,8 @@ import {
   ChevronLeft,
   ChevronRight,
   Sparkles,
+  GitCompare,
+  FileText,
 } from "lucide-react";
 import { WellQCIcon } from "./wellqc-logo";
 
@@ -112,12 +114,14 @@ export function Sidebar({ currentRole, mobileOpen = false, onCloseMobileNav }: S
       items: [
         { label: "Standardisation", href: "/standardisation", icon: Layers, badge: "RP 66" },
         { label: "Quality Engine", href: "/qa-engine", icon: ShieldCheck, isLive: true },
+        { label: "Well Comparison", href: "/comparison", icon: GitCompare, badge: "MULTI-WELL" },
         { label: "Subsurface Analytics", href: "/analytics", icon: BarChart3 },
       ],
     },
     {
       title: "Governance & Audit",
       items: [
+        { label: "Audit Reports", href: "/reports", icon: FileText, badge: "NUPRC" },
         { label: "Audit Trail", href: "/activity", icon: History },
         { label: "User Profile", href: "/profile", icon: User },
       ],
