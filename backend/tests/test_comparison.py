@@ -165,3 +165,112 @@ def test_compare_endpoint_validation():
         headers=headers,
     )
     assert res_404.status_code == 404
+
+
+def test_hybrid_formation_markers_api():
+    import uuid
+    from backend.app.models.models import Field, Operator
+    db = SessionLocal()
+    try:
+        user = db.query(User).filter(User.email == "analyst@wellqc.com").first()
+        if not user:
+            user = User(
+                id=str(uuid.uuid4()),
+                email="analyst@wellqc.com",
+                name="QC Analyst",
+                passwordHash="test_hash_secret_123",
+                role="USER",
+                department="Petrophysics",
+            )
+            db.add(user)
+            db.commit()
+            db.refresh(user)
+
+        field = db.query(Field).first()
+        if not field:
+            field = Field(name="Marker Test Field", basin="Niger Delta", country="Nigeria")
+            db.add(field)
+            db.commit()
+
+        op = db.query(Operator).first()
+        if not op:
+            op = Operator(name="Marker Test Op")
+            db.add(op)
+            db.commit()
+
+        well = Well(
+            id=str(uuid.uuid4()),
+            apiNo=f"MARKER-{uuid.uuid4().hex[:6]}",
+            name=f"Marker Test Well {uuid.uuid4().hex[:4]}",
+            operatorName=op.name,
+            fieldName=field.name,
+            basin="Niger Delta",
+            country="Nigeria",
+            latitude=4.85,
+            longitude=6.25,
+            elevFt=45.0,
+            tdFt=9500.0,
+            depthUnit="FT",
+            qualityScore=88,
+            qualityGrade="A",
+            ownerId=user.id,
+        )
+        db.add(well)
+        db.commit()
+        db.refresh(well)
+
+        token = create_session_token({
+            "id": user.id,
+            "email": user.email,
+            "name": user.name,
+            "role": user.role,
+        })
+        well_id = well.id
+    finally:
+        db.close()
+
+    headers = {"Authorization": f"Bearer {token}"}
+    client.cookies.set("wellqc_session", token)
+
+    # 1. GET markers when none exist -> returns estimation fallback
+    res_get = client.get(f"/api/wells/{well_id}/markers", headers=headers)
+    assert res_get.status_code == 200
+    markers = res_get.json().get("markers", [])
+    assert len(markers) >= 3
+    assert all(m["source"] == "ESTIMATED" for m in markers)
+
+    # 2. POST custom verified picks
+    verified_payload = {
+        "markers": [
+            {
+                "formationName": "Benin Formation",
+                "topDepth": 1150.0,
+                "source": "VERIFIED",
+                "notes": "Biostratigraphic top confirmation",
+            },
+            {
+                "formationName": "Agbada Formation",
+                "topDepth": 4200.0,
+                "source": "VERIFIED",
+                "notes": "Paralic reservoir sand top",
+            },
+            {
+                "formationName": "Akata Formation",
+                "topDepth": 8100.0,
+                "source": "VERIFIED",
+                "notes": "Marine shale baseline kick",
+            },
+        ]
+    }
+    res_post = client.post(f"/api/wells/{well_id}/markers", json=verified_payload, headers=headers)
+    assert res_post.status_code == 200
+    assert res_post.json()["count"] == 3
+
+    # 3. GET markers again -> returns verified interpreter picks
+    res_get2 = client.get(f"/api/wells/{well_id}/markers", headers=headers)
+    assert res_get2.status_code == 200
+    markers2 = res_get2.json().get("markers", [])
+    assert len(markers2) == 3
+    assert all(m["source"] == "VERIFIED" for m in markers2)
+    benin = next(m for m in markers2 if "Benin" in m["formationName"])
+    assert benin["topDepth"] == 1150.0

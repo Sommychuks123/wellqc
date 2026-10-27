@@ -29,6 +29,8 @@ class FormationMarkerComparison(BaseModel):
     formation_name: str
     top_depth_well_a: Optional[float] = None
     top_depth_well_b: Optional[float] = None
+    source_well_a: str = "ESTIMATED"
+    source_well_b: str = "ESTIMATED"
     thickness_difference: Optional[float] = None
     structural_dip_indicator: Optional[str] = None
 
@@ -163,6 +165,8 @@ def compare_two_wells(
     curves_data_b: Dict[str, Any],
     depth_unit: str = "FT",
     num_resample_points: int = 400,
+    db_markers_a: Optional[List[Dict[str, Any]]] = None,
+    db_markers_b: Optional[List[Dict[str, Any]]] = None,
 ) -> WellComparisonResult:
     """
     Perform multi-well correlation, depth alignment, and petrophysical comparison between two offset wells.
@@ -352,14 +356,39 @@ def compare_two_wells(
 
     rec_shift = round(float(np.median(primary_lags)), 2) if primary_lags else 0.0
 
-    # Regional Formation Markers Alignment
-    tops_a = _estimate_formations(depth_a_raw, curves_a_dict)
-    tops_b = _estimate_formations(depth_b_raw, curves_b_dict)
+    # Regional Formation Markers Alignment (Hybrid: DB Verified Picks + Algorithmic Fallback)
+    estimated_a = _estimate_formations(depth_a_raw, curves_a_dict)
+    estimated_b = _estimate_formations(depth_b_raw, curves_b_dict)
+
+    saved_map_a = {m.get("formationName", ""): m for m in (db_markers_a or []) if isinstance(m, dict)}
+    saved_map_b = {m.get("formationName", ""): m for m in (db_markers_b or []) if isinstance(m, dict)}
+
+    marker_names = ["Benin", "Agbada", "Akata"]
+    for k in list(saved_map_a.keys()) + list(saved_map_b.keys()):
+        clean_k = k.replace(" Formation", "").strip()
+        if clean_k and clean_k not in marker_names:
+            marker_names.append(clean_k)
 
     formation_markers: List[FormationMarkerComparison] = []
-    for fname in ["Benin", "Agbada", "Akata"]:
-        ta = tops_a.get(fname)
-        tb = tops_b.get(fname)
+    for base_name in marker_names:
+        # Check Well A
+        match_a = saved_map_a.get(base_name) or saved_map_a.get(f"{base_name} Formation")
+        if match_a and match_a.get("topDepth") is not None:
+            ta = float(match_a["topDepth"])
+            src_a = match_a.get("source", "VERIFIED")
+        else:
+            ta = estimated_a.get(base_name)
+            src_a = "ESTIMATED"
+
+        # Check Well B
+        match_b = saved_map_b.get(base_name) or saved_map_b.get(f"{base_name} Formation")
+        if match_b and match_b.get("topDepth") is not None:
+            tb = float(match_b["topDepth"])
+            src_b = match_b.get("source", "VERIFIED")
+        else:
+            tb = estimated_b.get(base_name)
+            src_b = "ESTIMATED"
+
         thick_diff = round(tb - ta, 1) if (ta is not None and tb is not None) else None
         
         dip_indicator = None
@@ -372,9 +401,11 @@ def compare_two_wells(
                 dip_indicator = f"STRUCTURAL UPLIFT (+{abs(thick_diff)} {depth_unit})"
 
         formation_markers.append(FormationMarkerComparison(
-            formation_name=f"{fname} Formation",
+            formation_name=f"{base_name} Formation" if not base_name.endswith("Formation") else base_name,
             top_depth_well_a=ta,
             top_depth_well_b=tb,
+            source_well_a=src_a,
+            source_well_b=src_b,
             thickness_difference=thick_diff,
             structural_dip_indicator=dip_indicator,
         ))

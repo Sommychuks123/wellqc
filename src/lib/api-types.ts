@@ -652,10 +652,23 @@ export interface CurveCorrelationStat {
   max_b: number;
 }
 
+export interface FormationMarkerItem {
+  id?: string | null;
+  wellId?: string;
+  formationName: string;
+  topDepth: number;
+  bottomDepth?: number | null;
+  source?: string;
+  pickedBy?: string | null;
+  notes?: string | null;
+}
+
 export interface FormationMarkerComparison {
   formation_name: string;
   top_depth_well_a: number | null;
   top_depth_well_b: number | null;
+  source_well_a?: string;
+  source_well_b?: string;
   thickness_difference: number | null;
   structural_dip_indicator: string | null;
 }

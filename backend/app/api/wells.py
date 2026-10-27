@@ -1,3 +1,4 @@
+import numpy as np
 from datetime import datetime, timezone
 import json
 import logging
@@ -14,6 +15,7 @@ from backend.app.models.models import (
     Anomaly,
     Curve,
     Field,
+    FormationMarker,
     LASFile,
     Operator,
     QualityReport,
@@ -27,6 +29,8 @@ from backend.app.schemas.well import (
     BulkDeleteWellsRequest,
     BulkDeleteWellsResponse,
     CompareWellsRequest,
+    FormationMarkerItem,
+    SaveFormationMarkersRequest,
 )
 from backend.app.services.comparison import compare_two_wells, WellComparisonResult
 
@@ -361,6 +365,7 @@ def compare_wells_endpoint(
         db.query(Well)
         .options(
             selectinload(Well.owner),
+            selectinload(Well.formationMarkers),
             selectinload(Well.lasFiles).selectinload(LASFile.curves),
         )
         .filter(
@@ -407,6 +412,15 @@ def compare_wells_endpoint(
     matrix_a, _, _, unit_a = _extract_curves_matrix(well_a)
     matrix_b, _, _, unit_b = _extract_curves_matrix(well_b)
 
+    markers_a_list = [
+        {"formationName": m.formationName, "topDepth": m.topDepth, "source": m.source}
+        for m in (well_a.formationMarkers or [])
+    ]
+    markers_b_list = [
+        {"formationName": m.formationName, "topDepth": m.topDepth, "source": m.source}
+        for m in (well_b.formationMarkers or [])
+    ]
+
     num_pts = min(1000, max(50, payload.num_resample_points or 400))
     result = compare_two_wells(
         well_a_id=well_a.id,
@@ -417,9 +431,154 @@ def compare_wells_endpoint(
         curves_data_b=matrix_b,
         depth_unit=unit_a or unit_b or "FT",
         num_resample_points=num_pts,
+        db_markers_a=markers_a_list,
+        db_markers_b=markers_b_list,
     )
 
     return result.model_dump()
+
+
+@router.get("/{id}/markers")
+def get_well_formation_markers(
+    id: str,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    clean_id = (id or "").strip()
+    well = (
+        db.query(Well)
+        .options(
+            selectinload(Well.formationMarkers),
+            selectinload(Well.lasFiles).selectinload(LASFile.curves),
+        )
+        .filter(or_(Well.id == clean_id, Well.apiNo == clean_id, Well.name == clean_id))
+        .first()
+    )
+    if not well:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Well '{clean_id}' not found.",
+        )
+
+    # Permission check: ADMIN or owner
+    is_admin = (normalize_role(current_user.role) == "ADMIN")
+    if not is_admin and well.ownerId != current_user.id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Access restricted to well owner or administrators.",
+        )
+
+    if well.formationMarkers:
+        return {
+            "markers": [
+                {
+                    "id": m.id,
+                    "wellId": m.wellId,
+                    "formationName": m.formationName,
+                    "topDepth": m.topDepth,
+                    "bottomDepth": m.bottomDepth,
+                    "source": m.source,
+                    "pickedBy": m.pickedBy,
+                    "notes": m.notes,
+                }
+                for m in well.formationMarkers
+            ]
+        }
+
+    # Algorithmic estimation fallback
+    matrix, _, _, _ = _extract_curves_matrix(well)
+    from backend.app.services.comparison import _estimate_formations
+    depths = np.array(matrix.get("depth", []))
+    if len(depths) == 0:
+        td = float(well.tdFt or 10000.0)
+        elev = float(well.elevFt or 0.0)
+        depths = np.linspace(elev, td, 100)
+    curves = {k: np.array(v) for k, v in matrix.get("curves", {}).items()}
+    estimated = _estimate_formations(depths, curves)
+
+    return {
+        "markers": [
+            {
+                "id": None,
+                "wellId": well.id,
+                "formationName": f"{fname} Formation",
+                "topDepth": top_depth,
+                "bottomDepth": None,
+                "source": "ESTIMATED",
+                "pickedBy": "Algorithmic Niger Delta Model",
+                "notes": "Estimated from log depth span and Gamma Ray baseline.",
+            }
+            for fname, top_depth in estimated.items()
+            if top_depth is not None
+        ]
+    }
+
+
+@router.post("/{id}/markers")
+def save_well_formation_markers(
+    id: str,
+    payload: SaveFormationMarkersRequest,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    clean_id = (id or "").strip()
+    well = (
+        db.query(Well)
+        .options(selectinload(Well.formationMarkers))
+        .filter(or_(Well.id == clean_id, Well.apiNo == clean_id, Well.name == clean_id))
+        .first()
+    )
+    if not well:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Well '{clean_id}' not found.",
+        )
+
+    # Permission check: ADMIN or owner
+    is_admin = (normalize_role(current_user.role) == "ADMIN")
+    if not is_admin and well.ownerId != current_user.id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Access restricted to well owner or administrators.",
+        )
+
+    # Replace existing markers with updated picks
+    db.query(FormationMarker).filter(FormationMarker.wellId == well.id).delete()
+    db.flush()
+
+    saved_items = []
+    for m in payload.markers:
+        new_marker = FormationMarker(
+            wellId=well.id,
+            formationName=m.formationName,
+            topDepth=m.topDepth,
+            bottomDepth=m.bottomDepth,
+            source=m.source or "VERIFIED",
+            pickedBy=m.pickedBy or current_user.name or current_user.email,
+            notes=m.notes,
+            ownerId=current_user.id,
+        )
+        db.add(new_marker)
+        saved_items.append(new_marker)
+
+    # Audit activity log
+    log = ActivityLog(
+        userName=current_user.name or "Petrophysicist",
+        userRole=normalize_role(current_user.role),
+        userId=current_user.id,
+        action="UPDATE_FORMATION_MARKERS",
+        targetType="WELL",
+        targetId=well.id,
+        details=f"Updated {len(saved_items)} formation marker tops for well {well.name}.",
+    )
+    db.add(log)
+    db.commit()
+
+    return {
+        "success": True,
+        "count": len(saved_items),
+        "message": f"Successfully saved {len(saved_items)} formation markers for well {well.name}.",
+    }
 
 
 @router.get("/{id}")
