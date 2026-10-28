@@ -23,6 +23,7 @@ class CurveCorrelationStat(BaseModel):
     max_a: float
     min_b: float
     max_b: float
+    availability: str = "BOTH"
 
 
 class FormationMarkerComparison(BaseModel):
@@ -45,6 +46,8 @@ class WellComparisonResult(BaseModel):
     overlap_span: float
     depth_unit: str = "FT"
     common_curves: List[str]
+    curves_well_a_only: List[str] = Field(default_factory=list)
+    curves_well_b_only: List[str] = Field(default_factory=list)
     composite_correlation_score: float
     overall_match_grade: str
     recommended_depth_shift: float
@@ -217,19 +220,20 @@ def compare_two_wells(
     common_depth_grid = np.linspace(overlap_start, overlap_stop, num_resample_points)
     grid_step = (overlap_stop - overlap_start) / max(1, num_resample_points - 1)
 
-    # Identify matching curves (case-insensitive canonical lookup)
-    keys_a = {k.upper(): k for k in curves_a_dict.keys()}
-    keys_b = {k.upper(): k for k in curves_b_dict.keys()}
-    shared_mnemonics = sorted(list(set(keys_a.keys()) & set(keys_b.keys())))
+    # Identify matching curves (case-insensitive canonical lookup), excluding depth/index axes
+    index_channels = {"DEPTH", "DEPT", "TIME", "INDEX"}
+    keys_a = {k.upper(): k for k in curves_a_dict.keys() if k.upper() not in index_channels}
+    keys_b = {k.upper(): k for k in curves_b_dict.keys() if k.upper() not in index_channels}
+
+    shared_set = set(keys_a.keys()) & set(keys_b.keys())
+    only_a_set = set(keys_a.keys()) - set(keys_b.keys())
+    only_b_set = set(keys_b.keys()) - set(keys_a.keys())
 
     # Always prioritize primary petrophysical channels first
     priority_order = ["GR", "RT", "ILD", "RHOB", "NPHI", "DT", "CALI", "SP", "PEF"]
-    sorted_shared = []
-    for p in priority_order:
-        if p in shared_mnemonics:
-            sorted_shared.append(p)
-            shared_mnemonics.remove(p)
-    sorted_shared.extend(shared_mnemonics)
+    sorted_shared = [p for p in priority_order if p in shared_set] + sorted([p for p in shared_set if p not in priority_order])
+    sorted_only_a = [p for p in priority_order if p in only_a_set] + sorted([p for p in only_a_set if p not in priority_order])
+    sorted_only_b = [p for p in priority_order if p in only_b_set] + sorted([p for p in only_b_set if p not in priority_order])
 
     correlations: List[CurveCorrelationStat] = []
     resampled_a: Dict[str, List[float]] = {}
@@ -250,6 +254,7 @@ def compare_two_wells(
     total_weight = 0.0
     primary_lags: List[float] = []
 
+    # 1. Process Shared Channels (Correlated across both wells)
     for m in sorted_shared:
         orig_key_a = keys_a[m]
         orig_key_b = keys_b[m]
@@ -327,6 +332,7 @@ def compare_two_wells(
             max_a=round(float(np.max(pair_a)), 2),
             min_b=round(float(np.min(pair_b)), 2),
             max_b=round(float(np.max(pair_b)), 2),
+            availability="BOTH",
         )
         correlations.append(stat)
 
@@ -339,6 +345,94 @@ def compare_two_wells(
         score_contrib = max(0.0, (r + 1.0) / 2.0 * 100.0)
         weighted_score_sum += score_contrib * w
         total_weight += w
+
+    # 2. Process Primary Well Only Channels (Well A only)
+    for m in sorted_only_a:
+        orig_key_a = keys_a[m]
+        v_a = to_float_array(curves_a_dict[orig_key_a])
+        clean_d_a, clean_v_a = _clean_curve_series(depth_a_raw, v_a)
+        if len(clean_d_a) == 0:
+            continue
+
+        interp_a = np.interp(common_depth_grid, clean_d_a, clean_v_a, left=np.nan, right=np.nan)
+        valid_a = np.isfinite(interp_a)
+        n_valid = int(np.sum(valid_a))
+
+        if n_valid > 0:
+            vals = interp_a[valid_a]
+            mean_a = round(float(np.mean(vals)), 2)
+            min_a = round(float(np.min(vals)), 2)
+            max_a = round(float(np.max(vals)), 2)
+        else:
+            n_valid = len(clean_v_a)
+            mean_a = round(float(np.mean(clean_v_a)), 2)
+            min_a = round(float(np.min(clean_v_a)), 2)
+            max_a = round(float(np.max(clean_v_a)), 2)
+
+        stat = CurveCorrelationStat(
+            mnemonic=m,
+            sample_count=n_valid,
+            pearson_r=0.0,
+            rmsd=0.0,
+            mae=0.0,
+            optimal_lag_depth=0.0,
+            max_correlation_at_lag=0.0,
+            stratigraphic_continuity="PRIMARY_ONLY",
+            mean_a=mean_a,
+            mean_b=0.0,
+            min_a=min_a,
+            max_a=max_a,
+            min_b=0.0,
+            max_b=0.0,
+            availability="WELL_A_ONLY",
+        )
+        correlations.append(stat)
+        resampled_a[m] = [round(float(x), 2) if np.isfinite(x) else -999.25 for x in interp_a]
+        resampled_b[m] = [-999.25] * len(common_depth_grid)
+
+    # 3. Process Offset Well Only Channels (Well B only)
+    for m in sorted_only_b:
+        orig_key_b = keys_b[m]
+        v_b = to_float_array(curves_b_dict[orig_key_b])
+        clean_d_b, clean_v_b = _clean_curve_series(depth_b_raw, v_b)
+        if len(clean_d_b) == 0:
+            continue
+
+        interp_b = np.interp(common_depth_grid, clean_d_b, clean_v_b, left=np.nan, right=np.nan)
+        valid_b = np.isfinite(interp_b)
+        n_valid = int(np.sum(valid_b))
+
+        if n_valid > 0:
+            vals = interp_b[valid_b]
+            mean_b = round(float(np.mean(vals)), 2)
+            min_b = round(float(np.min(vals)), 2)
+            max_b = round(float(np.max(vals)), 2)
+        else:
+            n_valid = len(clean_v_b)
+            mean_b = round(float(np.mean(clean_v_b)), 2)
+            min_b = round(float(np.min(clean_v_b)), 2)
+            max_b = round(float(np.max(clean_v_b)), 2)
+
+        stat = CurveCorrelationStat(
+            mnemonic=m,
+            sample_count=n_valid,
+            pearson_r=0.0,
+            rmsd=0.0,
+            mae=0.0,
+            optimal_lag_depth=0.0,
+            max_correlation_at_lag=0.0,
+            stratigraphic_continuity="OFFSET_ONLY",
+            mean_a=0.0,
+            mean_b=mean_b,
+            min_a=0.0,
+            max_a=0.0,
+            min_b=min_b,
+            max_b=max_b,
+            availability="WELL_B_ONLY",
+        )
+        correlations.append(stat)
+        resampled_a[m] = [-999.25] * len(common_depth_grid)
+        resampled_b[m] = [round(float(x), 2) if np.isfinite(x) else -999.25 for x in interp_b]
 
     if total_weight > 0:
         composite_score = round(weighted_score_sum / total_weight, 1)
@@ -419,7 +513,9 @@ def compare_two_wells(
         overlap_stop_depth=round(overlap_stop, 1),
         overlap_span=overlap_span,
         depth_unit=depth_unit,
-        common_curves=[c.mnemonic for c in correlations],
+        common_curves=[c.mnemonic for c in correlations if c.availability == "BOTH"],
+        curves_well_a_only=[c.mnemonic for c in correlations if c.availability == "WELL_A_ONLY"],
+        curves_well_b_only=[c.mnemonic for c in correlations if c.availability == "WELL_B_ONLY"],
         composite_correlation_score=composite_score,
         overall_match_grade=match_grade,
         recommended_depth_shift=rec_shift,

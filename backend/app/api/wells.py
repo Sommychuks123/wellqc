@@ -33,6 +33,7 @@ from backend.app.schemas.well import (
     SaveFormationMarkersRequest,
 )
 from backend.app.services.comparison import compare_two_wells, WellComparisonResult
+from backend.app.services.standardiser import standardise_mnemonic
 
 logger = logging.getLogger("uvicorn.error")
 
@@ -334,9 +335,17 @@ def _extract_curves_matrix(well: Well) -> Tuple[Dict[str, Any], float, float, st
                 depth_array = [float(p.get("depth", 0.0)) for p in pts if isinstance(p, dict) and "depth" in p]
 
             vals = [float(p.get("value", -999.25)) for p in pts if isinstance(p, dict) and "value" in p]
-            curves_dict[c.originalMnemonic.upper()] = vals
-            if c.standardMnemonic and c.standardMnemonic.upper() != c.originalMnemonic.upper():
+            orig_upper = c.originalMnemonic.upper()
+            curves_dict[orig_upper] = vals
+            if c.standardMnemonic and c.standardMnemonic.upper() != orig_upper:
                 curves_dict[c.standardMnemonic.upper()] = vals
+            else:
+                try:
+                    std_res = standardise_mnemonic(c.originalMnemonic, c.unit or "")
+                    if std_res and std_res.standard_mnemonic and std_res.standard_mnemonic.upper() != orig_upper:
+                        curves_dict[std_res.standard_mnemonic.upper()] = vals
+                except Exception:
+                    pass
 
     curves_matrix = {
         "depth": depth_array,

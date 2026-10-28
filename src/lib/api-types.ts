@@ -643,13 +643,14 @@ export interface CurveCorrelationStat {
   mae: number;
   optimal_lag_depth: number;
   max_correlation_at_lag: number;
-  stratigraphic_continuity: "HIGH" | "MODERATE" | "LOW" | "DISCONTINUOUS";
+  stratigraphic_continuity: "HIGH" | "MODERATE" | "LOW" | "DISCONTINUOUS" | "PRIMARY_ONLY" | "OFFSET_ONLY" | string;
   mean_a: number;
   mean_b: number;
   min_a: number;
   max_a: number;
   min_b: number;
   max_b: number;
+  availability?: "BOTH" | "WELL_A_ONLY" | "WELL_B_ONLY";
 }
 
 export interface FormationMarkerItem {
@@ -683,6 +684,8 @@ export interface WellComparisonResult {
   overlap_span: number;
   depth_unit: string;
   common_curves: string[];
+  curves_well_a_only?: string[];
+  curves_well_b_only?: string[];
   composite_correlation_score: number;
   overall_match_grade: string;
   recommended_depth_shift: number;

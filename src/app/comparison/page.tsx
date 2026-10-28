@@ -9,8 +9,8 @@ import {
   UploadCloud,
   ArrowLeftRight,
   TrendingUp,
-  Layers,
   Activity,
+  Layers,
   Download,
   CheckCircle2,
   AlertTriangle,
@@ -18,11 +18,6 @@ import {
   BarChart2,
   Sliders,
   Maximize2,
-  Edit3,
-  Plus,
-  Trash2,
-  X,
-  ShieldCheck,
 } from "lucide-react";
 import { WellLogViewer } from "@/components/well-log/log-viewer";
 import {
@@ -30,11 +25,10 @@ import {
   WellListItem,
   WellComparisonResult,
   CurveCorrelationStat,
-  FormationMarkerItem,
 } from "@/lib/api-types";
 import { safeReadJson } from "@/lib/http-client";
 
-type ComparisonTab = "analytics" | "overlay" | "sideBySide" | "markers";
+type ComparisonTab = "analytics" | "overlay" | "sideBySide";
 
 export default function ComparisonPage() {
   const [wells, setWells] = useState<WellListItem[]>([]);
@@ -45,19 +39,31 @@ export default function ComparisonPage() {
   const [comparison, setComparison] = useState<WellComparisonResult | null>(null);
   const [activeTab, setActiveTab] = useState<ComparisonTab>("analytics");
   const [selectedOverlayCurve, setSelectedOverlayCurve] = useState<string>("");
+  const [matrixFilter, setMatrixFilter] = useState<"ALL" | "COMMON" | "PRIMARY_ONLY" | "OFFSET_ONLY">("ALL");
   const [resampleDensity, setResampleDensity] = useState<number>(400);
   const [isLoadingWells, setIsLoadingWells] = useState(true);
   const [isComparing, setIsComparing] = useState(false);
   const [error, setError] = useState("");
 
-  // Formation markers editing modal state
-  const [isMarkersModalOpen, setIsMarkersModalOpen] = useState(false);
-  const [editingWellId, setEditingWellId] = useState("");
-  const [editMarkersList, setEditMarkersList] = useState<FormationMarkerItem[]>([]);
-  const [isLoadingModalMarkers, setIsLoadingModalMarkers] = useState(false);
-  const [isSavingMarkers, setIsSavingMarkers] = useState(false);
-  const [markerModalMsg, setMarkerModalMsg] = useState("");
-  const [comparisonTrigger, setComparisonTrigger] = useState(0);
+  const filteredCorrelations = useMemo(() => {
+    if (!comparison) return [];
+    if (matrixFilter === "COMMON") {
+      return comparison.curve_correlations.filter(
+        (c) => !c.availability || c.availability === "BOTH"
+      );
+    }
+    if (matrixFilter === "PRIMARY_ONLY") {
+      return comparison.curve_correlations.filter(
+        (c) => c.availability === "WELL_A_ONLY"
+      );
+    }
+    if (matrixFilter === "OFFSET_ONLY") {
+      return comparison.curve_correlations.filter(
+        (c) => c.availability === "WELL_B_ONLY"
+      );
+    }
+    return comparison.curve_correlations;
+  }, [comparison, matrixFilter]);
 
   // Load committed wells list
   useEffect(() => {
@@ -172,65 +178,7 @@ export default function ComparisonPage() {
     return () => {
       cancelled = true;
     };
-  }, [well1, well2, resampleDensity, comparisonTrigger]);
-
-  const openMarkersModal = async (targetWellId: string) => {
-    setEditingWellId(targetWellId);
-    setIsMarkersModalOpen(true);
-    setIsLoadingModalMarkers(true);
-    setMarkerModalMsg("");
-
-    try {
-      const res = await fetch(`/api/wells/${targetWellId}/markers`, { cache: "no-store" });
-      const json = await safeReadJson<{ markers: FormationMarkerItem[] }>(res, "Unable to load markers.");
-      if (json.ok && json.data && json.data.markers && json.data.markers.length > 0) {
-        setEditMarkersList(json.data.markers);
-      } else {
-        setEditMarkersList([
-          { formationName: "Benin Formation", topDepth: 1000, source: "VERIFIED", notes: "Regional alluvial sand" },
-          { formationName: "Agbada Formation", topDepth: 3500, source: "VERIFIED", notes: "Hydrocarbon parasequence" },
-          { formationName: "Akata Formation", topDepth: 7500, source: "VERIFIED", notes: "Prodelta marine shale" },
-        ]);
-      }
-    } catch {
-      setEditMarkersList([
-        { formationName: "Benin Formation", topDepth: 1000, source: "VERIFIED", notes: "Regional alluvial sand" },
-        { formationName: "Agbada Formation", topDepth: 3500, source: "VERIFIED", notes: "Hydrocarbon parasequence" },
-        { formationName: "Akata Formation", topDepth: 7500, source: "VERIFIED", notes: "Prodelta marine shale" },
-      ]);
-    } finally {
-      setIsLoadingModalMarkers(false);
-    }
-  };
-
-  const handleSaveMarkers = async () => {
-    if (!editingWellId) return;
-    setIsSavingMarkers(true);
-    setMarkerModalMsg("");
-
-    try {
-      const res = await fetch(`/api/wells/${editingWellId}/markers`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ markers: editMarkersList }),
-      });
-      const json = await safeReadJson<{ success: boolean; message: string }>(res, "Failed to save formation markers.");
-      if (json.ok) {
-        setMarkerModalMsg("Formation tops saved successfully!");
-        setComparisonTrigger((prev) => prev + 1);
-        setTimeout(() => {
-          setIsMarkersModalOpen(false);
-          setMarkerModalMsg("");
-        }, 800);
-      } else {
-        setMarkerModalMsg(json.error || "Failed to save formation markers.");
-      }
-    } catch (err) {
-      setMarkerModalMsg(err instanceof Error ? err.message : "Failed to save formation markers.");
-    } finally {
-      setIsSavingMarkers(false);
-    }
-  };
+  }, [well1, well2, resampleDensity]);
 
   const handleSwapWells = () => {
     const temp = well1;
@@ -302,9 +250,7 @@ export default function ComparisonPage() {
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-wellqc-panel/60 border border-wellqc-border p-5 rounded-2xl shadow-xl backdrop-blur-md">
           <div>
             <div className="flex items-center space-x-2">
-              <span className="px-2.5 py-0.5 rounded text-[10px] font-mono font-bold uppercase bg-blue-500/20 text-cyan-300 border border-cyan-500/40">
-                Sprint 7 Feature &bull; Multi-Well Petrophysics &amp; ML
-              </span>
+
               <span className="px-2.5 py-0.5 rounded text-[10px] font-mono font-bold uppercase bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
                 Cross-Well Telemetry
               </span>
@@ -436,13 +382,12 @@ export default function ComparisonPage() {
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <div className="bg-wellqc-panel border border-wellqc-border p-4 rounded-xl flex items-center space-x-3.5">
                   <div
-                    className={`w-12 h-12 rounded-xl flex items-center justify-center font-black text-base ${
-                      comparison.composite_correlation_score >= 80
+                    className={`w-12 h-12 rounded-xl flex items-center justify-center font-black text-base ${comparison.composite_correlation_score >= 80
                         ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30"
                         : comparison.composite_correlation_score >= 60
-                        ? "bg-amber-500/20 text-amber-400 border border-amber-500/30"
-                        : "bg-red-500/20 text-red-400 border border-red-500/30"
-                    }`}
+                          ? "bg-amber-500/20 text-amber-400 border border-amber-500/30"
+                          : "bg-red-500/20 text-red-400 border border-red-500/30"
+                      }`}
                   >
                     {Math.round(comparison.composite_correlation_score)}%
                   </div>
@@ -472,8 +417,8 @@ export default function ComparisonPage() {
                       {comparison.recommended_depth_shift > 0
                         ? "Down-dip / Normal Fault"
                         : comparison.recommended_depth_shift < 0
-                        ? "Up-dip / Reverse Fault"
-                        : "Stratigraphically Flat"}
+                          ? "Up-dip / Reverse Fault"
+                          : "Stratigraphically Flat"}
                     </span>
                   </div>
                 </div>
@@ -502,13 +447,13 @@ export default function ComparisonPage() {
                   </div>
                   <div>
                     <span className="text-[10px] font-mono text-wellqc-muted uppercase block">
-                      Common Curves
+                      Channel Suite
                     </span>
                     <span className="text-xs font-bold text-white block">
-                      {comparison.common_curves.length} Channels
+                      {comparison.curve_correlations.length} Channels Total
                     </span>
-                    <span className="text-[9px] font-mono text-cyan-300 truncate block max-w-[120px]">
-                      {comparison.common_curves.join(", ")}
+                    <span className="text-[9px] font-mono text-cyan-300 truncate block max-w-[140px]">
+                      {comparison.common_curves.length} Common ({comparison.common_curves.join(", ")})
                     </span>
                   </div>
                 </div>
@@ -537,13 +482,6 @@ export default function ComparisonPage() {
                 icon={Sliders}
                 label="Side-by-Side Dual Log Tracks"
               />
-              <TabButton
-                active={activeTab === "markers"}
-                onClick={() => setActiveTab("markers")}
-                icon={Layers}
-                label="Formation Markers & Structural Dip"
-                badge="Niger Delta"
-              />
             </div>
 
             {/* TAB CONTENT 1: CORRELATION ANALYTICS MATRIX */}
@@ -556,21 +494,59 @@ export default function ComparisonPage() {
                   </div>
                 ) : !comparison || comparison.curve_correlations.length === 0 ? (
                   <div className="p-6 bg-wellqc-panel border border-wellqc-border rounded-xl text-center text-xs font-mono text-wellqc-muted">
-                    No shared petrophysical curve channels detected across the common depth interval.
+                    No petrophysical curve channels detected across the common depth interval.
                   </div>
                 ) : (
                   <div className="bg-wellqc-panel border border-wellqc-border rounded-2xl overflow-hidden shadow-lg">
-                    <div className="p-4 border-b border-wellqc-border bg-wellqc-card/40 flex items-center justify-between">
+                    <div className="p-4 border-b border-wellqc-border bg-wellqc-card/40 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                       <div className="flex items-center space-x-2">
                         <TrendingUp className="w-4 h-4 text-cyan-400" />
                         <h3 className="text-xs font-mono font-bold text-white uppercase tracking-wider">
                           Cross-Well Petrophysical Correlation Matrix
                         </h3>
+                        <span className="px-2 py-0.5 rounded-full text-[9px] font-mono bg-cyan-500/10 text-cyan-300 border border-cyan-500/30">
+                          {comparison.curve_correlations.length} Channels Total
+                        </span>
                       </div>
-                      <span className="text-[10px] font-mono text-wellqc-muted">
-                        Depth Step: {(comparison.overlap_span / resampleDensity).toFixed(2)}{" "}
-                        {comparison.depth_unit}/sample
-                      </span>
+
+                      <div className="flex flex-wrap items-center gap-1.5 bg-wellqc-card/90 p-1 rounded-xl border border-wellqc-border text-[10px] font-mono">
+                        <button
+                          onClick={() => setMatrixFilter("ALL")}
+                          className={`px-2.5 py-1 rounded-lg transition ${matrixFilter === "ALL"
+                              ? "bg-cyan-500 text-slate-950 font-bold shadow-sm"
+                              : "text-wellqc-muted hover:text-white"
+                            }`}
+                        >
+                          All ({comparison.curve_correlations.length})
+                        </button>
+                        <button
+                          onClick={() => setMatrixFilter("COMMON")}
+                          className={`px-2.5 py-1 rounded-lg transition ${matrixFilter === "COMMON"
+                              ? "bg-emerald-500 text-slate-950 font-bold shadow-sm"
+                              : "text-emerald-400/80 hover:text-emerald-300"
+                            }`}
+                        >
+                          Shared ({comparison.common_curves.length})
+                        </button>
+                        <button
+                          onClick={() => setMatrixFilter("PRIMARY_ONLY")}
+                          className={`px-2.5 py-1 rounded-lg transition ${matrixFilter === "PRIMARY_ONLY"
+                              ? "bg-cyan-500 text-slate-950 font-bold shadow-sm"
+                              : "text-cyan-400/80 hover:text-cyan-300"
+                            }`}
+                        >
+                          Primary Only ({(comparison.curves_well_a_only || []).length})
+                        </button>
+                        <button
+                          onClick={() => setMatrixFilter("OFFSET_ONLY")}
+                          className={`px-2.5 py-1 rounded-lg transition ${matrixFilter === "OFFSET_ONLY"
+                              ? "bg-amber-500 text-slate-950 font-bold shadow-sm"
+                              : "text-amber-400/80 hover:text-amber-300"
+                            }`}
+                        >
+                          Offset Only ({(comparison.curves_well_b_only || []).length})
+                        </button>
+                      </div>
                     </div>
 
                     <div className="overflow-x-auto">
@@ -578,6 +554,7 @@ export default function ComparisonPage() {
                         <thead className="bg-wellqc-card/80 text-[10px] text-wellqc-muted uppercase border-b border-wellqc-border">
                           <tr>
                             <th className="py-3 px-4">Channel</th>
+                            <th className="py-3 px-4">Status</th>
                             <th className="py-3 px-4">Samples</th>
                             <th className="py-3 px-4">Pearson Correlation (r)</th>
                             <th className="py-3 px-4">Optimal Dip Shift (&Delta;z)</th>
@@ -589,71 +566,157 @@ export default function ComparisonPage() {
                           </tr>
                         </thead>
                         <tbody className="divide-y divide-wellqc-border">
-                          {comparison.curve_correlations.map((stat) => (
-                            <tr key={stat.mnemonic} className="hover:bg-wellqc-card/40 transition">
-                              <td className="py-3 px-4 font-bold text-white flex items-center space-x-2">
-                                <span className="w-2 h-2 rounded-full bg-cyan-400"></span>
-                                <span>{stat.mnemonic}</span>
-                              </td>
-                              <td className="py-3 px-4 text-wellqc-muted">{stat.sample_count}</td>
-                              <td className="py-3 px-4">
-                                <div className="flex items-center space-x-2">
-                                  <div className="w-16 bg-slate-800 rounded-full h-1.5 overflow-hidden">
-                                    <div
-                                      className={`h-full rounded-full ${
-                                        stat.pearson_r >= 0.7
-                                          ? "bg-emerald-400"
-                                          : stat.pearson_r >= 0.4
-                                          ? "bg-amber-400"
-                                          : "bg-red-400"
-                                      }`}
-                                      style={{
-                                        width: `${Math.max(5, Math.min(100, Math.abs(stat.pearson_r) * 100))}%`,
-                                      }}
-                                    ></div>
-                                  </div>
-                                  <span
-                                    className={`font-bold ${
-                                      stat.pearson_r >= 0.7
-                                        ? "text-emerald-400"
-                                        : stat.pearson_r >= 0.4
-                                        ? "text-amber-400"
-                                        : "text-red-400"
-                                    }`}
-                                  >
-                                    {stat.pearson_r.toFixed(3)}
-                                  </span>
-                                </div>
-                              </td>
-                              <td className="py-3 px-4 text-cyan-300">
-                                {stat.optimal_lag_depth > 0 ? "+" : ""}
-                                {stat.optimal_lag_depth.toFixed(1)} {comparison.depth_unit}
-                              </td>
-                              <td className="py-3 px-4 text-white">
-                                {stat.max_correlation_at_lag.toFixed(3)}
-                              </td>
-                              <td className="py-3 px-4">
-                                <span
-                                  className={`px-2 py-0.5 rounded text-[10px] font-bold ${
-                                    stat.stratigraphic_continuity === "HIGH"
-                                      ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30"
-                                      : stat.stratigraphic_continuity === "MODERATE"
-                                      ? "bg-amber-500/20 text-amber-400 border border-amber-500/30"
-                                      : "bg-red-500/20 text-red-400 border border-red-500/30"
-                                  }`}
-                                >
-                                  {stat.stratigraphic_continuity}
-                                </span>
-                              </td>
-                              <td className="py-3 px-4 text-wellqc-muted">{stat.rmsd.toFixed(2)}</td>
-                              <td className="py-3 px-4 text-[11px] text-cyan-300">
-                                {stat.min_a.toFixed(1)} &ndash; {stat.max_a.toFixed(1)}
-                              </td>
-                              <td className="py-3 px-4 text-[11px] text-amber-300">
-                                {stat.min_b.toFixed(1)} &ndash; {stat.max_b.toFixed(1)}
+                          {filteredCorrelations.length === 0 ? (
+                            <tr>
+                              <td colSpan={10} className="py-6 text-center text-wellqc-muted font-mono text-xs">
+                                No curves match the selected filter.
                               </td>
                             </tr>
-                          ))}
+                          ) : (
+                            filteredCorrelations.map((stat) => {
+                              const isShared = !stat.availability || stat.availability === "BOTH";
+                              const isPrimaryOnly = stat.availability === "WELL_A_ONLY";
+                              const isOffsetOnly = stat.availability === "WELL_B_ONLY";
+
+                              return (
+                                <tr key={stat.mnemonic} className="hover:bg-wellqc-card/40 transition">
+                                  <td className="py-3 px-4 font-bold text-white flex items-center space-x-2">
+                                    <span
+                                      className={`w-2 h-2 rounded-full ${isShared
+                                          ? "bg-emerald-400"
+                                          : isPrimaryOnly
+                                            ? "bg-cyan-400"
+                                            : "bg-amber-400"
+                                        }`}
+                                    ></span>
+                                    <span>{stat.mnemonic}</span>
+                                  </td>
+                                  <td className="py-3 px-4">
+                                    {isShared && (
+                                      <span className="px-2 py-0.5 rounded text-[9px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+                                        SHARED
+                                      </span>
+                                    )}
+                                    {isPrimaryOnly && (
+                                      <span className="px-2 py-0.5 rounded text-[9px] font-bold bg-cyan-500/20 text-cyan-300 border border-cyan-500/30">
+                                        PRIMARY ONLY
+                                      </span>
+                                    )}
+                                    {isOffsetOnly && (
+                                      <span className="px-2 py-0.5 rounded text-[9px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30">
+                                        OFFSET ONLY
+                                      </span>
+                                    )}
+                                  </td>
+                                  <td className="py-3 px-4 text-wellqc-muted">{stat.sample_count}</td>
+                                  <td className="py-3 px-4">
+                                    {isShared ? (
+                                      <div className="flex items-center space-x-2">
+                                        <div className="w-16 bg-slate-800 rounded-full h-1.5 overflow-hidden">
+                                          <div
+                                            className={`h-full rounded-full ${stat.pearson_r >= 0.7
+                                                ? "bg-emerald-400"
+                                                : stat.pearson_r >= 0.4
+                                                  ? "bg-amber-400"
+                                                  : "bg-red-400"
+                                              }`}
+                                            style={{
+                                              width: `${Math.max(5, Math.min(100, Math.abs(stat.pearson_r) * 100))}%`,
+                                            }}
+                                          ></div>
+                                        </div>
+                                        <span
+                                          className={`font-bold ${stat.pearson_r >= 0.7
+                                              ? "text-emerald-400"
+                                              : stat.pearson_r >= 0.4
+                                                ? "text-amber-400"
+                                                : "text-red-400"
+                                            }`}
+                                        >
+                                          {stat.pearson_r.toFixed(3)}
+                                        </span>
+                                      </div>
+                                    ) : (
+                                      <span className="text-[10px] text-wellqc-muted italic">
+                                        N/A (Single-well)
+                                      </span>
+                                    )}
+                                  </td>
+                                  <td className="py-3 px-4">
+                                    {isShared ? (
+                                      <span className="text-cyan-300">
+                                        {stat.optimal_lag_depth > 0 ? "+" : ""}
+                                        {stat.optimal_lag_depth.toFixed(1)} {comparison.depth_unit}
+                                      </span>
+                                    ) : (
+                                      <span className="text-wellqc-muted text-[11px]">&mdash;</span>
+                                    )}
+                                  </td>
+                                  <td className="py-3 px-4">
+                                    {isShared ? (
+                                      <span className="text-white">
+                                        {stat.max_correlation_at_lag.toFixed(3)}
+                                      </span>
+                                    ) : (
+                                      <span className="text-wellqc-muted text-[11px]">&mdash;</span>
+                                    )}
+                                  </td>
+                                  <td className="py-3 px-4">
+                                    {isShared ? (
+                                      <span
+                                        className={`px-2 py-0.5 rounded text-[10px] font-bold ${stat.stratigraphic_continuity === "HIGH"
+                                            ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30"
+                                            : stat.stratigraphic_continuity === "MODERATE"
+                                              ? "bg-amber-500/20 text-amber-400 border border-amber-500/30"
+                                              : "bg-red-500/20 text-red-400 border border-red-500/30"
+                                          }`}
+                                      >
+                                        {stat.stratigraphic_continuity}
+                                      </span>
+                                    ) : (
+                                      <span
+                                        className={`px-2 py-0.5 rounded text-[10px] font-bold ${isPrimaryOnly
+                                            ? "bg-cyan-500/20 text-cyan-300 border border-cyan-500/30"
+                                            : "bg-amber-500/20 text-amber-300 border border-amber-500/30"
+                                          }`}
+                                      >
+                                        {isPrimaryOnly ? "PRIMARY ONLY" : "OFFSET ONLY"}
+                                      </span>
+                                    )}
+                                  </td>
+                                  <td className="py-3 px-4">
+                                    {isShared ? (
+                                      <span className="text-wellqc-muted">{stat.rmsd.toFixed(2)}</span>
+                                    ) : (
+                                      <span className="text-wellqc-muted text-[11px]">&mdash;</span>
+                                    )}
+                                  </td>
+                                  <td className="py-3 px-4 text-[11px]">
+                                    {isShared || isPrimaryOnly ? (
+                                      <span className="text-cyan-300 font-mono">
+                                        {stat.min_a.toFixed(1)} &ndash; {stat.max_a.toFixed(1)}
+                                      </span>
+                                    ) : (
+                                      <span className="text-wellqc-muted italic text-[10px]">
+                                        Not Logged
+                                      </span>
+                                    )}
+                                  </td>
+                                  <td className="py-3 px-4 text-[11px]">
+                                    {isShared || isOffsetOnly ? (
+                                      <span className="text-amber-300 font-mono">
+                                        {stat.min_b.toFixed(1)} &ndash; {stat.max_b.toFixed(1)}
+                                      </span>
+                                    ) : (
+                                      <span className="text-wellqc-muted italic text-[10px]">
+                                        Not Logged
+                                      </span>
+                                    )}
+                                  </td>
+                                </tr>
+                              );
+                            })
+                          )}
                         </tbody>
                       </table>
                     </div>
@@ -677,11 +740,10 @@ export default function ComparisonPage() {
                             <button
                               key={`chan-${c}`}
                               onClick={() => setSelectedOverlayCurve(c)}
-                              className={`px-3 py-1 rounded-lg text-xs font-mono font-bold transition ${
-                                selectedOverlayCurve === c
+                              className={`px-3 py-1 rounded-lg text-xs font-mono font-bold transition ${selectedOverlayCurve === c
                                   ? "bg-cyan-500 text-slate-950 shadow"
                                   : "bg-wellqc-card border border-wellqc-border text-wellqc-muted hover:text-white"
-                              }`}
+                                }`}
                             >
                               {c}
                             </button>
@@ -700,6 +762,15 @@ export default function ComparisonPage() {
                         </span>
                       </div>
                     </div>
+
+                    {((comparison.curves_well_a_only?.length || 0) + (comparison.curves_well_b_only?.length || 0)) > 0 && (
+                      <div className="px-3.5 py-2 bg-slate-900/60 border border-wellqc-border rounded-xl text-[10px] font-mono text-wellqc-muted flex items-center space-x-2">
+                        <Info className="w-3.5 h-3.5 text-cyan-400 shrink-0" />
+                        <span>
+                          Cross-track overlay requires curves present in both wells. Single-well channels ({[...(comparison.curves_well_a_only || []), ...(comparison.curves_well_b_only || [])].join(", ")}) can be analyzed in the Side-by-Side Dual Log Tracks tab.
+                        </span>
+                      </div>
+                    )}
 
                     <OverlaidCurveTrack
                       comparison={comparison}
@@ -721,359 +792,9 @@ export default function ComparisonPage() {
                 <ComparisonPane detail={detail2} accent="amber" />
               </div>
             )}
-
-            {/* TAB CONTENT 4: FORMATION MARKERS & STRUCTURAL DIP */}
-            {activeTab === "markers" && (
-              <div className="space-y-4">
-                {comparison && comparison.formation_markers.length > 0 ? (
-                  <div className="bg-wellqc-panel border border-wellqc-border rounded-2xl overflow-hidden shadow-lg">
-                    <div className="p-4 border-b border-wellqc-border bg-wellqc-card/40 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                      <div className="flex items-center space-x-2">
-                        <Layers className="w-4 h-4 text-cyan-400" />
-                        <div>
-                          <h3 className="text-xs font-mono font-bold text-white uppercase tracking-wider">
-                            Stratigraphic Markers &amp; Structural Dip Alignment
-                          </h3>
-                          <span className="text-[10px] font-mono text-wellqc-muted">
-                            Hybrid System &bull; Verified Database Picks with Algorithmic Fallback
-                          </span>
-                        </div>
-                      </div>
-
-                      <div className="flex items-center space-x-2">
-                        <button
-                          onClick={() => openMarkersModal(well1)}
-                          className="px-3 py-1.5 rounded-lg bg-cyan-500/10 border border-cyan-500/40 hover:bg-cyan-500/20 text-cyan-300 font-mono text-[11px] font-bold flex items-center space-x-1.5 transition"
-                        >
-                          <Edit3 className="w-3.5 h-3.5" />
-                          <span>Edit {comparison.well_a_name} Tops</span>
-                        </button>
-                        <button
-                          onClick={() => openMarkersModal(well2)}
-                          className="px-3 py-1.5 rounded-lg bg-amber-500/10 border border-amber-500/40 hover:bg-amber-500/20 text-amber-300 font-mono text-[11px] font-bold flex items-center space-x-1.5 transition"
-                        >
-                          <Edit3 className="w-3.5 h-3.5" />
-                          <span>Edit {comparison.well_b_name} Tops</span>
-                        </button>
-                      </div>
-                    </div>
-
-                    <div className="p-5">
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                        {comparison.formation_markers.map((fm) => (
-                          <div
-                            key={fm.formation_name}
-                            className="bg-wellqc-card border border-wellqc-border p-4 rounded-xl space-y-2.5"
-                          >
-                            <div className="flex items-center justify-between">
-                              <span className="font-bold text-sm text-white">
-                                {fm.formation_name}
-                              </span>
-                              <span className="px-2 py-0.5 rounded text-[10px] font-mono bg-blue-500/10 text-cyan-400 border border-cyan-500/20">
-                                {fm.formation_name.includes("Benin")
-                                  ? "Continental Sands"
-                                  : fm.formation_name.includes("Agbada")
-                                  ? "Paralic Reservoir"
-                                  : fm.formation_name.includes("Akata")
-                                  ? "Marine Shales"
-                                  : "Target Reservoir"}
-                              </span>
-                            </div>
-
-                            <div className="space-y-2 text-xs font-mono">
-                              <div className="flex justify-between items-center text-wellqc-muted">
-                                <span>{comparison.well_a_name} Top:</span>
-                                <div className="text-right">
-                                  <span className="text-white font-bold block">
-                                    {fm.top_depth_well_a !== null && fm.top_depth_well_a !== undefined
-                                      ? `${fm.top_depth_well_a.toLocaleString()} ${comparison.depth_unit}`
-                                      : "N/A"}
-                                  </span>
-                                  <span
-                                    className={`text-[8px] font-bold px-1.5 py-0.2 rounded inline-block ${
-                                      fm.source_well_a === "VERIFIED" ||
-                                      fm.source_well_a === "INTERPRETER" ||
-                                      fm.source_well_a === "BIOSTRATIGRAPHY"
-                                        ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30"
-                                        : "bg-cyan-500/10 text-cyan-400 border border-cyan-500/20"
-                                    }`}
-                                  >
-                                    {fm.source_well_a === "VERIFIED" ||
-                                    fm.source_well_a === "INTERPRETER" ||
-                                    fm.source_well_a === "BIOSTRATIGRAPHY"
-                                      ? "● VERIFIED PICK"
-                                      : "● ESTIMATED"}
-                                  </span>
-                                </div>
-                              </div>
-
-                              <div className="flex justify-between items-center text-wellqc-muted pt-1 border-t border-wellqc-border/40">
-                                <span>{comparison.well_b_name} Top:</span>
-                                <div className="text-right">
-                                  <span className="text-amber-300 font-bold block">
-                                    {fm.top_depth_well_b !== null && fm.top_depth_well_b !== undefined
-                                      ? `${fm.top_depth_well_b.toLocaleString()} ${comparison.depth_unit}`
-                                      : "N/A"}
-                                  </span>
-                                  <span
-                                    className={`text-[8px] font-bold px-1.5 py-0.2 rounded inline-block ${
-                                      fm.source_well_b === "VERIFIED" ||
-                                      fm.source_well_b === "INTERPRETER" ||
-                                      fm.source_well_b === "BIOSTRATIGRAPHY"
-                                        ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30"
-                                        : "bg-amber-500/10 text-amber-400 border border-amber-500/20"
-                                    }`}
-                                  >
-                                    {fm.source_well_b === "VERIFIED" ||
-                                    fm.source_well_b === "INTERPRETER" ||
-                                    fm.source_well_b === "BIOSTRATIGRAPHY"
-                                      ? "● VERIFIED PICK"
-                                      : "● ESTIMATED"}
-                                  </span>
-                                </div>
-                              </div>
-
-                              <div className="flex justify-between items-center text-wellqc-muted pt-1 border-t border-wellqc-border/60">
-                                <span>Structural Dip &Delta;z:</span>
-                                <div className="text-right">
-                                  <span
-                                    className={`font-bold block ${
-                                      (fm.thickness_difference ?? 0) > 0
-                                        ? "text-red-400"
-                                        : (fm.thickness_difference ?? 0) < 0
-                                        ? "text-emerald-400"
-                                        : "text-white"
-                                    }`}
-                                  >
-                                    {fm.thickness_difference !== null && fm.thickness_difference !== undefined
-                                      ? `${fm.thickness_difference > 0 ? "+" : ""}${fm.thickness_difference.toFixed(
-                                          1
-                                        )} ${comparison.depth_unit}`
-                                      : "N/A"}
-                                  </span>
-                                  {fm.structural_dip_indicator && (
-                                    <span className="text-[9px] text-wellqc-muted block">
-                                      {fm.structural_dip_indicator}
-                                    </span>
-                                  )}
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-
-                      <div className="p-4 rounded-xl bg-wellqc-card/60 border border-wellqc-border flex items-start space-x-3 text-xs font-mono text-wellqc-muted">
-                        <Info className="w-4 h-4 text-cyan-400 mt-0.5 shrink-0" />
-                        <div>
-                          <p className="text-white font-bold">Hybrid Geological System Context:</p>
-                          <p className="mt-0.5 leading-relaxed">
-                            Green badges indicate <span className="text-emerald-400 font-bold">Verified Interpreter Picks</span> saved
-                            in the enterprise database. Blue/Amber badges represent{" "}
-                            <span className="text-cyan-300 font-bold">Algorithmic Estimates</span> calculated from
-                            regional Niger Delta Gamma Ray baseline signatures and depth span. Click the buttons above to
-                            override any top with your certified picks.
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="p-8 bg-wellqc-panel border border-wellqc-border rounded-xl text-center text-xs font-mono text-wellqc-muted">
-                    No stratigraphic marker data available for this pair.
-                  </div>
-                )}
-              </div>
-            )}
           </>
         )}
       </div>
-
-      {/* Edit Formation Tops Modal */}
-      {isMarkersModalOpen && (
-        <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-wellqc-panel border border-wellqc-border rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col shadow-2xl">
-            <div className="p-4 border-b border-wellqc-border bg-wellqc-card/60 flex items-center justify-between">
-              <div className="flex items-center space-x-2">
-                <Layers className="w-5 h-5 text-cyan-400" />
-                <div>
-                  <h3 className="text-sm font-bold text-white font-mono">
-                    Edit &amp; Verify Formation Tops
-                  </h3>
-                  <p className="text-[11px] font-mono text-wellqc-muted">
-                    Target Well:{" "}
-                    <span className="text-cyan-300 font-bold">
-                      {wells.find((w) => w.id === editingWellId)?.name || editingWellId}
-                    </span>
-                  </p>
-                </div>
-              </div>
-              <button
-                onClick={() => setIsMarkersModalOpen(false)}
-                className="p-1.5 rounded-lg text-wellqc-muted hover:text-white hover:bg-wellqc-card transition"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            </div>
-
-            <div className="p-5 overflow-y-auto space-y-4 flex-1 font-mono text-xs">
-              {isLoadingModalMarkers ? (
-                <div className="p-8 text-center text-cyan-300 flex items-center justify-center">
-                  <RefreshCw className="w-4 h-4 animate-spin mr-2" />
-                  Loading well markers...
-                </div>
-              ) : (
-                <>
-                  <div className="space-y-3">
-                    {editMarkersList.map((m, idx) => (
-                      <div
-                        key={`marker-${idx}`}
-                        className="p-3 bg-wellqc-card border border-wellqc-border rounded-xl grid grid-cols-1 sm:grid-cols-12 gap-3 items-center"
-                      >
-                        <div className="sm:col-span-4">
-                          <label className="text-[10px] text-wellqc-muted uppercase block mb-1">
-                            Formation Name
-                          </label>
-                          <input
-                            type="text"
-                            value={m.formationName}
-                            onChange={(e) => {
-                              const val = e.target.value;
-                              setEditMarkersList((prev) =>
-                                prev.map((item, i) => (i === idx ? { ...item, formationName: val } : item))
-                              );
-                            }}
-                            className="w-full bg-slate-900 border border-wellqc-border rounded-lg px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-cyan-400"
-                            placeholder="e.g. Agbada Formation"
-                          />
-                        </div>
-
-                        <div className="sm:col-span-3">
-                          <label className="text-[10px] text-wellqc-muted uppercase block mb-1">
-                            Top Depth ({comparison?.depth_unit || "FT"})
-                          </label>
-                          <input
-                            type="number"
-                            step="0.1"
-                            value={m.topDepth}
-                            onChange={(e) => {
-                              const val = parseFloat(e.target.value) || 0;
-                              setEditMarkersList((prev) =>
-                                prev.map((item, i) => (i === idx ? { ...item, topDepth: val } : item))
-                              );
-                            }}
-                            className="w-full bg-slate-900 border border-wellqc-border rounded-lg px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-cyan-400"
-                          />
-                        </div>
-
-                        <div className="sm:col-span-3">
-                          <label className="text-[10px] text-wellqc-muted uppercase block mb-1">
-                            Source
-                          </label>
-                          <select
-                            value={m.source || "VERIFIED"}
-                            onChange={(e) => {
-                              const val = e.target.value;
-                              setEditMarkersList((prev) =>
-                                prev.map((item, i) => (i === idx ? { ...item, source: val } : item))
-                              );
-                            }}
-                            className="w-full bg-slate-900 border border-wellqc-border rounded-lg px-2 py-1.5 text-xs text-white focus:outline-none focus:border-cyan-400"
-                          >
-                            <option value="VERIFIED">VERIFIED</option>
-                            <option value="BIOSTRATIGRAPHY">BIOSTRATIGRAPHY</option>
-                            <option value="CORE">CORE</option>
-                            <option value="SEISMIC">SEISMIC</option>
-                            <option value="ESTIMATED">ESTIMATED</option>
-                          </select>
-                        </div>
-
-                        <div className="sm:col-span-2 flex items-center justify-end pt-4 sm:pt-0">
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setEditMarkersList((prev) => prev.filter((_, i) => i !== idx));
-                            }}
-                            className="p-2 text-red-400 hover:text-red-300 hover:bg-red-500/10 rounded-lg transition"
-                            title="Remove marker"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </button>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setEditMarkersList((prev) => [
-                        ...prev,
-                        {
-                          formationName: "New Marker / Reservoir Sand",
-                          topDepth: comparison?.overlap_start_depth || 1000,
-                          source: "VERIFIED",
-                          notes: "",
-                        },
-                      ]);
-                    }}
-                    className="w-full py-2 border border-dashed border-cyan-500/40 rounded-xl text-cyan-300 hover:bg-cyan-500/10 flex items-center justify-center space-x-2 transition font-mono text-xs"
-                  >
-                    <Plus className="w-4 h-4" />
-                    <span>Add Custom Formation / Reservoir Sand Marker</span>
-                  </button>
-
-                  {markerModalMsg && (
-                    <div
-                      className={`p-3 rounded-xl border text-xs font-mono flex items-center space-x-2 ${
-                        markerModalMsg.includes("success")
-                          ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-300"
-                          : "bg-red-500/10 border-red-500/30 text-red-300"
-                      }`}
-                    >
-                      <Info className="w-4 h-4 shrink-0" />
-                      <span>{markerModalMsg}</span>
-                    </div>
-                  )}
-                </>
-              )}
-            </div>
-
-            <div className="p-4 border-t border-wellqc-border bg-wellqc-card/40 flex items-center justify-between">
-              <span className="text-[11px] font-mono text-wellqc-muted">
-                Saving promotes markers to Certified / Verified status in DB.
-              </span>
-              <div className="flex items-center space-x-2">
-                <button
-                  type="button"
-                  onClick={() => setIsMarkersModalOpen(false)}
-                  className="px-3.5 py-2 rounded-xl bg-wellqc-card border border-wellqc-border hover:border-slate-600 text-xs font-mono text-white transition"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="button"
-                  onClick={handleSaveMarkers}
-                  disabled={isSavingMarkers}
-                  className="px-4 py-2 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs font-mono flex items-center space-x-2 transition shadow-lg shadow-cyan-500/20 disabled:opacity-50"
-                >
-                  {isSavingMarkers ? (
-                    <>
-                      <RefreshCw className="w-3.5 h-3.5 animate-spin" />
-                      <span>Saving...</span>
-                    </>
-                  ) : (
-                    <>
-                      <ShieldCheck className="w-3.5 h-3.5" />
-                      <span>Save &amp; Re-Correlate</span>
-                    </>
-                  )}
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
     </AppShell>
   );
 }
@@ -1094,19 +815,17 @@ function TabButton({
   return (
     <button
       onClick={onClick}
-      className={`px-4 py-2.5 rounded-xl font-mono text-xs flex items-center space-x-2 transition ${
-        active
+      className={`px-4 py-2.5 rounded-xl font-mono text-xs flex items-center space-x-2 transition ${active
           ? "bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 shadow-sm"
           : "text-wellqc-muted hover:text-white hover:bg-wellqc-panel/60"
-      }`}
+        }`}
     >
       <Icon className="w-3.5 h-3.5" />
       <span>{label}</span>
       {badge && (
         <span
-          className={`px-1.5 py-0.2 rounded text-[9px] uppercase font-bold ${
-            active ? "bg-cyan-500/30 text-cyan-200" : "bg-slate-800 text-slate-400"
-          }`}
+          className={`px-1.5 py-0.2 rounded text-[9px] uppercase font-bold ${active ? "bg-cyan-500/30 text-cyan-200" : "bg-slate-800 text-slate-400"
+            }`}
         >
           {badge}
         </span>
