@@ -19,8 +19,17 @@ import pytest
 from sqlalchemy import create_engine, text
 from sqlalchemy.exc import DBAPIError
 
-DB_URL = os.environ.get("PY_TEST_DATABASE_URL")
-OWNER_URL = os.environ.get("PY_OWNER_DATABASE_URL")
+def _driver_url(url):
+    # Same rewrite as backend/app/core/database.py, so the tests use psycopg2 like the app.
+    if url and url.startswith("postgresql://"):
+        return "postgresql+psycopg2://" + url[len("postgresql://"):]
+    if url and url.startswith("postgres://"):
+        return "postgresql+psycopg2://" + url[len("postgres://"):]
+    return url
+
+
+DB_URL = _driver_url(os.environ.get("PY_TEST_DATABASE_URL"))
+OWNER_URL = _driver_url(os.environ.get("PY_OWNER_DATABASE_URL"))
 
 pytestmark = pytest.mark.skipif(not DB_URL, reason="PY_TEST_DATABASE_URL not set")
 
