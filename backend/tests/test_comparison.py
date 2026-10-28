@@ -8,8 +8,9 @@ from backend.app.services.comparison import (
     _clean_curve_series,
     _estimate_formations,
 )
+from types import SimpleNamespace
 from backend.app.models.models import User, Well, LASFile, Curve
-from backend.app.core.database import SessionLocal
+from backend.app.core.database import SessionLocal, set_rls_context
 from backend.app.core.security import create_session_token
 
 client = TestClient(app)
@@ -166,6 +167,7 @@ def test_compare_two_wells_with_depth_offset():
 def test_compare_endpoint_validation():
     db = SessionLocal()
     try:
+        set_rls_context(db, SimpleNamespace(id="admin", role="ADMIN"))
         user = db.query(User).filter(User.email == "analyst@wellqc.com").first()
         if not user:
             import uuid
@@ -218,7 +220,11 @@ def test_hybrid_formation_markers_api():
     import uuid
     from backend.app.models.models import Field, Operator
     db = SessionLocal()
+    well_id = None
+    user_id = None
+    created_user = False
     try:
+        set_rls_context(db, SimpleNamespace(id="admin", role="ADMIN"))
         user = db.query(User).filter(User.email == "analyst@wellqc.com").first()
         if not user:
             user = User(
@@ -232,6 +238,10 @@ def test_hybrid_formation_markers_api():
             db.add(user)
             db.commit()
             db.refresh(user)
+            created_user = True
+
+        user_id = user.id
+        set_rls_context(db, SimpleNamespace(id=user.id, role="ADMIN"))
 
         field = db.query(Field).first()
         if not field:
@@ -273,7 +283,6 @@ def test_hybrid_formation_markers_api():
             "role": user.role,
         })
         well_id = well.id
-        user_id = user.id
     finally:
         db.close()
 
@@ -324,12 +333,15 @@ def test_hybrid_formation_markers_api():
         benin = next(m for m in markers2 if "Benin" in m["formationName"])
         assert benin["topDepth"] == 1150.0
     finally:
-        clean_db = SessionLocal()
-        try:
-            from backend.app.models.models import FormationMarker
-            clean_db.query(FormationMarker).filter(FormationMarker.wellId == well_id).delete(synchronize_session=False)
-            clean_db.query(Well).filter(Well.id == well_id).delete(synchronize_session=False)
-            clean_db.query(User).filter(User.id == user_id).delete(synchronize_session=False)
-            clean_db.commit()
-        finally:
-            clean_db.close()
+        if well_id:
+            clean_db = SessionLocal()
+            try:
+                set_rls_context(clean_db, SimpleNamespace(id=user_id or "admin", role="ADMIN"))
+                from backend.app.models.models import FormationMarker
+                clean_db.query(FormationMarker).filter(FormationMarker.wellId == well_id).delete(synchronize_session=False)
+                clean_db.query(Well).filter(Well.id == well_id).delete(synchronize_session=False)
+                if created_user and user_id:
+                    clean_db.query(User).filter(User.id == user_id).delete(synchronize_session=False)
+                clean_db.commit()
+            finally:
+                clean_db.close()
