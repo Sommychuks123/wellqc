@@ -12,19 +12,16 @@ import {
   Activity,
   Layers,
   Download,
-  CheckCircle2,
   AlertTriangle,
   Info,
   BarChart2,
   Sliders,
-  Maximize2,
 } from "lucide-react";
 import { WellLogViewer } from "@/components/well-log/log-viewer";
 import {
   WellDetailResponse,
   WellListItem,
   WellComparisonResult,
-  CurveCorrelationStat,
 } from "@/lib/api-types";
 import { safeReadJson } from "@/lib/http-client";
 
@@ -36,11 +33,12 @@ export default function ComparisonPage() {
   const [well2, setWell2] = useState("");
   const [detail1, setDetail1] = useState<WellDetailResponse | null>(null);
   const [detail2, setDetail2] = useState<WellDetailResponse | null>(null);
-  const [comparison, setComparison] = useState<WellComparisonResult | null>(null);
+  const [comparisonData, setComparisonData] = useState<WellComparisonResult | null>(null);
+  const comparison = well1 && well2 ? comparisonData : null;
   const [activeTab, setActiveTab] = useState<ComparisonTab>("analytics");
   const [selectedOverlayCurve, setSelectedOverlayCurve] = useState<string>("");
   const [matrixFilter, setMatrixFilter] = useState<"ALL" | "COMMON" | "PRIMARY_ONLY" | "OFFSET_ONLY">("ALL");
-  const [resampleDensity, setResampleDensity] = useState<number>(400);
+  const [resampleDensity] = useState<number>(400);
   const [isLoadingWells, setIsLoadingWells] = useState(true);
   const [isComparing, setIsComparing] = useState(false);
   const [error, setError] = useState("");
@@ -122,7 +120,6 @@ export default function ComparisonPage() {
   // Execute multi-well correlation analysis
   useEffect(() => {
     if (!well1 || !well2) {
-      setComparison(null);
       return;
     }
 
@@ -154,7 +151,7 @@ export default function ComparisonPage() {
 
         if (!cancelled && res.data) {
           const compData = res.data;
-          setComparison(compData);
+          setComparisonData(compData);
           if (compData.common_curves.length > 0) {
             const firstCurve = compData.common_curves[0];
             setSelectedOverlayCurve((curr) =>
@@ -808,7 +805,7 @@ function TabButton({
 }: {
   active: boolean;
   onClick: () => void;
-  icon: any;
+  icon: React.ComponentType<{ className?: string }>;
   label: string;
   badge?: string;
 }) {
@@ -842,12 +839,12 @@ function OverlaidCurveTrack({
   mnemonic: string;
 }) {
   const depths = comparison.resampled_depth;
-  const valsA = comparison.resampled_curves_a[mnemonic] || [];
-  const valsB = comparison.resampled_curves_b[mnemonic] || [];
-
   const stat = comparison.curve_correlations.find((c) => c.mnemonic === mnemonic);
 
   const { pathA, pathB, fillPolygon, valMin, valMax, depthStart, depthStop } = useMemo(() => {
+    const valsA = comparison.resampled_curves_a[mnemonic] || [];
+    const valsB = comparison.resampled_curves_b[mnemonic] || [];
+
     if (!depths || depths.length === 0 || valsA.length === 0 || valsB.length === 0) {
       return {
         pathA: "",
@@ -942,7 +939,7 @@ function OverlaidCurveTrack({
       depthStart: dStart,
       depthStop: dStop,
     };
-  }, [depths, valsA, valsB]);
+  }, [comparison.resampled_curves_a, comparison.resampled_curves_b, depths, mnemonic]);
 
   // Depth grid lines
   const depthTicks = useMemo(() => {
