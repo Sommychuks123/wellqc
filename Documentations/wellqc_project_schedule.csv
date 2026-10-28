@@ -1,5 +1,5 @@
 ID,Outline_Level,Task_Name,Duration,Start_Date,Finish_Date,Predecessors,Resource_Names,Percent_Complete
-1,1,WellQC Platform Development,70d,2026-07-20,2026-10-23,,,95%
+1,1,WellQC Platform Development,70d,2026-07-20,2026-10-23,,,98%
 2,2,"Sprint 1: Discovery, Architecture & Core Stack",10d,2026-07-20,2026-07-31,,,100%
 3,3,Petrophysical Domain Modeling & Curve Physical Limits,5d,2026-07-20,2026-07-24,,"DA1, DA2",100%
 4,3,LAS 2.0 Parser Engine & Line Splitter Validation,6d,2026-07-22,2026-07-29,3,SE1,100%
@@ -46,14 +46,14 @@ ID,Outline_Level,Task_Name,Duration,Start_Date,Finish_Date,Predecessors,Resource
 45,3,Item 10-12: Staged Non-Destructive QA UI & Cleaned Export Suite,5d,2026-10-05,2026-10-09,39,SE2,100%
 46,3,Sliding-Window IP Rate Limiter & Security Stabilization,5d,2026-09-28,2026-10-02,37,"CE2, CE1",100%
 47,3,Milestone: Certified Quality Engine Overhaul & Audit Pipeline,0d,2026-10-09,2026-10-09,"39,40,41,42,43,44,45,46","SE1, SE2, DA1, DA2, DA4",100%
-48,2,"Sprint 7: Multi-Well Comparison, NUPRC Compliance & Batch Processing",10d,2026-10-12,2026-10-23,47,,75%
+48,2,"Sprint 7: Multi-Well Comparison, NUPRC Compliance & Batch Processing",10d,2026-10-12,2026-10-23,47,,88%
 49,3,Multi-Well Depth Alignment & Correlation Engine (SE1),5d,2026-10-12,2026-10-16,47,SE1,100%
-50,3,Cross-Well Canvas UI with Synchronized Depth Scrolling (SE2),5d,2026-10-13,2026-10-19,49,SE2,90%
-51,3,Unsupervised ML Lithology Classification on GR-RHOB-NPHI (SE1),4d,2026-10-15,2026-10-20,49,"SE1, DA2",80%
-52,3,"NUPRC Compliance Report Template & Digital Signatures (SE2, DA4)",5d,2026-10-14,2026-10-20,47,"SE2, DA4",85%
+50,3,Cross-Well Canvas UI with Synchronized Depth Scrolling (SE2),5d,2026-10-13,2026-10-19,49,SE2,95%
+51,3,Unsupervised ML Lithology Classification on GR-RHOB-NPHI (SE1),4d,2026-10-15,2026-10-20,49,"SE1, DA2",85%
+52,3,"NUPRC Compliance Report Template & Digital Signatures (SE2, DA4)",5d,2026-10-14,2026-10-20,47,"SE2, DA4",90%
 53,3,"Niger Delta Formation Cutoffs (Akata, Agbada, Benin) (DA1, DA2)",5d,2026-10-12,2026-10-16,47,"DA1, DA2",100%
-54,3,Offset Niger Delta Demonstration Well Package Curation (DA3),5d,2026-10-13,2026-10-19,53,DA3,90%
-55,3,Asynchronous Batch Ingestion Background Workers & Live Progress (CE1),6d,2026-10-14,2026-10-21,47,CE1,75%
-56,3,Outbound Webhook Event Dispatcher for Cloud Storage Sync (CE2),6d,2026-10-15,2026-10-22,47,CE2,70%
-57,3,End-to-End System Integration & Acceptance Testing Suite (All),5d,2026-10-19,2026-10-23,"50,51,52,54,55,56","SE1, SE2, CE1, CE2, DA1, DA2, DA3, DA4",60%
-58,3,Milestone: Final Production Platform Release & NUPRC Audit Readiness,0d,2026-10-23,2026-10-23,57,"SE1, SE2, CE1, CE2, DA1, DA2, DA3, DA4",0%
+54,3,Offset Niger Delta Demonstration Well Package Curation (DA3),5d,2026-10-13,2026-10-19,53,DA3,95%
+55,3,Asynchronous Batch Ingestion Background Workers & Live Progress (CE1),6d,2026-10-14,2026-10-21,47,CE1,85%
+56,3,Outbound Webhook Event Dispatcher for Cloud Storage Sync (CE2),6d,2026-10-15,2026-10-22,47,CE2,80%
+57,3,End-to-End System Integration & Acceptance Testing Suite (All),5d,2026-10-19,2026-10-23,"50,51,52,54,55,56","SE1, SE2, CE1, CE2, DA1, DA2, DA3, DA4",95%
+58,3,Milestone: Final Production Platform Release & NUPRC Audit Readiness,0d,2026-10-23,2026-10-23,57,"SE1, SE2, CE1, CE2, DA1, DA2, DA3, DA4",75%

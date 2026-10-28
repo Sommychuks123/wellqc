@@ -38,6 +38,7 @@ model User {
   webhooks              Webhook[]
   customAliases         CustomAlias[]
   wells                 Well[]
+  ownedFormationMarkers FormationMarker[] @relation("FormationMarkerOwner")
 }
 
 model Field {
@@ -82,7 +83,8 @@ model Well {
   operator     Operator?       @relation(fields: [operatorName], references: [name])
   lasFiles     LASFile[]
   reports      QualityReport[]
-
+  formationMarkers FormationMarker[]
+  
   createdAt    DateTime        @default(now())
   updatedAt    DateTime        @updatedAt
 
@@ -254,9 +256,28 @@ model CustomAlias {
   @@index([userEmail])
 }
 
+model FormationMarker {
+  id            String   @id @default(uuid())
+  wellId        String
+  formationName String
+  topDepth      Float
+  bottomDepth   Float?
+  source        String   @default("INTERPRETER")
+  pickedBy      String?
+  notes         String?
+  ownerId       String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @default(now()) @updatedAt
+  well          Well     @relation(fields: [wellId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  owner         User?    @relation("FormationMarkerOwner", fields: [ownerId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@unique([wellId, formationName])
+  @@index([wellId])
+}
+
 model SystemSetting {
   id        String   @id @default(uuid())
   key       String   @unique
   value     String
   updatedAt DateTime @default(now()) @updatedAt
-}
+}

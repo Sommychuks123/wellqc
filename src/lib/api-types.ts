@@ -635,3 +635,70 @@ export interface CustomAliasEntry {
   userEmail?: string;
 }
 
+export interface CurveCorrelationStat {
+  mnemonic: string;
+  sample_count: number;
+  pearson_r: number;
+  rmsd: number;
+  mae: number;
+  optimal_lag_depth: number;
+  max_correlation_at_lag: number;
+  stratigraphic_continuity: "HIGH" | "MODERATE" | "LOW" | "DISCONTINUOUS" | "PRIMARY_ONLY" | "OFFSET_ONLY" | string;
+  mean_a: number;
+  mean_b: number;
+  min_a: number;
+  max_a: number;
+  min_b: number;
+  max_b: number;
+  availability?: "BOTH" | "WELL_A_ONLY" | "WELL_B_ONLY";
+}
+
+export interface FormationMarkerItem {
+  id?: string | null;
+  wellId?: string;
+  formationName: string;
+  topDepth: number;
+  bottomDepth?: number | null;
+  source?: string;
+  pickedBy?: string | null;
+  notes?: string | null;
+}
+
+export interface FormationMarkerComparison {
+  formation_name: string;
+  top_depth_well_a: number | null;
+  top_depth_well_b: number | null;
+  source_well_a?: string;
+  source_well_b?: string;
+  thickness_difference: number | null;
+  structural_dip_indicator: string | null;
+}
+
+export interface WellComparisonResult {
+  well_a_id: string;
+  well_a_name: string;
+  well_b_id: string;
+  well_b_name: string;
+  overlap_start_depth: number;
+  overlap_stop_depth: number;
+  overlap_span: number;
+  depth_unit: string;
+  common_curves: string[];
+  curves_well_a_only?: string[];
+  curves_well_b_only?: string[];
+  composite_correlation_score: number;
+  overall_match_grade: string;
+  recommended_depth_shift: number;
+  curve_correlations: CurveCorrelationStat[];
+  formation_markers: FormationMarkerComparison[];
+  resampled_depth: number[];
+  resampled_curves_a: Record<string, number[]>;
+  resampled_curves_b: Record<string, number[]>;
+}
+
+export interface CompareWellsPayload {
+  primary_well_id: string;
+  offset_well_id: string;
+  num_resample_points?: number;
+}
+
