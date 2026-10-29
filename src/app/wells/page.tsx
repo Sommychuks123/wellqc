@@ -380,7 +380,7 @@ export default function WellManagementPage() {
             <p className="text-xs text-wellqc-muted font-mono mt-0.5">
               {currentUserRole === "ADMIN"
                 ? "Full administrative access: Viewing, auditing, and managing uploaded wells across all user accounts."
-                : "Database-backed list of wells created manually or committed from validated LAS uploads."}
+                : "Database-backed list of wells created manually or uploaded from validated LAS files."}
             </p>
           </div>
 
@@ -410,7 +410,7 @@ export default function WellManagementPage() {
               </div>
               <div>
                 <div className="text-xs font-bold text-white font-mono flex items-center gap-2">
-                  <span>Recently Committed Well:</span>
+                  <span>Recently Uploaded Well:</span>
                   <span className="text-cyan-300">{recentCommittedWell.wellName}</span>
                   <span className="px-2 py-0.5 rounded text-[10px] bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 font-bold">
                     Score: {recentCommittedWell.qualityScore}/100
@@ -618,7 +618,7 @@ export default function WellManagementPage() {
               <Database className="w-8 h-8 text-cyan-400 mx-auto" />
               <div className="text-sm font-bold text-white">No wells found</div>
               <p className="text-xs text-wellqc-muted font-mono">
-                Commit a validated LAS file or create a well asset to populate this table.
+                Upload a validated LAS file or create a well asset to populate this table.
               </p>
             </div>
           ) : (
@@ -696,7 +696,7 @@ export default function WellManagementPage() {
                           </td>
                           <td className="p-4 text-slate-400">{well.country}</td>
                           <td className="p-4">
-                            <div>{well.latestLasFileName || "No LAS committed"}</div>
+                            <div>{well.latestLasFileName || "No LAS uploaded"}</div>
                             <div className="text-[10px] text-wellqc-muted">
                               {well.curveCount} curves | {well.pointCount.toLocaleString()} points
                             </div>
@@ -898,7 +898,7 @@ export default function WellManagementPage() {
                                     <div className="bg-slate-950/70 border border-wellqc-border rounded-lg p-3 space-y-1.5">
                                       <div className="text-[10px] text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
                                         <FileText className="w-3 h-3 text-blue-400" />
-                                        <span>Committed LAS Log File</span>
+                                        <span>Uploaded LAS Log File</span>
                                       </div>
                                       <div className="text-white font-semibold text-xs truncate" title={well.latestLasFileName || undefined}>
                                         {well.latestLasFileName || "No LAS File Attached"}

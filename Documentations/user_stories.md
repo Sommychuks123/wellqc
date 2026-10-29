@@ -54,6 +54,12 @@ A story is accepted as done when:
 │ Epic 7: Audit Reports │ Epic 8: Paystack Payments    │ Epic 9: RBAC & Assets │
 ├───────────────────────┴──────────────────────────────┴───────────────────────┤
 │ Epic 10: OpenAPI / Swagger Developer Experience & Platform REST APIs         │
+├──────────────────────────────────────────────────────────────────────────────┤
+│ Epic 11: Mobile Ergonomics & PWA Telemetry                                   │
+├──────────────────────────────────────────────────────────────────────────────┤
+│ Epic 12: Multi-Well Comparison & Stratigraphic Correlation Workstation       │
+├──────────────────────────────────────────────────────────────────────────────┤
+│ Epic 13: Interactive Dashboard Onboarding & Workflow Guidance                │
 └──────────────────────────────────────────────────────────────────────────────┘
 ```
 
@@ -318,6 +324,24 @@ A story is accepted as done when:
     When I hover over the anomaly marker on the track ribbon
     Then a tooltip displays: "IMPOSSIBLE_VALUE (Critical): RHOB reading 0.82 g/cc"
     And displays the suggested action: "Clip to lower physical boundary 1.00 g/cc"
+  ```
+
+#### US-VIW-03: Dynamic Multi-Curve Channel Selection & Custom Track Workstation
+- **As a** Petrophysicist (PER-1) or Subsurface Data Engineer (PER-2),
+- **I want to** select, filter, and render any curve channel available in the parsed LAS file via a toolbar dropdown selector, with quick presets, search filtering, and one-click track isolation,
+- **So that** I am not restricted to fixed standard curves and can inspect any petrophysical, acoustic, or caliper logs in arbitrary combinations.
+- **Priority:** Must Have
+- **Sprint / Owner:** Sprint 7 · SE1 / SE2
+- **Acceptance Criteria:**
+  ```gherkin
+  Scenario: Selecting custom curves via toolbar dropdown
+    Given a parsed LAS file with multiple logging channels (e.g. GR, RT, RHOB, NPHI, DT, CALI, SP, PEF)
+    When I click the "Tracks" dropdown selector on the wireline toolbar
+    Then I see checkboxes for all available curve channels with active/total count badges
+    And I can search curves using the mnemonic filter input
+    And clicking "Standard 3" activates GR, RT, and DT presets
+    And clicking "Only" next to a curve isolates that single track immediately
+    And each rendered track header provides an inline curve switcher and dismiss button
   ```
 
 ---
@@ -623,6 +647,101 @@ A story is accepted as done when:
 
 ---
 
+### 🔬 Epic 12: Multi-Well Comparison & Stratigraphic Correlation Workstation
+
+#### US-CMP-01: Multi-Well Resampling & Depth Overlap Alignment
+- **As a** Lead Petrophysicist or Asset Geoscientist (PER-1, PER-3),
+- **I want** the comparison engine to compute common depth overlap and resample curve data to a uniform grid (0.5 ft step),
+- **So that** wireline logs from different logging campaigns or vendors can be directly aligned and compared without sampling mismatches.
+- **Priority:** Must Have
+- **Sprint / Owner:** Sprint 7 · SE1
+- **Acceptance Criteria:**
+  ```gherkin
+  Scenario: Comparing two offset wells with differing depth bounds and sampling rates
+    Given Well A with depth range 5,000–10,500 ft (0.5 ft step) and Well B with 6,200–11,800 ft (0.25 ft step)
+    When I submit a comparison request via `POST /api/wells/compare`
+    Then the engine computes overlap span (6,200–10,500 ft) with total shared thickness of 4,300 ft
+    And both wells are resampled onto an identical 0.5 ft uniform depth array
+    And wells with zero depth overlap return `400 Bad Request` with an explanatory diagnostic message
+  ```
+
+#### US-CMP-02: Multi-Channel Pearson Correlation & Structural Lag Shift
+- **As a** Subsurface Asset Petrophysicist (PER-1),
+- **I want** automated channel-by-channel Pearson correlation coefficient ($r$), optimal structural lag shift ($\Delta z$), RMSD, and MAE across all shared wireline curves,
+- **So that** I can quantify stratigraphic similarity, identify structural dip offsets, and detect faulting or facies changes between offset wells.
+- **Priority:** Must Have
+- **Sprint / Owner:** Sprint 7 · SE1
+- **Acceptance Criteria:**
+  ```gherkin
+  Scenario: Computing cross-correlation and optimal depth shift
+    Given resampled curve series for matching channels (e.g., GR, RHOB, NPHI, RT, DT)
+    When correlation metrics are computed
+    Then Pearson $r$, RMSD, and MAE are calculated for each common channel
+    And optimal structural lag shift $\Delta z$ is determined via cross-correlation peak within ±150 ft
+    And each curve receives a Stratigraphic Continuity Grade (`HIGH`, `MODERATE`, `LOW`, `DISCONTINUOUS`)
+    And a composite match score (0–100%) and overall match grade (`EXCELLENT_MATCH`, `GOOD_MATCH`, `MODERATE_MATCH`, `POOR_MATCH`) are returned
+  ```
+
+#### US-CMP-03: Hybrid Formation Tops Alignment & Provenance Verification
+- **As a** Petrophysicist or Regional Stratigrapher (PER-1, PER-2),
+- **I want** regional formation markers (e.g., Benin, Agbada, Akata, or custom reservoir sand markers) stored in the database with verified interpreter provenance, accompanied by algorithmic baseline estimation fallbacks,
+- **So that** our comparisons utilize verified geological ground truth whenever available while remaining completely functional on newly ingested wells without manual picks.
+- **Priority:** Must Have
+- **Sprint / Owner:** Sprint 7 · DA1 & SE1
+- **Acceptance Criteria:**
+  ```gherkin
+  Scenario: Inspecting and editing formation markers on compared wells
+    Given two wells loaded into the comparison workstation
+    When formation markers are retrieved
+    Then verified picks stored in `FormationMarker` table are returned with badge `VERIFIED INTERPRETER PICK`
+    And if no database picks exist, regional Niger Delta baseline markers are estimated from Gamma Ray trends and tagged `ALGORITHMIC ESTIMATION`
+    And clicking "Edit Tops" opens an interactive modal allowing petrophysicists to edit top/bottom depths, update interpreter source (`VERIFIED`, `BIOSTRATIGRAPHY`, `CORE`, `SEISMIC`), or add custom sand markers
+    And saving persists the verified markers to `POST /api/wells/{id}/markers` and updates the correlation canvas in real time
+  ```
+
+#### US-CMP-04: Interactive Multi-Well Workstation UI & Visual Overlays
+- **As a** Subsurface Exploration Manager or Petrophysicist (PER-1, PER-3),
+- **I want** a dedicated `/comparison` workstation with 4 interactive visual tabs (Correlation Matrix, SVG Resampled Overlaid Track with differential fill, Side-by-Side Dual Log Tracks, and Formation Markers Alignment),
+- **So that** I can perform multi-well petrophysical correlation, review cross-well anomalies, and present structural findings to asset management.
+- **Priority:** Must Have
+- **Sprint / Owner:** Sprint 7 · SE2
+- **Acceptance Criteria:**
+  ```gherkin
+  Scenario: Navigating and interacting with the Comparison Workstation
+    Given I navigate to `/comparison` via the sidebar navigation link
+    When I select Well A and Well B from the multi-well selector and click "Run Multi-Well Correlation"
+    Then the Composite Correlation Match banner displays match percentage, grade badge, and overlap thickness
+    And Tab 1 displays the channel correlation metrics matrix with Pearson $r$, lag shift, RMSD, and continuity badges
+    And Tab 2 renders the synchronized SVG Overlaid Track with semi-transparent differential fill between curves
+    And Tab 3 renders side-by-side wireline log tracks with synchronized depth scrolling
+    And Tab 4 renders the Stratigraphic Markers Alignment comparison with thickness delta calculations and provenance badges
+  ```
+
+---
+
+### 🧭 Epic 13: Interactive Dashboard Onboarding & Workflow Guidance
+
+#### US-DSB-01: Interactive Step-by-Step Dashboard Product Tour & Spotlight
+- **As a** First-Time User or Exploring Petrophysicist (PER-1, PER-2),
+- **I want** an interactive guided onboarding tour with a visual spotlight overlay and a non-intrusive welcome banner,
+- **So that** I understand the platform architecture, KPI telemetry, quality trends, and quick-action navigation immediately upon logging in.
+- **Priority:** Must Have
+- **Sprint / Owner:** Sprint 7 · SE2
+- **Acceptance Criteria:**
+  ```gherkin
+  Scenario: Running the onboarding tour on the Command Dashboard
+    Given a user navigating to `/dashboard`
+    When the user has not dismissed the welcome banner
+    Then the "Welcome to WellQC Command Center" banner is displayed with a "Take 1-Min Tour" button
+    And clicking "Take 1-Min Tour" or the permanent "Tour Guide" button launches the 6-step guided walkthrough
+    And a darkened spotlight overlay focuses on the current target element with smooth auto-scrolling
+    And an animated tooltip displays step descriptions, progress badge (e.g. "Step 2 of 6"), "Back", "Next", and "Exit Tour"
+    And pressing the "Escape" key closes the tour and restores full interactivity
+    And completing or exiting the tour persists dismissal to localStorage safely via React 19 useSyncExternalStore
+  ```
+
+---
+
 ## 📊 4. Requirements Traceability Matrix (RTM)
 
 | Story ID | Epic Title | MoSCoW | Sprint Target | Lead Owner | Primary Code Modules |
@@ -642,6 +761,7 @@ A story is accepted as done when:
 | **US-IMP-02** | Imputation Benchmarking | Should Have | Sprint 4 | DA2 | `imputation-benchmark-modal.tsx`, `imputation.py` |
 | **US-VIW-01** | 3-Track Wireline Presentation | Must Have | Sprint 4 | SE1 | `src/components/well-log/log-viewer.tsx` |
 | **US-VIW-02** | Interactive Anomaly Ribbon | Should Have | Sprint 4 | SE1 | `src/components/well-log/log-viewer.tsx` |
+| **US-VIW-03** | Dynamic Multi-Curve Channel Selection | Must Have | Sprint 7 | SE1 / SE2 | `src/components/well-log/log-viewer.tsx` |
 | **US-CLN-01** | Non-Destructive Raw Data | Must Have | Sprint 4 | CE2 | `src/lib/las/cleaner.ts`, `backend/app/api/las.py` |
 | **US-CLN-02** | Before vs After Scorecard | Must Have | Sprint 4 | SE1 | `src/app/qa-engine/page.tsx`, `cleaner.py` |
 | **US-RPT-01** | Executive PDF QA Certificate | Must Have | Sprint 5 | DA4 | `src/app/reports/page.tsx`, `src/lib/las/exporter.ts` |
@@ -659,6 +779,11 @@ A story is accepted as done when:
 | **US-API-03** | Webhook HMAC-SHA512 Verification | Must Have | Sprint 5 | CE2 | `backend/app/api/auth.py` |
 | **US-MOB-01** | Responsive Hero Showcase & Layout Stabilization | Must Have | Sprint 6 | SE2 | `src/components/landing/hero-section.tsx`, `globals.css` |
 | **US-PWA-01** | False-Positive Resilient Offline Status Detection | Must Have | Sprint 6 | SE2 | `src/components/pwa/pwa-client.tsx` |
+| **US-CMP-01** | Multi-Well Resampling & Depth Overlap Alignment | Must Have | Sprint 7 | SE1 | `backend/app/services/comparison.py`, `backend/app/api/wells.py` |
+| **US-CMP-02** | Multi-Channel Pearson Correlation & Structural Lag Shift | Must Have | Sprint 7 | SE1 | `backend/app/services/comparison.py`, `src/app/comparison/` |
+| **US-CMP-03** | Hybrid Formation Tops Alignment & Provenance Verification | Must Have | Sprint 7 | DA1 & SE1 | `backend/app/models/models.py`, `backend/app/api/wells.py`, `comparison/page.tsx` |
+| **US-CMP-04** | Interactive Multi-Well Workstation UI & Visual Overlays | Must Have | Sprint 7 | SE2 | `src/app/comparison/page.tsx`, `src/components/ui/sidebar.tsx` |
+| **US-DSB-01** | Interactive Dashboard Onboarding Tour Guide | Must Have | Sprint 7 | SE2 | `src/components/dashboard/dashboard-tour.tsx`, `src/app/dashboard/` |
 
 ---
 

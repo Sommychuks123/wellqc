@@ -105,7 +105,7 @@ export function Header({
               <div className="py-2 space-y-2 text-xs max-h-64 overflow-y-auto">
                 {activities.length === 0 ? (
                   <div className="p-2 text-center text-slate-500 text-[11px]">
-                    No committed activities recorded.
+                    No activities recorded.
                   </div>
                 ) : (
                   activities.map((activity) => (

@@ -16,7 +16,8 @@ import {
   X,
   ChevronLeft,
   ChevronRight,
-  Sparkles,
+  GitCompare,
+  FileText,
 } from "lucide-react";
 import { WellQCIcon } from "./wellqc-logo";
 
@@ -102,9 +103,10 @@ export function Sidebar({ currentRole, mobileOpen = false, onCloseMobileNav }: S
     {
       title: "Workstation",
       items: [
+        { label: "Data Upload", href: "/upload", icon: UploadCloud, badge: "CWLS 2.0" },
         { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard, isLive: true },
         { label: "Well Assets", href: "/wells", icon: Database },
-        { label: "LAS Ingestion", href: "/upload", icon: UploadCloud, badge: "CWLS 2.0" },
+
       ],
     },
     {
@@ -112,12 +114,14 @@ export function Sidebar({ currentRole, mobileOpen = false, onCloseMobileNav }: S
       items: [
         { label: "Standardisation", href: "/standardisation", icon: Layers, badge: "RP 66" },
         { label: "Quality Engine", href: "/qa-engine", icon: ShieldCheck, isLive: true },
+        { label: "Well Comparison", href: "/comparison", icon: GitCompare, badge: "MULTI-WELL" },
         { label: "Subsurface Analytics", href: "/analytics", icon: BarChart3 },
       ],
     },
     {
       title: "Governance & Audit",
       items: [
+        { label: "Audit Reports", href: "/reports", icon: FileText, badge: "NUPRC" },
         { label: "Audit Trail", href: "/activity", icon: History },
         { label: "User Profile", href: "/profile", icon: User },
       ],
@@ -182,7 +186,7 @@ export function Sidebar({ currentRole, mobileOpen = false, onCloseMobileNav }: S
       </div>
 
       {/* Primary Dynamic CTA Button */}
-      <div className={`p-3 border-b border-wellqc-border/60 ${collapsed ? "flex justify-center" : ""}`}>
+      {/* <div className={`p-3 border-b border-wellqc-border/60 ${collapsed ? "flex justify-center" : ""}`}>
         <Link
           href="/upload"
           onClick={onCloseMobileNav}
@@ -200,7 +204,7 @@ export function Sidebar({ currentRole, mobileOpen = false, onCloseMobileNav }: S
             </span>
           )}
         </Link>
-      </div>
+      </div> */}
 
       {/* Dynamic Categorized Navigation Sections */}
       <nav className={`flex-1 ${collapsed ? "px-1.5" : "px-3"} py-3 space-y-4 overflow-y-auto custom-scrollbar`}>

@@ -1,3 +1,4 @@
+import numpy as np
 from datetime import datetime, timezone
 import json
 import logging
@@ -14,6 +15,7 @@ from backend.app.models.models import (
     Anomaly,
     Curve,
     Field,
+    FormationMarker,
     LASFile,
     Operator,
     QualityReport,
@@ -26,7 +28,12 @@ from backend.app.schemas.well import (
     WellListItem,
     BulkDeleteWellsRequest,
     BulkDeleteWellsResponse,
+    CompareWellsRequest,
+    FormationMarkerItem,
+    SaveFormationMarkersRequest,
 )
+from backend.app.services.comparison import compare_two_wells, WellComparisonResult
+from backend.app.services.standardiser import standardise_mnemonic
 
 logger = logging.getLogger("uvicorn.error")
 
@@ -299,6 +306,290 @@ def create_well(
     return {"well": _to_well_list_item(well)}
 
 
+def _extract_curves_matrix(well: Well) -> Tuple[Dict[str, Any], float, float, str]:
+    """Extract depth array and curves dict from the well's latest LAS file."""
+    latest_las_file = None
+    if well.lasFiles:
+        sorted_las = sorted(
+            well.lasFiles,
+            key=lambda lf: lf.createdAt or datetime.min.replace(tzinfo=timezone.utc),
+            reverse=True,
+        )
+        latest_las_file = sorted_las[0]
+
+    depth_array: List[float] = []
+    curves_dict: Dict[str, List[float]] = {}
+    start_depth = latest_las_file.startDepth if latest_las_file and latest_las_file.startDepth is not None else 0.0
+    stop_depth = latest_las_file.stopDepth if latest_las_file and latest_las_file.stopDepth is not None else (well.tdFt or 0.0)
+    depth_unit = latest_las_file.depthUnit if latest_las_file and latest_las_file.depthUnit else (well.depthUnit or "FT")
+
+    if latest_las_file and latest_las_file.curves:
+        for c in latest_las_file.curves:
+            try:
+                pts = json.loads(c.dataJson) if c.dataJson else []
+            except Exception:
+                pts = []
+
+            # Extract depth array from first curve with valid points
+            if not depth_array and pts:
+                depth_array = [float(p.get("depth", 0.0)) for p in pts if isinstance(p, dict) and "depth" in p]
+
+            vals = [float(p.get("value", -999.25)) for p in pts if isinstance(p, dict) and "value" in p]
+            orig_upper = c.originalMnemonic.upper()
+            curves_dict[orig_upper] = vals
+            if c.standardMnemonic and c.standardMnemonic.upper() != orig_upper:
+                curves_dict[c.standardMnemonic.upper()] = vals
+            else:
+                try:
+                    std_res = standardise_mnemonic(c.originalMnemonic, c.unit or "")
+                    if std_res and std_res.standard_mnemonic and std_res.standard_mnemonic.upper() != orig_upper:
+                        curves_dict[std_res.standard_mnemonic.upper()] = vals
+                except Exception:
+                    pass
+
+    curves_matrix = {
+        "depth": depth_array,
+        "curves": curves_dict,
+    }
+    return curves_matrix, start_depth, stop_depth, depth_unit
+
+
+@router.post("/compare")
+def compare_wells_endpoint(
+    payload: CompareWellsRequest,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    primary_id = (payload.primary_well_id or "").strip()
+    offset_id = (payload.offset_well_id or "").strip()
+
+    if not primary_id or not offset_id:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Both primary_well_id and offset_well_id are required.",
+        )
+
+    # Fetch both wells
+    wells = (
+        db.query(Well)
+        .options(
+            selectinload(Well.owner),
+            selectinload(Well.formationMarkers),
+            selectinload(Well.lasFiles).selectinload(LASFile.curves),
+        )
+        .filter(
+            or_(
+                Well.id == primary_id,
+                Well.apiNo == primary_id,
+                Well.name == primary_id,
+                Well.id == offset_id,
+                Well.apiNo == offset_id,
+                Well.name == offset_id,
+            )
+        )
+        .all()
+    )
+
+    well_a = next((w for w in wells if w.id == primary_id or w.apiNo == primary_id or w.name == primary_id), None)
+    well_b = next((w for w in wells if w.id == offset_id or w.apiNo == offset_id or w.name == offset_id), None)
+
+    if not well_a:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Primary well '{primary_id}' not found.",
+        )
+    if not well_b:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Offset comparison well '{offset_id}' not found.",
+        )
+
+    # RBAC check: ADMIN or well owner
+    is_admin = (normalize_role(current_user.role) == "ADMIN")
+    if not is_admin:
+        if well_a.ownerId != current_user.id:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail=f"Access denied: You do not own primary well '{well_a.name}'.",
+            )
+        if well_b.ownerId != current_user.id:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail=f"Access denied: You do not own offset well '{well_b.name}'.",
+            )
+
+    matrix_a, _, _, unit_a = _extract_curves_matrix(well_a)
+    matrix_b, _, _, unit_b = _extract_curves_matrix(well_b)
+
+    markers_a_list = [
+        {"formationName": m.formationName, "topDepth": m.topDepth, "source": m.source}
+        for m in (well_a.formationMarkers or [])
+    ]
+    markers_b_list = [
+        {"formationName": m.formationName, "topDepth": m.topDepth, "source": m.source}
+        for m in (well_b.formationMarkers or [])
+    ]
+
+    num_pts = min(1000, max(50, payload.num_resample_points or 400))
+    result = compare_two_wells(
+        well_a_id=well_a.id,
+        well_a_name=well_a.name,
+        curves_data_a=matrix_a,
+        well_b_id=well_b.id,
+        well_b_name=well_b.name,
+        curves_data_b=matrix_b,
+        depth_unit=unit_a or unit_b or "FT",
+        num_resample_points=num_pts,
+        db_markers_a=markers_a_list,
+        db_markers_b=markers_b_list,
+    )
+
+    return result.model_dump()
+
+
+@router.get("/{id}/markers")
+def get_well_formation_markers(
+    id: str,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    clean_id = (id or "").strip()
+    well = (
+        db.query(Well)
+        .options(
+            selectinload(Well.formationMarkers),
+            selectinload(Well.lasFiles).selectinload(LASFile.curves),
+        )
+        .filter(or_(Well.id == clean_id, Well.apiNo == clean_id, Well.name == clean_id))
+        .first()
+    )
+    if not well:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Well '{clean_id}' not found.",
+        )
+
+    # Permission check: ADMIN or owner
+    is_admin = (normalize_role(current_user.role) == "ADMIN")
+    if not is_admin and well.ownerId != current_user.id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Access restricted to well owner or administrators.",
+        )
+
+    if well.formationMarkers:
+        return {
+            "markers": [
+                {
+                    "id": m.id,
+                    "wellId": m.wellId,
+                    "formationName": m.formationName,
+                    "topDepth": m.topDepth,
+                    "bottomDepth": m.bottomDepth,
+                    "source": m.source,
+                    "pickedBy": m.pickedBy,
+                    "notes": m.notes,
+                }
+                for m in well.formationMarkers
+            ]
+        }
+
+    # Algorithmic estimation fallback
+    matrix, _, _, _ = _extract_curves_matrix(well)
+    from backend.app.services.comparison import _estimate_formations
+    depths = np.array(matrix.get("depth", []))
+    if len(depths) == 0:
+        td = float(well.tdFt or 10000.0)
+        elev = float(well.elevFt or 0.0)
+        depths = np.linspace(elev, td, 100)
+    curves = {k: np.array(v) for k, v in matrix.get("curves", {}).items()}
+    estimated = _estimate_formations(depths, curves)
+
+    return {
+        "markers": [
+            {
+                "id": None,
+                "wellId": well.id,
+                "formationName": f"{fname} Formation",
+                "topDepth": top_depth,
+                "bottomDepth": None,
+                "source": "ESTIMATED",
+                "pickedBy": "Algorithmic Niger Delta Model",
+                "notes": "Estimated from log depth span and Gamma Ray baseline.",
+            }
+            for fname, top_depth in estimated.items()
+            if top_depth is not None
+        ]
+    }
+
+
+@router.post("/{id}/markers")
+def save_well_formation_markers(
+    id: str,
+    payload: SaveFormationMarkersRequest,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    clean_id = (id or "").strip()
+    well = (
+        db.query(Well)
+        .options(selectinload(Well.formationMarkers))
+        .filter(or_(Well.id == clean_id, Well.apiNo == clean_id, Well.name == clean_id))
+        .first()
+    )
+    if not well:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Well '{clean_id}' not found.",
+        )
+
+    # Permission check: ADMIN or owner
+    is_admin = (normalize_role(current_user.role) == "ADMIN")
+    if not is_admin and well.ownerId != current_user.id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Access restricted to well owner or administrators.",
+        )
+
+    # Replace existing markers with updated picks
+    db.query(FormationMarker).filter(FormationMarker.wellId == well.id).delete()
+    db.flush()
+
+    saved_items = []
+    for m in payload.markers:
+        new_marker = FormationMarker(
+            wellId=well.id,
+            formationName=m.formationName,
+            topDepth=m.topDepth,
+            bottomDepth=m.bottomDepth,
+            source=m.source or "VERIFIED",
+            pickedBy=m.pickedBy or current_user.name or current_user.email,
+            notes=m.notes,
+            ownerId=current_user.id,
+        )
+        db.add(new_marker)
+        saved_items.append(new_marker)
+
+    # Audit activity log
+    log = ActivityLog(
+        userName=current_user.name or "Petrophysicist",
+        userRole=normalize_role(current_user.role),
+        userId=current_user.id,
+        action="UPDATE_FORMATION_MARKERS",
+        targetType="WELL",
+        targetId=well.id,
+        details=f"Updated {len(saved_items)} formation marker tops for well {well.name}.",
+    )
+    db.add(log)
+    db.commit()
+
+    return {
+        "success": True,
+        "count": len(saved_items),
+        "message": f"Successfully saved {len(saved_items)} formation markers for well {well.name}.",
+    }
+
+
 @router.get("/{id}")
 def get_well_detail(
     id: str,
@@ -439,7 +730,7 @@ def get_well_detail(
 
     return {
         "well": _to_well_list_item(well),
-        "aiSummary": latest_report.aiSummary if latest_report and latest_report.aiSummary else "Upload and commit a LAS file to generate a petrophysical summary.",
+        "aiSummary": latest_report.aiSummary if latest_report and latest_report.aiSummary else "Upload a LAS file to generate a petrophysical summary.",
         "recommendations": recs,
         "curvesData": curves_matrix,
         "curvesMatrix": curves_matrix,

@@ -58,6 +58,27 @@ async def lifespan(app: FastAPI):
                 '''))
                 conn.execute(text('CREATE UNIQUE INDEX IF NOT EXISTS "SystemSetting_key_key" ON "SystemSetting"("key");'))
 
+            has_markers = conn.execute(text(
+                """select to_regclass('public."FormationMarker"') is not null""")).scalar()
+            if not has_markers:
+                conn.execute(text('''
+                    CREATE TABLE IF NOT EXISTS "FormationMarker" (
+                        "id" TEXT NOT NULL PRIMARY KEY,
+                        "wellId" TEXT NOT NULL REFERENCES "Well"("id") ON DELETE CASCADE,
+                        "formationName" TEXT NOT NULL,
+                        "topDepth" DOUBLE PRECISION NOT NULL,
+                        "bottomDepth" DOUBLE PRECISION,
+                        "source" TEXT NOT NULL DEFAULT 'INTERPRETER',
+                        "pickedBy" TEXT,
+                        "notes" TEXT,
+                        "ownerId" TEXT REFERENCES "User"("id") ON DELETE CASCADE,
+                        "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                        "updatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                        CONSTRAINT "FormationMarker_wellId_formationName_key" UNIQUE ("wellId", "formationName")
+                    );
+                '''))
+                conn.execute(text('CREATE INDEX IF NOT EXISTS "FormationMarker_wellId_idx" ON "FormationMarker"("wellId");'))
+
         logger.info("Database schema compatibility check completed successfully.")
     except Exception as e:
         logger.warning(f"Database schema check warning on startup: {e}")

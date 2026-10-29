@@ -132,6 +132,7 @@ class Well(Base):
     operator = relationship("Operator", back_populates="wells")
     lasFiles = relationship("LASFile", back_populates="well", cascade="all, delete-orphan")
     reports = relationship("QualityReport", back_populates="well", cascade="all, delete-orphan")
+    formationMarkers = relationship("FormationMarker", back_populates="well", cascade="all, delete-orphan")
 
 
 class LASFile(Base):
@@ -310,4 +311,27 @@ class SystemSetting(Base):
     key = Column(String, unique=True, nullable=False, index=True)
     value = Column(Text, nullable=False)
     updatedAt = Column(DateTime, default=now_utc, onupdate=now_utc, nullable=False)
+
+
+class FormationMarker(Base):
+    __tablename__ = "FormationMarker"
+
+    id = Column(String, primary_key=True, default=gen_uuid)
+    wellId = Column(String, ForeignKey("Well.id", ondelete="CASCADE"), nullable=False, index=True)
+    formationName = Column(String, nullable=False)
+    topDepth = Column(Float, nullable=False)
+    bottomDepth = Column(Float, nullable=True)
+    source = Column(String, default="INTERPRETER", nullable=False)  # 'INTERPRETER', 'BIOSTRATIGRAPHY', 'ESTIMATED', 'CORE', 'SEISMIC'
+    pickedBy = Column(String, nullable=True)
+    notes = Column(Text, nullable=True)
+
+    ownerId = Column(String, ForeignKey("User.id", ondelete="CASCADE"), nullable=True, index=True)
+    createdAt = Column(DateTime, default=now_utc, nullable=False)
+    updatedAt = Column(DateTime, default=now_utc, onupdate=now_utc, nullable=False)
+
+    well = relationship("Well", back_populates="formationMarkers")
+
+    __table_args__ = (
+        UniqueConstraint("wellId", "formationName", name="FormationMarker_wellId_formationName_key"),
+    )
 

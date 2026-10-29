@@ -226,13 +226,13 @@ def commit_las_file_transaction(
         action="UPLOAD_LAS",
         targetType="WELL",
         targetId=well.id,
-        details=f"Uploaded and committed LAS file {file_name} for well {well.name} (Score: {qa.overallScore}/100, Grade: {qa.qualityGrade}).",
+        details=f"Uploaded LAS file {file_name} to database for well {well.name} (Score: {qa.overallScore}/100, Grade: {qa.qualityGrade}).",
     )
     db.add(log)
     db.commit()
 
     return {
-        "message": f"Successfully parsed and committed {file_name} for well {well.name}.",
+        "message": f"Successfully parsed and uploaded {file_name} for well {well.name}.",
         "well": {
             "id": well.id,
             "name": well.name,

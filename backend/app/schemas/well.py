@@ -114,3 +114,37 @@ class BulkDeleteWellsResponse(BaseModel):
     deletedCount: int
     deletedIds: List[str]
     message: str
+
+class CompareWellsRequest(BaseModel):
+    primary_well_id: str
+    offset_well_id: str
+    num_resample_points: Optional[int] = 400
+
+    @field_validator("primary_well_id", "offset_well_id")
+    @classmethod
+    def validate_well_id(cls, v: str) -> str:
+        threat = detect_sql_injection(v, "well_id")
+        if threat:
+            raise ValueError(f"Malicious identifier detected: {threat}")
+        return validate_safe_identifier(v, "Well ID", max_len=64)
+
+class FormationMarkerItem(BaseModel):
+    id: Optional[str] = None
+    wellId: Optional[str] = None
+    formationName: str = Field(..., max_length=100)
+    topDepth: float
+    bottomDepth: Optional[float] = None
+    source: Optional[str] = "INTERPRETER"
+    pickedBy: Optional[str] = None
+    notes: Optional[str] = None
+
+    @field_validator("formationName")
+    @classmethod
+    def validate_name(cls, v: str) -> str:
+        threat = detect_sql_injection(v, "formation_name")
+        if threat:
+            raise ValueError(f"Malicious input detected in formation name: {threat}")
+        return sanitize_text(v, max_length=100)
+
+class SaveFormationMarkersRequest(BaseModel):
+    markers: List[FormationMarkerItem]
