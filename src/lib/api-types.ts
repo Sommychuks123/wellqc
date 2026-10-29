@@ -521,12 +521,12 @@ export interface CleaningOptions {
   outlierClipping?: boolean;
   unitStandardization?: boolean;
   duplicateDepthPruning?: boolean;
-  duplicateAction?: "REMOVE_SECOND" | "COMPARE_ROWS";
+  duplicateAction?: "REMOVE_SECOND" | "COMPARE_ROWS" | "KEEP_LAST";
   impossibleAction?: "REMOVE" | "CLIP" | "DELETE_ROW";
   approvedFixes?: ApprovedFix[];
   flatlineHandling?: boolean;
   depthGapInterpolation?: boolean;
-  imputationStrategy?: "NONE" | "KNN" | "LINEAR" | "SPLINE" | "RANDOM_FOREST" | "GRADIENT_BOOSTING" | "AUTO" | "MEDIAN";
+  imputationStrategy?: "NONE" | "KNN" | "LINEAR" | "SPLINE" | "RANDOM_FOREST" | "GRADIENT_BOOSTING" | "AUTO";
   spikeSigma?: number;
   maxImputeGapSamples?: number;
   maxDepthGapFillSteps?: number;
@@ -701,4 +701,3 @@ export interface CompareWellsPayload {
   offset_well_id: string;
   num_resample_points?: number;
 }
-
