@@ -58,6 +58,8 @@ A story is accepted as done when:
 │ Epic 11: Mobile Ergonomics & PWA Telemetry                                   │
 ├──────────────────────────────────────────────────────────────────────────────┤
 │ Epic 12: Multi-Well Comparison & Stratigraphic Correlation Workstation       │
+├──────────────────────────────────────────────────────────────────────────────┤
+│ Epic 13: Interactive Dashboard Onboarding & Workflow Guidance                │
 └──────────────────────────────────────────────────────────────────────────────┘
 ```
 
@@ -322,6 +324,24 @@ A story is accepted as done when:
     When I hover over the anomaly marker on the track ribbon
     Then a tooltip displays: "IMPOSSIBLE_VALUE (Critical): RHOB reading 0.82 g/cc"
     And displays the suggested action: "Clip to lower physical boundary 1.00 g/cc"
+  ```
+
+#### US-VIW-03: Dynamic Multi-Curve Channel Selection & Custom Track Workstation
+- **As a** Petrophysicist (PER-1) or Subsurface Data Engineer (PER-2),
+- **I want to** select, filter, and render any curve channel available in the parsed LAS file via a toolbar dropdown selector, with quick presets, search filtering, and one-click track isolation,
+- **So that** I am not restricted to fixed standard curves and can inspect any petrophysical, acoustic, or caliper logs in arbitrary combinations.
+- **Priority:** Must Have
+- **Sprint / Owner:** Sprint 7 · SE1 / SE2
+- **Acceptance Criteria:**
+  ```gherkin
+  Scenario: Selecting custom curves via toolbar dropdown
+    Given a parsed LAS file with multiple logging channels (e.g. GR, RT, RHOB, NPHI, DT, CALI, SP, PEF)
+    When I click the "Tracks" dropdown selector on the wireline toolbar
+    Then I see checkboxes for all available curve channels with active/total count badges
+    And I can search curves using the mnemonic filter input
+    And clicking "Standard 3" activates GR, RT, and DT presets
+    And clicking "Only" next to a curve isolates that single track immediately
+    And each rendered track header provides an inline curve switcher and dismiss button
   ```
 
 ---
@@ -699,6 +719,29 @@ A story is accepted as done when:
 
 ---
 
+### 🧭 Epic 13: Interactive Dashboard Onboarding & Workflow Guidance
+
+#### US-DSB-01: Interactive Step-by-Step Dashboard Product Tour & Spotlight
+- **As a** First-Time User or Exploring Petrophysicist (PER-1, PER-2),
+- **I want** an interactive guided onboarding tour with a visual spotlight overlay and a non-intrusive welcome banner,
+- **So that** I understand the platform architecture, KPI telemetry, quality trends, and quick-action navigation immediately upon logging in.
+- **Priority:** Must Have
+- **Sprint / Owner:** Sprint 7 · SE2
+- **Acceptance Criteria:**
+  ```gherkin
+  Scenario: Running the onboarding tour on the Command Dashboard
+    Given a user navigating to `/dashboard`
+    When the user has not dismissed the welcome banner
+    Then the "Welcome to WellQC Command Center" banner is displayed with a "Take 1-Min Tour" button
+    And clicking "Take 1-Min Tour" or the permanent "Tour Guide" button launches the 6-step guided walkthrough
+    And a darkened spotlight overlay focuses on the current target element with smooth auto-scrolling
+    And an animated tooltip displays step descriptions, progress badge (e.g. "Step 2 of 6"), "Back", "Next", and "Exit Tour"
+    And pressing the "Escape" key closes the tour and restores full interactivity
+    And completing or exiting the tour persists dismissal to localStorage safely via React 19 useSyncExternalStore
+  ```
+
+---
+
 ## 📊 4. Requirements Traceability Matrix (RTM)
 
 | Story ID | Epic Title | MoSCoW | Sprint Target | Lead Owner | Primary Code Modules |
@@ -718,6 +761,7 @@ A story is accepted as done when:
 | **US-IMP-02** | Imputation Benchmarking | Should Have | Sprint 4 | DA2 | `imputation-benchmark-modal.tsx`, `imputation.py` |
 | **US-VIW-01** | 3-Track Wireline Presentation | Must Have | Sprint 4 | SE1 | `src/components/well-log/log-viewer.tsx` |
 | **US-VIW-02** | Interactive Anomaly Ribbon | Should Have | Sprint 4 | SE1 | `src/components/well-log/log-viewer.tsx` |
+| **US-VIW-03** | Dynamic Multi-Curve Channel Selection | Must Have | Sprint 7 | SE1 / SE2 | `src/components/well-log/log-viewer.tsx` |
 | **US-CLN-01** | Non-Destructive Raw Data | Must Have | Sprint 4 | CE2 | `src/lib/las/cleaner.ts`, `backend/app/api/las.py` |
 | **US-CLN-02** | Before vs After Scorecard | Must Have | Sprint 4 | SE1 | `src/app/qa-engine/page.tsx`, `cleaner.py` |
 | **US-RPT-01** | Executive PDF QA Certificate | Must Have | Sprint 5 | DA4 | `src/app/reports/page.tsx`, `src/lib/las/exporter.ts` |
@@ -739,6 +783,7 @@ A story is accepted as done when:
 | **US-CMP-02** | Multi-Channel Pearson Correlation & Structural Lag Shift | Must Have | Sprint 7 | SE1 | `backend/app/services/comparison.py`, `src/app/comparison/` |
 | **US-CMP-03** | Hybrid Formation Tops Alignment & Provenance Verification | Must Have | Sprint 7 | DA1 & SE1 | `backend/app/models/models.py`, `backend/app/api/wells.py`, `comparison/page.tsx` |
 | **US-CMP-04** | Interactive Multi-Well Workstation UI & Visual Overlays | Must Have | Sprint 7 | SE2 | `src/app/comparison/page.tsx`, `src/components/ui/sidebar.tsx` |
+| **US-DSB-01** | Interactive Dashboard Onboarding Tour Guide | Must Have | Sprint 7 | SE2 | `src/components/dashboard/dashboard-tour.tsx`, `src/app/dashboard/` |
 
 ---
 

@@ -4,7 +4,8 @@ import { Database, RefreshCw, X } from "lucide-react";
 interface BatchQueueListProps {
   uploadQueue: QueuedLASFile[];
   isSaving: boolean;
-  onCommitAll: () => void;
+  onCommitAll?: () => void;
+  onUploadAll?: () => void;
   onLoadFile: (file: QueuedLASFile) => void;
   onRemoveFile: (id: string) => void;
 }
@@ -13,9 +14,11 @@ export function BatchQueueList({
   uploadQueue,
   isSaving,
   onCommitAll,
+  onUploadAll,
   onLoadFile,
   onRemoveFile,
 }: BatchQueueListProps) {
+  const handleUploadAll = onUploadAll || onCommitAll;
   if (uploadQueue.length === 0) return null;
 
   return (
@@ -24,16 +27,16 @@ export function BatchQueueList({
         <div>
           <h2 className="text-sm font-bold text-white">Batch Upload Queue</h2>
           <p className="text-[11px] text-wellqc-muted font-mono">
-            {uploadQueue.length} validated file{uploadQueue.length === 1 ? "" : "s"}. Files commit one at a time to preserve every result.
+            {uploadQueue.length} validated file{uploadQueue.length === 1 ? "" : "s"}. Files upload one at a time to preserve every result.
           </p>
         </div>
         <button
-          onClick={onCommitAll}
+          onClick={handleUploadAll}
           disabled={isSaving || uploadQueue.every((file) => file.status === "saved")}
           className="flex items-center justify-center space-x-2 px-4 py-2 rounded-lg bg-cyan-500 hover:bg-cyan-400 disabled:opacity-50 text-slate-950 font-bold text-xs"
         >
           {isSaving ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Database className="w-4 h-4" />}
-          <span>{isSaving ? "Committing queue..." : "Commit all to database"}</span>
+          <span>{isSaving ? "Uploading queue..." : "Upload all to database"}</span>
         </button>
       </div>
       <div className="divide-y divide-wellqc-border border border-wellqc-border rounded-lg overflow-hidden">

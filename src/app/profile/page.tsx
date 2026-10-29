@@ -579,7 +579,7 @@ export default function UserProfilePage() {
 
                 <div className="p-3.5 rounded-xl bg-wellqc-panel border border-wellqc-border space-y-2">
                   <div className="flex items-center justify-between text-xs">
-                    <span className="text-slate-400">Total LAS Uploads Committed</span>
+                    <span className="text-slate-400">Total LAS Files Uploaded</span>
                     <span className="font-mono font-bold text-cyan-400">{profile?.totalFilesUploaded ?? 0}</span>
                   </div>
                   <div className="flex items-center justify-between text-xs">
