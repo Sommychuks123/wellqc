@@ -237,7 +237,7 @@ export default function DashboardPage() {
                     className={`text-[10px] px-1.5 py-0.2 rounded-full font-mono font-bold ${
                       filterScope === "ALL"
                         ? "bg-white/20 text-white"
-                        : "bg-slate-200 dark:bg-slate-800 text-slate-500"
+                        : "bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-medium"
                     }`}
                   >
                     {summary.counts.totalAll}
@@ -259,7 +259,7 @@ export default function DashboardPage() {
                     className={`text-[10px] px-1.5 py-0.2 rounded-full font-mono font-bold ${
                       filterScope === "COMMITTED"
                         ? "bg-white/20 text-white"
-                        : "bg-slate-200 dark:bg-slate-800 text-slate-500"
+                        : "bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-medium"
                     }`}
                   >
                     {summary.counts.totalCommitted}
@@ -626,7 +626,7 @@ export default function DashboardPage() {
                       Composite Fleet Quality Dial
                     </span>
                   </div>
-                  <span className="text-[10px] text-slate-500 font-mono">API RP 66 Benchmark</span>
+                  <span className="text-[10px] text-slate-600 dark:text-slate-300 font-mono font-medium">API RP 66 Benchmark</span>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 items-center py-4">
@@ -650,18 +650,19 @@ export default function DashboardPage() {
                         strokeLinecap="round"
                         className="transition-all duration-1000 ease-out"
                       />
-                      <text x="20" y="118" fill="#64748b" fontSize="10" fontWeight="bold" textAnchor="middle">0</text>
-                      <text x="100" y="26" fill="#64748b" fontSize="10" fontWeight="bold" textAnchor="middle">50</text>
-                      <text x="180" y="118" fill="#64748b" fontSize="10" fontWeight="bold" textAnchor="middle">100</text>
+                      <text x="20" y="118" fill="currentColor" className="text-slate-700 dark:text-slate-100 font-mono text-[11px] font-bold" textAnchor="middle">0</text>
+                      <text x="100" y="8" fill="currentColor" className="text-slate-800 dark:text-slate-100 font-mono text-[11px] font-bold" textAnchor="middle">50</text>
+                      <text x="180" y="118" fill="currentColor" className="text-slate-700 dark:text-slate-100 font-mono text-[11px] font-bold" textAnchor="middle">100</text>
                     </svg>
 
                     <div className="text-center -mt-6">
                       <div className="text-3xl font-black text-slate-900 dark:text-white font-mono tracking-tight">{score}</div>
                       <div
-                        className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full inline-block mt-0.5"
+                        className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full inline-block mt-1 border shadow-xs"
                         style={{
                           color: getScoreColor(summary.averageQualityScore),
-                          backgroundColor: `${getScoreColor(summary.averageQualityScore)}15`,
+                          backgroundColor: `${getScoreColor(summary.averageQualityScore)}25`,
+                          borderColor: `${getScoreColor(summary.averageQualityScore)}60`,
                         }}
                       >
                         {summary.averageQualityGrade}
@@ -670,8 +671,8 @@ export default function DashboardPage() {
                   </div>
 
                   <div className="space-y-2 text-xs border-l border-wellqc-border/60 pl-3">
-                    <div className="text-[11px] text-slate-600 dark:text-slate-400">
-                      Total Flagged Anomalies: <strong className="text-slate-900 dark:text-white font-mono">{summary.anomaliesFound}</strong>
+                    <div className="text-[11px] text-slate-700 dark:text-slate-200 font-medium">
+                      Total Flagged Anomalies: <strong className="text-slate-900 dark:text-white font-mono font-bold ml-1">{summary.anomaliesFound}</strong>
                     </div>
 
                     <div className="grid grid-cols-2 gap-2 text-[10px]">
@@ -695,8 +696,8 @@ export default function DashboardPage() {
                   </div>
                 </div>
 
-                <div className="pt-2.5 border-t border-wellqc-border flex items-center justify-between text-[10px] text-slate-500">
-                  <span>Evaluated Assets: <strong className="text-slate-900 dark:text-white font-mono">{summary.totalWells} Wells</strong></span>
+                <div className="pt-2.5 border-t border-wellqc-border flex items-center justify-between text-[11px] text-slate-600 dark:text-slate-300">
+                  <span>Evaluated Assets: <strong className="text-slate-900 dark:text-white font-mono font-bold ml-1">{summary.totalWells} Wells</strong></span>
                   <Link href="/wells" className="text-cyan-700 dark:text-cyan-400 hover:underline font-semibold flex items-center space-x-1">
                     <span>View Registry</span>
                     <ArrowRight className="w-3 h-3" />
@@ -777,7 +778,7 @@ export default function DashboardPage() {
                       Composite Fleet Quality Dial
                     </span>
                   </div>
-                  <span className="text-[10px] text-slate-500 font-mono">API RP 66 Benchmark</span>
+                  <span className="text-[10px] text-slate-600 dark:text-slate-300 font-mono font-medium">API RP 66 Benchmark</span>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 items-center py-4">
@@ -802,18 +803,19 @@ export default function DashboardPage() {
                         strokeLinecap="round"
                         className="transition-all duration-1000 ease-out"
                       />
-                      <text x="20" y="118" fill="#64748b" fontSize="10" fontWeight="bold" textAnchor="middle">0</text>
-                      <text x="100" y="26" fill="#64748b" fontSize="10" fontWeight="bold" textAnchor="middle">50</text>
-                      <text x="180" y="118" fill="#64748b" fontSize="10" fontWeight="bold" textAnchor="middle">100</text>
+                      <text x="20" y="118" fill="currentColor" className="text-slate-700 dark:text-slate-100 font-mono text-[11px] font-bold" textAnchor="middle">0</text>
+                      <text x="100" y="8" fill="currentColor" className="text-slate-800 dark:text-slate-100 font-mono text-[11px] font-bold" textAnchor="middle">50</text>
+                      <text x="180" y="118" fill="currentColor" className="text-slate-700 dark:text-slate-100 font-mono text-[11px] font-bold" textAnchor="middle">100</text>
                     </svg>
 
                     <div className="text-center -mt-6">
                       <div className="text-3xl font-black text-slate-900 dark:text-white font-mono tracking-tight">{score}</div>
                       <div
-                        className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full inline-block mt-0.5"
+                        className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full inline-block mt-1 border shadow-xs"
                         style={{
                           color: getScoreColor(summary.averageQualityScore),
-                          backgroundColor: `${getScoreColor(summary.averageQualityScore)}15`,
+                          backgroundColor: `${getScoreColor(summary.averageQualityScore)}25`,
+                          borderColor: `${getScoreColor(summary.averageQualityScore)}60`,
                         }}
                       >
                         {summary.averageQualityGrade}
@@ -823,8 +825,8 @@ export default function DashboardPage() {
 
                   {/* Contributing Breakdown */}
                   <div className="space-y-2 text-xs border-l border-wellqc-border/60 pl-3">
-                    <div className="text-[11px] text-slate-600 dark:text-slate-400">
-                      Total Flagged Anomalies: <strong className="text-slate-900 dark:text-white font-mono">{summary.anomaliesFound}</strong>
+                    <div className="text-[11px] text-slate-700 dark:text-slate-200 font-medium">
+                      Total Flagged Anomalies: <strong className="text-slate-900 dark:text-white font-mono font-bold ml-1">{summary.anomaliesFound}</strong>
                     </div>
 
                     <div className="grid grid-cols-2 gap-2 text-[10px]">
@@ -848,9 +850,9 @@ export default function DashboardPage() {
                   </div>
                 </div>
 
-                <div className="pt-2.5 border-t border-wellqc-border flex items-center justify-between text-[10px] text-slate-500">
-                  <span>Total Active Wells: <strong className="text-slate-900 dark:text-white font-mono">{summary.totalWells}</strong></span>
-                  <span>Total Channels: <strong className="text-slate-900 dark:text-white font-mono">{summary.curvesAnalysed}</strong></span>
+                <div className="pt-2.5 border-t border-wellqc-border flex items-center justify-between text-[11px] text-slate-600 dark:text-slate-300">
+                  <span>Total Active Wells: <strong className="text-slate-900 dark:text-white font-mono font-bold ml-1">{summary.totalWells}</strong></span>
+                  <span>Total Channels: <strong className="text-slate-900 dark:text-white font-mono font-bold ml-1">{summary.curvesAnalysed}</strong></span>
                 </div>
               </div>
 
@@ -1228,7 +1230,7 @@ function EnterpriseKpiCard({
   return (
     <div className="enterprise-kpi-card bg-wellqc-panel border border-wellqc-border p-4 rounded-2xl flex flex-col justify-between hover:border-slate-400 dark:hover:border-slate-700 shadow-sm hover:shadow-md hover:scale-[1.01] transition-all duration-200">
       <div className="flex items-center justify-between">
-        <span className="text-[10px] text-slate-500 dark:text-slate-400 uppercase tracking-wider font-bold truncate">
+        <span className="text-[10px] text-slate-600 dark:text-slate-300 uppercase tracking-wider font-bold truncate">
           {label}
         </span>
         {badge && (
@@ -1240,7 +1242,7 @@ function EnterpriseKpiCard({
       <div className={`text-2xl font-black font-mono tracking-tight my-1.5 ${accentColor}`}>
         {value}
       </div>
-      <div className="text-[10px] text-slate-500 truncate">{subtext}</div>
+      <div className="text-[10px] text-slate-600 dark:text-slate-300 font-medium truncate">{subtext}</div>
     </div>
   );
 }
