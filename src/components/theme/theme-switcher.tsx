@@ -7,9 +7,16 @@ import { ThemeCustomizerModal } from "./theme-customizer-modal";
 
 export function ThemeSwitcher() {
   const { theme, setTheme, themes, currentTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
   const [open, setOpen] = useState(false);
   const [customizerOpen, setCustomizerOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const displayTheme = mounted ? currentTheme : (themes.find((t) => t.id === "slate") || themes[0]);
 
   // Close on outside click or escape
   useEffect(() => {
@@ -45,15 +52,20 @@ export function ThemeSwitcher() {
           onClick={() => setOpen((prev) => !prev)}
           className="flex items-center space-x-1.5 px-2.5 py-1 text-slate-700 dark:text-slate-300 hover:text-slate-950 dark:hover:text-white bg-slate-100/80 hover:bg-slate-200/80 dark:bg-slate-900/60 dark:hover:bg-slate-800/80 rounded-lg border border-slate-300/80 dark:border-slate-800 transition-colors text-xs font-mono shadow-sm"
           aria-label="Switch Workstation Color Theme"
-          title={`Active Theme: ${currentTheme.name}. Click to change.`}
+          title={`Active Theme: ${displayTheme.name}. Click to change.`}
+          suppressHydrationWarning
         >
           <Palette className="w-3.5 h-3.5 text-cyan-600 dark:text-cyan-400" />
           <span
             className="w-2.5 h-2.5 rounded-full border border-slate-400 dark:border-slate-600 shrink-0"
-            style={{ backgroundColor: currentTheme.colors.accent }}
+            style={{ backgroundColor: displayTheme.colors.accent }}
+            suppressHydrationWarning
           />
-          <span className="hidden sm:inline text-[11px] font-medium text-slate-800 dark:text-slate-200">
-            {currentTheme.name}
+          <span
+            className="hidden sm:inline text-[11px] font-medium text-slate-800 dark:text-slate-200"
+            suppressHydrationWarning
+          >
+            {displayTheme.name}
           </span>
         </button>
 
