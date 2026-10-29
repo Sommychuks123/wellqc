@@ -1,32 +1,35 @@
 # WellQC — Interactive Visual Kanban Board & Trello Free Import Guide
 
 > **Project:** WellQC — AI-Powered Well Log Quality Assurance & Subsurface Analytics Platform  
-> **Agile Framework:** 7 Sprints · 14 Weeks · 8 Team Members  
-> **Overall Platform Completion:** **98%** (Sprints 1–6 Completed, Sprint 7 in Final Verification)  
+> **Agile Framework:** 9 Sprints · 18 Weeks · 8 Team Members  
+> **Platform Implementation Status:** **100% Core Feature Complete** (Sprints 1–7 Landed & Tested · 125 Pytest + 38 Jest Passing)  
+> **Overall Project Progress toward Enterprise Steady-State:** **78%** (Sprints 8–9 Upcoming Production Rollout & SLAs)  
 
 ---
 
 ## 💡 How to Beat the 20-Card Limit on Trello Free Plan
 
-Trello's CSV Importer Power-Up imposes a **20-row limit on free accounts**. Furthermore, team member initials (`SE1`, `DA1`, etc.) will show as unassigned unless you purchase 8 paid Trello seats.
+Trello's CSV Importer Power-Up imposes a **20-row limit on free accounts**. Furthermore, team member initials (`SE1`, `DA1`, etc.) show as unassigned unless you purchase 8 paid Trello seats.
 
 We have solved both issues for you in two zero-cost ways:
 
-1. **Pre-Split CSV Batches (≤ 20 cards each):** Simply import 3 small CSV files in under 2 minutes. No upgrade needed!
-2. **Embedded Card Titles:** Member roles and domains (`[SE1][Backend]`) are now directly embedded in the card titles so they appear boldly on the card faces without needing member accounts or label setup.
+1. **Pre-Split CSV Batches (≤ 20 cards each):** Simply import 5 small CSV files in under 2 minutes. No upgrade needed!
+2. **Embedded Card Titles:** Member roles and domains (`[SE1][Backend]`) are directly embedded in card titles so they appear boldly on the card faces without needing member accounts or label setup.
 3. **Native Multi-Card Paste (0 Power-Ups):** Copy any code block below, paste it directly into Trello's *+ Add a card*, and click *Create X cards* to generate the whole list in 2 seconds.
 
 ---
 
 ## 📥 1. Free-Tier Import Files (All ≤ 20 Rows)
 
-Upload these 3 files consecutively into your Trello board via the CSV Importer Power-Up:
+Upload these 5 files consecutively into your Trello board via the CSV Importer Power-Up:
 
 | Batch File | Contents | Card Count | Status | Direct File Link |
 |---|---|---|---|---|
-| **`batch_1_sprints_1_to_3.csv`** | Sprints 1, 2, and 3 | **19 cards** (≤ 20 limit) | Free Eligible | [**`batch_1_sprints_1_to_3.csv`**](file:///c:/Users/Ekwebelam%20C%20Williams/Desktop/NDI-G5/wellqc/Documentations/trello_batches/batch_1_sprints_1_to_3.csv) |
-| **`batch_2_sprints_4_to_5.csv`** | Sprints 4 and 5 | **12 cards** (≤ 20 limit) | Free Eligible | [**`batch_2_sprints_4_to_5.csv`**](file:///c:/Users/Ekwebelam%20C%20Williams/Desktop/NDI-G5/wellqc/Documentations/trello_batches/batch_2_sprints_4_to_5.csv) |
-| **`batch_3_sprints_6_to_7.csv`** | Sprints 6 and 7 | **19 cards** (≤ 20 limit) | Free Eligible | [**`batch_3_sprints_6_to_7.csv`**](file:///c:/Users/Ekwebelam%20C%20Williams/Desktop/NDI-G5/wellqc/Documentations/trello_batches/batch_3_sprints_6_to_7.csv) |
+| **`batch_1_sprints_1_to_2.csv`** | Sprints 1 and 2 | **13 cards** (≤ 20 limit) | Free Eligible | [**`batch_1_sprints_1_to_2.csv`**](file:///c:/Users/Ekwebelam%20C%20Williams/Desktop/NDI-G5/wellqc/Documentations/trello_batches/batch_1_sprints_1_to_2.csv) |
+| **`batch_2_sprints_3_to_4.csv`** | Sprints 3 and 4 | **12 cards** (≤ 20 limit) | Free Eligible | [**`batch_2_sprints_3_to_4.csv`**](file:///c:/Users/Ekwebelam%20C%20Williams/Desktop/NDI-G5/wellqc/Documentations/trello_batches/batch_2_sprints_3_to_4.csv) |
+| **`batch_3_sprints_5_to_6.csv`** | Sprints 5 and 6 | **15 cards** (≤ 20 limit) | Free Eligible | [**`batch_3_sprints_5_to_6.csv`**](file:///c:/Users/Ekwebelam%20C%20Williams/Desktop/NDI-G5/wellqc/Documentations/trello_batches/batch_3_sprints_5_to_6.csv) |
+| **`batch_4_sprint_7.csv`** | Sprint 7 (Completed) | **13 cards** (≤ 20 limit) | Free Eligible | [**`batch_4_sprint_7.csv`**](file:///c:/Users/Ekwebelam%20C%20Williams/Desktop/NDI-G5/wellqc/Documentations/trello_batches/batch_4_sprint_7.csv) |
+| **`batch_5_sprints_8_to_9.csv`** | Sprints 8 and 9 (Upcoming) | **13 cards** (≤ 20 limit) | Free Eligible | [**`batch_5_sprints_8_to_9.csv`**](file:///c:/Users/Ekwebelam%20C%20Williams/Desktop/NDI-G5/wellqc/Documentations/trello_batches/batch_5_sprints_8_to_9.csv) |
 
 > Alternatively, if you prefer importing sprint by sprint, individual CSV files are available in [**`Documentations/trello_batches/`**](file:///c:/Users/Ekwebelam%20C%20Williams/Desktop/NDI-G5/wellqc/Documentations/trello_batches/).
 
@@ -94,24 +97,48 @@ In Trello, create a list, click **+ Add a card**, paste the block, press **Enter
 [DA1] [Frontend] Item 4: Impossible Values Action Suite (Remove / Clip / Delete Row) (✅)
 [DA2] [Completed] Item 5: Long Null Cluster Guards & Unfillable Flag Boundaries (✅)
 [SE1] [Completed] Item 6-7: Duplicate Depth Prune & 2-Point Neighbour Despiking (✅)
-[DA4] [Compliance] Item 8-9: Real Change Report Telemetry & Audit Certificate ID (✅)
+[DA4] [Backend] Item 8-9: Real Change Report Telemetry & Audit Certificate ID (✅)
 [SE2] [Frontend] Item 10-12: Staged Non-Destructive QA UI & Cleaned Export Suite (✅)
 [CE2] [Security] Sliding-Window IP Rate Limiter & Security Stabilization (✅)
 [SE1] [Milestone] Milestone: Certified Quality Engine Overhaul & Audit Pipeline (✅)
 ```
 
-### 📋 List: `Sprint 7: Multi-Well Comparison, NUPRC Compliance & Batch Processing`
+### 📋 List: `Sprint 7: Multi-Well Comparison, Dynamic Workstation & UX Enhancements`
 ```text
-[SE1] [Backend] Multi-Well Depth Alignment & Correlation Engine (SE1) (✅)
-[SE2] [Frontend] Cross-Well Canvas UI with Synchronized Depth Scrolling (SE2) (🔄 95%)
-[SE1] [Petrophysics] Unsupervised ML Lithology Classification on GR-RHOB-NPHI (SE1) (🔄 85%)
-[SE2] [Compliance] NUPRC Compliance Report Template & Digital Signatures (SE2, DA4) (🔄 90%)
-[DA1] [Petrophysics] Niger Delta Formation Cutoffs (Akata, Agbada, Benin) (DA1, DA2) (✅)
-[DA3] [Petrophysics] Offset Niger Delta Demonstration Well Package Curation (DA3) (🔄 95%)
-[CE1] [In Progress] Asynchronous Batch Ingestion Background Workers & Live Progress (CE1) (🔄 85%)
-[CE2] [Backend] Outbound Webhook Event Dispatcher for Cloud Storage Sync (CE2) (🔄 80%)
-[SE1] [Frontend] End-to-End System Integration & Acceptance Testing Suite (All) (🔄 95%)
-[SE1] [Milestone] Milestone: Final Production Platform Release & NUPRC Audit Readiness (🔄 75%)
+[SE1] [Backend] Multi-Well Depth Alignment & Stratigraphic Correlation Engine (SE1) (✅)
+[SE2] [Frontend] Cross-Well Workstation UI & Interactive SVG Overlaid Track (SE2) (✅)
+[SE1] [Petrophysics] Unsupervised ML Lithology Clustering on GR-RHOB-NPHI (SE1, DA2) (✅)
+[SE2] [Compliance] NUPRC Compliance Report Template & Digital Signatures (SE2, DA4) (✅)
+[DA1] [Petrophysics] Niger Delta Formation Cutoffs & Hybrid Markers DB Schema (DA1, CE2) (✅)
+[DA3] [Petrophysics] Offset Niger Delta Demonstration Well Package Curation (DA3) (✅)
+[CE1] [Completed] Asynchronous Batch Ingestion Background Workers & Live Progress (CE1) (✅)
+[CE2] [Backend] Outbound Webhook Event Dispatcher for Cloud Storage Sync (CE2) (✅)
+[SE1] [Petrophysics] Dynamic Multi-Curve Wireline Log Viewer & Channel Selector (SE1, SE2) (✅)
+[SE2] [Frontend] Interactive Dashboard Onboarding Tour Guide & Spotlight Walkthrough (SE2) (✅)
+[DA3] [Backend] Subsurface Basin Analytics Engine & Real-Time Visualization API (DA3, SE2) (✅)
+[SE1] [Frontend] End-to-End System Test Suite (125 Pytest + 38 Jest Passing) (All) (✅)
+[SE1] [Milestone] Milestone: Multi-Well Platform, Dynamic Workstation & Core Feature Complete (✅)
+```
+
+### 📋 List: `Sprint 8: Production Deployment, NUPRC Operator Pilot & Cloud Scale`
+```text
+[CE1] [DevOps & Cloud] Multi-Region Cloud Deployment & Kubernetes Orchestration (CE1) (⏳ Upcoming)
+[DA4] [Compliance] Live NUPRC Operator Pilot Program & Formal Submission Validation (DA4, SE2) (⏳ Upcoming)
+[SE1] [Backend] Real-Time Wellsite Telemetry Streaming Ingestion (WITSML / OPC-UA) (SE1, CE2) (⏳ Upcoming)
+[DA1] [Petrophysics] Advanced Reservoir Rock Physics Module (Sw, Permeability, Net-to-Gross) (DA1, DA2) (⏳ Upcoming)
+[CE2] [Security] Enterprise SSO Integration (SAML 2.0 / Azure AD / Okta) & Audit Access Logs (CE2, SE2) (⏳ Upcoming)
+[DA3] [ML & Analytics] Offset Well Basin Correlation ML Enhancement (DA3, SE1) (⏳ Upcoming)
+[SE1] [Milestone] Milestone: Production Release & NUPRC Pilot Sign-off (All) (⏳ Upcoming)
+```
+
+### 📋 List: `Sprint 9: Enterprise Scale, Real-Time Analytics & Hypercare Operational Handoff`
+```text
+[CE2] [ML & Analytics] High-Availability Multi-AZ Database Clustering & Disaster Recovery (CE2) (⏳ Upcoming)
+[SE1] [Petrophysics] Automated Periodic AI Model Drift Detection & Petrophysical Re-calibration (SE1, DA2) (⏳ Upcoming)
+[CE1] [Backend] 24/7 SLI/SLO Telemetry Observability, Prometheus Metrics & Alerting (CE1) (⏳ Upcoming)
+[DA3] [Backend] Enterprise User Training Portal, API Knowledge Base & Interactive Video Guides (DA3, DA4, SE2) (⏳ Upcoming)
+[DA4] [Compliance] Client Acceptance Review & Regulatory Compliance Handoff (DA4, CE2) (⏳ Upcoming)
+[SE1] [Milestone] Milestone: Enterprise General Availability (GA) & Steady-State SLAs (All) (⏳ Upcoming)
 ```
 
 ---
@@ -199,27 +226,59 @@ In Trello, create a list, click **+ Add a card**, paste the block, press **Enter
 | **#41** | [DA1] [Frontend] Item 4: Impossible Values Action Suite (Remove / Clip / Delete Row) (✅) | `DA1, SE1` | ✅ **100%** | `Frontend` `Completed` | 2026-10-06 |
 | **#42** | [DA2] [Completed] Item 5: Long Null Cluster Guards & Unfillable Flag Boundaries (✅) | `DA2, DA1` | ✅ **100%** | `Completed` | 2026-10-06 |
 | **#43** | [SE1] [Completed] Item 6-7: Duplicate Depth Prune & 2-Point Neighbour Despiking (✅) | `SE1` | ✅ **100%** | `Completed` | 2026-10-07 |
-| **#44** | [DA4] [Compliance] Item 8-9: Real Change Report Telemetry & Audit Certificate ID (✅) | `DA4, SE1` | ✅ **100%** | `Compliance` `Completed` | 2026-10-08 |
+| **#44** | [DA4] [Backend] Item 8-9: Real Change Report Telemetry & Audit Certificate ID (✅) | `DA4, SE1` | ✅ **100%** | `Backend` `Compliance` `Completed` | 2026-10-08 |
 | **#45** | [SE2] [Frontend] Item 10-12: Staged Non-Destructive QA UI & Cleaned Export Suite (✅) | `SE2` | ✅ **100%** | `Frontend` `Completed` | 2026-10-09 |
 | **#46** | [CE2] [Security] Sliding-Window IP Rate Limiter & Security Stabilization (✅) | `CE2, CE1` | ✅ **100%** | `Security` `Completed` | 2026-10-02 |
 | **#47** | [SE1] [Milestone] Milestone: Certified Quality Engine Overhaul & Audit Pipeline (✅) | `SE1, SE2, DA1, DA2, DA4` | ✅ **100%** | `Milestone` `Compliance` `Completed` | 2026-10-09 |
 
 ---
 
-### 🗂️ Sprint 7: Multi-Well Comparison, NUPRC Compliance & Batch Processing — Status: `88%`
-**Timeline:** 2026-10-12 to 2026-10-23  
+### 🗂️ Sprint 7: Multi-Well Comparison, Dynamic Workstation & UX Enhancements — Status: `100%`
+**Timeline:** 2026-10-12 to 2026-10-29  
 
 | ID | Card Title & Assignment | Assignees | Progress | Labels | Due Date |
 |---|---|---|---|---|---|
-| **#49** | [SE1] [Backend] Multi-Well Depth Alignment & Correlation Engine (SE1) (✅) | `SE1` | ✅ **100%** | `Backend` `Completed` | 2026-10-16 |
-| **#50** | [SE2] [Frontend] Cross-Well Canvas UI with Synchronized Depth Scrolling (SE2) (🔄 95%) | `SE2` | 🔄 **95%** | `Frontend` `In Progress` | 2026-10-19 |
-| **#51** | [SE1] [Petrophysics] Unsupervised ML Lithology Classification on GR-RHOB-NPHI (SE1) (🔄 85%) | `SE1, DA2` | 🔄 **85%** | `Petrophysics` `ML & Analytics` `In Progress` | 2026-10-20 |
-| **#52** | [SE2] [Compliance] NUPRC Compliance Report Template & Digital Signatures (SE2, DA4) (🔄 90%) | `SE2, DA4` | 🔄 **90%** | `Compliance` `In Progress` | 2026-10-20 |
-| **#53** | [DA1] [Petrophysics] Niger Delta Formation Cutoffs (Akata, Agbada, Benin) (DA1, DA2) (✅) | `DA1, DA2` | ✅ **100%** | `Petrophysics` `Completed` | 2026-10-16 |
-| **#54** | [DA3] [Petrophysics] Offset Niger Delta Demonstration Well Package Curation (DA3) (🔄 95%) | `DA3` | 🔄 **95%** | `Petrophysics` `In Progress` | 2026-10-19 |
-| **#55** | [CE1] [In Progress] Asynchronous Batch Ingestion Background Workers & Live Progress (CE1) (🔄 85%) | `CE1` | 🔄 **85%** | `In Progress` | 2026-10-21 |
-| **#56** | [CE2] [Backend] Outbound Webhook Event Dispatcher for Cloud Storage Sync (CE2) (🔄 80%) | `CE2` | 🔄 **80%** | `Backend` `DevOps & Cloud` `In Progress` | 2026-10-22 |
-| **#57** | [SE1] [Frontend] End-to-End System Integration & Acceptance Testing Suite (All) (🔄 95%) | `SE1, SE2, CE1, CE2, DA1, DA2, DA3, DA4` | 🔄 **95%** | `Frontend` `In Progress` | 2026-10-23 |
-| **#58** | [SE1] [Milestone] Milestone: Final Production Platform Release & NUPRC Audit Readiness (🔄 75%) | `SE1, SE2, CE1, CE2, DA1, DA2, DA3, DA4` | 🔄 **75%** | `Milestone` `Compliance` `In Progress` | 2026-10-23 |
+| **#49** | [SE1] [Backend] Multi-Well Depth Alignment & Stratigraphic Correlation Engine (SE1) (✅) | `SE1` | ✅ **100%** | `Backend` `Completed` | 2026-10-16 |
+| **#50** | [SE2] [Frontend] Cross-Well Workstation UI & Interactive SVG Overlaid Track (SE2) (✅) | `SE2` | ✅ **100%** | `Frontend` `Completed` | 2026-10-19 |
+| **#51** | [SE1] [Petrophysics] Unsupervised ML Lithology Clustering on GR-RHOB-NPHI (SE1, DA2) (✅) | `SE1, DA2` | ✅ **100%** | `Petrophysics` `ML & Analytics` `Completed` | 2026-10-20 |
+| **#52** | [SE2] [Compliance] NUPRC Compliance Report Template & Digital Signatures (SE2, DA4) (✅) | `SE2, DA4` | ✅ **100%** | `Compliance` `Completed` | 2026-10-20 |
+| **#53** | [DA1] [Petrophysics] Niger Delta Formation Cutoffs & Hybrid Markers DB Schema (DA1, CE2) (✅) | `DA1, CE2` | ✅ **100%** | `Petrophysics` `Completed` | 2026-10-16 |
+| **#54** | [DA3] [Petrophysics] Offset Niger Delta Demonstration Well Package Curation (DA3) (✅) | `DA3` | ✅ **100%** | `Petrophysics` `Completed` | 2026-10-19 |
+| **#55** | [CE1] [Completed] Asynchronous Batch Ingestion Background Workers & Live Progress (CE1) (✅) | `CE1` | ✅ **100%** | `Completed` | 2026-10-21 |
+| **#56** | [CE2] [Backend] Outbound Webhook Event Dispatcher for Cloud Storage Sync (CE2) (✅) | `CE2` | ✅ **100%** | `Backend` `DevOps & Cloud` `Completed` | 2026-10-22 |
+| **#57** | [SE1] [Petrophysics] Dynamic Multi-Curve Wireline Log Viewer & Channel Selector (SE1, SE2) (✅) | `SE1, SE2` | ✅ **100%** | `Petrophysics` `Frontend` `Completed` | 2026-10-26 |
+| **#58** | [SE2] [Frontend] Interactive Dashboard Onboarding Tour Guide & Spotlight Walkthrough (SE2) (✅) | `SE2` | ✅ **100%** | `Frontend` `Completed` | 2026-10-27 |
+| **#59** | [DA3] [Backend] Subsurface Basin Analytics Engine & Real-Time Visualization API (DA3, SE2) (✅) | `DA3, SE2` | ✅ **100%** | `Backend` `Completed` | 2026-10-28 |
+| **#60** | [SE1] [Frontend] End-to-End System Test Suite (125 Pytest + 38 Jest Passing) (All) (✅) | `SE1, SE2, CE1, CE2, DA1, DA2, DA3, DA4` | ✅ **100%** | `Frontend` `Completed` | 2026-10-29 |
+| **#61** | [SE1] [Milestone] Milestone: Multi-Well Platform, Dynamic Workstation & Core Feature Complete (✅) | `SE1, SE2, CE1, CE2, DA1, DA2, DA3, DA4` | ✅ **100%** | `Milestone` `Completed` | 2026-10-29 |
+
+---
+
+### 🗂️ Sprint 8: Production Deployment, NUPRC Operator Pilot & Cloud Scale — Status: `0%`
+**Timeline:** 2026-11-02 to 2026-11-13  
+
+| ID | Card Title & Assignment | Assignees | Progress | Labels | Due Date |
+|---|---|---|---|---|---|
+| **#63** | [CE1] [DevOps & Cloud] Multi-Region Cloud Deployment & Kubernetes Orchestration (CE1) (⏳ Upcoming) | `CE1` | ⏳ **Upcoming (0%)** | `DevOps & Cloud` `Upcoming` | 2026-11-06 |
+| **#64** | [DA4] [Compliance] Live NUPRC Operator Pilot Program & Formal Submission Validation (DA4, SE2) (⏳ Upcoming) | `DA4, SE2` | ⏳ **Upcoming (0%)** | `Compliance` `Upcoming` | 2026-11-10 |
+| **#65** | [SE1] [Backend] Real-Time Wellsite Telemetry Streaming Ingestion (WITSML / OPC-UA) (SE1, CE2) (⏳ Upcoming) | `SE1, CE2` | ⏳ **Upcoming (0%)** | `Backend` `ML & Analytics` `Upcoming` | 2026-11-11 |
+| **#66** | [DA1] [Petrophysics] Advanced Reservoir Rock Physics Module (Sw, Permeability, Net-to-Gross) (DA1, DA2) (⏳ Upcoming) | `DA1, DA2` | ⏳ **Upcoming (0%)** | `Petrophysics` `Upcoming` | 2026-11-11 |
+| **#67** | [CE2] [Security] Enterprise SSO Integration (SAML 2.0 / Azure AD / Okta) & Audit Access Logs (CE2, SE2) (⏳ Upcoming) | `CE2, SE2` | ⏳ **Upcoming (0%)** | `Security` `ML & Analytics` `Compliance` `Upcoming` | 2026-11-12 |
+| **#68** | [DA3] [ML & Analytics] Offset Well Basin Correlation ML Enhancement (DA3, SE1) (⏳ Upcoming) | `DA3, SE1` | ⏳ **Upcoming (0%)** | `ML & Analytics` `Upcoming` | 2026-11-13 |
+| **#69** | [SE1] [Milestone] Milestone: Production Release & NUPRC Pilot Sign-off (All) (⏳ Upcoming) | `SE1, SE2, CE1, CE2, DA1, DA2, DA3, DA4` | ⏳ **Upcoming (0%)** | `Milestone` `Compliance` `Upcoming` | 2026-11-13 |
+
+---
+
+### 🗂️ Sprint 9: Enterprise Scale, Real-Time Analytics & Hypercare Operational Handoff — Status: `0%`
+**Timeline:** 2026-11-16 to 2026-11-27  
+
+| ID | Card Title & Assignment | Assignees | Progress | Labels | Due Date |
+|---|---|---|---|---|---|
+| **#71** | [CE2] [ML & Analytics] High-Availability Multi-AZ Database Clustering & Disaster Recovery (CE2) (⏳ Upcoming) | `CE2` | ⏳ **Upcoming (0%)** | `ML & Analytics` `DevOps & Cloud` `Upcoming` | 2026-11-20 |
+| **#72** | [SE1] [Petrophysics] Automated Periodic AI Model Drift Detection & Petrophysical Re-calibration (SE1, DA2) (⏳ Upcoming) | `SE1, DA2` | ⏳ **Upcoming (0%)** | `Petrophysics` `ML & Analytics` `Upcoming` | 2026-11-23 |
+| **#73** | [CE1] [Backend] 24/7 SLI/SLO Telemetry Observability, Prometheus Metrics & Alerting (CE1) (⏳ Upcoming) | `CE1` | ⏳ **Upcoming (0%)** | `Backend` `DevOps & Cloud` `Upcoming` | 2026-11-24 |
+| **#74** | [DA3] [Backend] Enterprise User Training Portal, API Knowledge Base & Interactive Video Guides (DA3, DA4, SE2) (⏳ Upcoming) | `DA3, DA4, SE2` | ⏳ **Upcoming (0%)** | `Backend` `Frontend` `Upcoming` | 2026-11-26 |
+| **#75** | [DA4] [Compliance] Client Acceptance Review & Regulatory Compliance Handoff (DA4, CE2) (⏳ Upcoming) | `DA4, CE2` | ⏳ **Upcoming (0%)** | `Compliance` `Upcoming` | 2026-11-27 |
+| **#76** | [SE1] [Milestone] Milestone: Enterprise General Availability (GA) & Steady-State SLAs (All) (⏳ Upcoming) | `SE1, SE2, CE1, CE2, DA1, DA2, DA3, DA4` | ⏳ **Upcoming (0%)** | `Milestone` `Compliance` `Upcoming` | 2026-11-27 |
 
 ---

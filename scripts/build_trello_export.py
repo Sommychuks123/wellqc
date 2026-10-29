@@ -32,6 +32,7 @@ LABEL_COLORS = {
     "Milestone": "black",
     "Completed": "green",
     "In Progress": "yellow",
+    "Upcoming": "purple",
 }
 
 def determine_labels(task_name: str, resources: str, percent: str) -> list[str]:
@@ -40,33 +41,39 @@ def determine_labels(task_name: str, resources: str, percent: str) -> list[str]:
     
     if "milestone" in lower:
         labels.append("Milestone")
-    if any(k in lower for k in ["security", "rbac", "token", "admin", "lockout", "rate limit", "injection"]):
+    if any(k in lower for k in ["security", "rbac", "token", "admin", "lockout", "rate limit", "injection", "sso", "saml"]):
         labels.append("Security")
-    if any(k in lower for k in ["petrophysical", "mnemonic", "curve", "anomaly", "standardisation", "lithology", "formation", "delta"]):
+    if any(k in lower for k in ["petrophysical", "mnemonic", "curve", "anomaly", "standardisation", "lithology", "formation", "delta", "rock physics", "saturation", "permeability"]):
         labels.append("Petrophysics")
-    if any(k in lower for k in ["fastapi", "python", "microservice", "parser", "scoring", "imputation", "cleaner", "webhook", "alignment"]):
+    if any(k in lower for k in ["fastapi", "python", "microservice", "parser", "scoring", "imputation", "cleaner", "webhook", "alignment", "api", "telemetry", "streaming", "witsml"]):
         labels.append("Backend")
-    if any(k in lower for k in ["ui", "next.js", "app shell", "viewer", "svg", "dashboard", "canvas", "workspace", "modal"]):
+    if any(k in lower for k in ["ui", "next.js", "app shell", "viewer", "svg", "dashboard", "canvas", "workspace", "modal", "tour"]):
         labels.append("Frontend")
-    if any(k in lower for k in ["ml", "unsupervised", "clustering", "benchmark", "k-means"]):
+    if any(k in lower for k in ["ml", "unsupervised", "clustering", "benchmark", "k-means", "drift"]):
         labels.append("ML & Analytics")
-    if any(k in lower for k in ["postgresql", "neon", "prisma", "ci/cd", "vercel", "docker", "storage"]):
+    if any(k in lower for k in ["postgresql", "neon", "prisma", "ci/cd", "vercel", "docker", "storage", "kubernetes", "cloud", "prometheus", "disaster recovery"]):
         labels.append("DevOps & Cloud")
-    if any(k in lower for k in ["nuprc", "pdf", "audit", "certificate", "compliance", "report"]):
+    if any(k in lower for k in ["nuprc", "pdf", "audit", "certificate", "compliance", "report", "pilot", "sla"]):
         labels.append("Compliance")
         
     if percent == "100%":
         labels.append("Completed")
+    elif percent == "0%":
+        labels.append("Upcoming")
     else:
         labels.append("In Progress")
         
     return list(dict.fromkeys(labels))
 
 def format_card_title(t: dict, primary_label: str) -> str:
-    # Embed Assignee and Label directly in title so Trello Free users see them on the card face
-    res = t["Resource_Names"].split(",")[0].strip()
+    res = t["Resource_Names"].split(",")[0].strip() if t["Resource_Names"] else "NDI Team"
     perc = t["Percent_Complete"]
-    status_icon = "✅" if perc == "100%" else f"🔄 {perc}"
+    if perc == "100%":
+        status_icon = "✅"
+    elif perc == "0%":
+        status_icon = "⏳ Upcoming"
+    else:
+        status_icon = f"🔄 {perc}"
     return f"[{res}] [{primary_label}] {t['Task_Name']} ({status_icon})"
 
 def generate_exports():
@@ -127,7 +134,7 @@ def generate_exports():
                 f"Implementation of {t['Task_Name']} as part of WellQC subsurface platform.",
                 "",
                 "### Acceptance Criteria:",
-                "- [x] Feature implementation verified in active branch" if t['Percent_Complete'] == '100%' else f"- [ ] In-progress verification ({t['Percent_Complete']} complete)",
+                "- [x] Feature implementation verified in active branch" if t['Percent_Complete'] == '100%' else ("- [ ] Upcoming sprint planning and architectural review" if t['Percent_Complete'] == '0%' else f"- [ ] In-progress verification ({t['Percent_Complete']} complete)"),
                 "- [x] Peer review and code quality compliance" if t['Percent_Complete'] == '100%' else "- [ ] Code review & staging testing",
                 "- [x] Automated test suite coverage" if t['Percent_Complete'] == '100%' else "- [ ] End-to-end integration pass",
             ]
@@ -153,15 +160,19 @@ def generate_exports():
         writer.writerows(master_rows)
     print(f"Generated Master Trello CSV: {trello_csv_path} with {len(master_rows)} cards.")
 
-    # 2. WRITE 3 MULTI-SPRINT BATCHES (EACH <= 20 CARDS TO BEAT FREE LIMIT)
-    batch_1_rows = sprint_rows_map[1] + sprint_rows_map[2] + sprint_rows_map[3] # 6 + 7 + 6 = 19 cards
-    batch_2_rows = sprint_rows_map[4] + sprint_rows_map[5]                      # 6 + 6 = 12 cards
-    batch_3_rows = sprint_rows_map[6] + sprint_rows_map[7]                      # 9 + 10 = 19 cards
+    # 2. WRITE MULTI-SPRINT BATCHES (EACH <= 20 CARDS TO BEAT FREE LIMIT)
+    batch_1_rows = sprint_rows_map[1] + sprint_rows_map[2]                         # 6 + 7 = 13 cards
+    batch_2_rows = sprint_rows_map[3] + sprint_rows_map[4]                         # 6 + 6 = 12 cards
+    batch_3_rows = sprint_rows_map[5] + sprint_rows_map[6]                         # 6 + 9 = 15 cards
+    batch_4_rows = sprint_rows_map[7]                                             # 13 cards
+    batch_5_rows = sprint_rows_map[8] + sprint_rows_map[9]                         # 7 + 6 = 13 cards
 
     batches = [
-        ("batch_1_sprints_1_to_3.csv", batch_1_rows, "Sprints 1 to 3 (19 cards)"),
-        ("batch_2_sprints_4_to_5.csv", batch_2_rows, "Sprints 4 to 5 (12 cards)"),
-        ("batch_3_sprints_6_to_7.csv", batch_3_rows, "Sprints 6 to 7 (19 cards)"),
+        ("batch_1_sprints_1_to_2.csv", batch_1_rows, "Sprints 1 to 2 (13 cards)"),
+        ("batch_2_sprints_3_to_4.csv", batch_2_rows, "Sprints 3 to 4 (12 cards)"),
+        ("batch_3_sprints_5_to_6.csv", batch_3_rows, "Sprints 5 to 6 (15 cards)"),
+        ("batch_4_sprint_7.csv", batch_4_rows, "Sprint 7 (13 cards)"),
+        ("batch_5_sprints_8_to_9.csv", batch_5_rows, "Sprints 8 to 9 Upcoming (13 cards)"),
     ]
 
     for fname, rows, desc in batches:
@@ -172,15 +183,15 @@ def generate_exports():
             writer.writerows(rows)
         print(f"Generated Free Batch ({desc}): {bpath} [{len(rows)} cards <= 20 free limit]")
 
-    # Individual Sprint CSVs (6 to 10 cards each)
-    for s_idx in range(1, 8):
+    # Individual Sprint CSVs (6 to 13 cards each)
+    for s_idx in range(1, len(sprints) + 1):
         s_file = os.path.join(batches_dir, f"sprint_{s_idx}.csv")
         s_rows = sprint_rows_map[s_idx]
         with open(s_file, mode="w", newline="", encoding="utf-8") as f:
             writer = csv.DictWriter(f, fieldnames=fieldnames)
             writer.writeheader()
             writer.writerows(s_rows)
-    print(f"Generated 7 individual sprint CSV files in {batches_dir}/")
+    print(f"Generated {len(sprints)} individual sprint CSV files in {batches_dir}/")
 
     # 3. GENERATE TRELLO JSON BOARD
     trello_json_path = "Documentations/wellqc_trello_board.json"
@@ -226,7 +237,7 @@ def generate_exports():
                 f"{t['Task_Name']} within the WellQC production roadmap.",
                 "",
                 "### Verification Checklist:",
-                "- [x] Unit & Regression Tests Passing" if t['Percent_Complete'] == '100%' else "- [ ] Unit Tests in Progress",
+                "- [x] Unit & Regression Tests Passing" if t['Percent_Complete'] == '100%' else ("- [ ] Upcoming Sprint Planning & RFC Review" if t['Percent_Complete'] == '0%' else "- [ ] Unit Tests in Progress"),
                 "- [x] Type Safety & ESLint Compliance" if t['Percent_Complete'] == '100%' else "- [ ] Code Formatting & Review",
                 "- [x] Architectural Security & RBAC Alignment" if t['Percent_Complete'] == '100%' else "- [ ] Final Integration Pass",
             ]
@@ -246,7 +257,7 @@ def generate_exports():
 
     board_obj = {
         "name": "WellQC — Subsurface Log QA/QC Platform",
-        "desc": "Master Agile Project Schedule & Sprint Deliverables Board for WellQC across 7 Sprints (14 Weeks)",
+        "desc": "Master Agile Project Schedule & Sprint Deliverables Board for WellQC across 9 Sprints (18 Weeks · Sprints 1-7 Completed, Sprints 8-9 Upcoming)",
         "closed": False,
         "organization": {
             "name": "NDI-G5 WellQC Team"
@@ -266,32 +277,35 @@ def generate_exports():
         "# WellQC — Interactive Visual Kanban Board & Trello Free Import Guide",
         "",
         "> **Project:** WellQC — AI-Powered Well Log Quality Assurance & Subsurface Analytics Platform  ",
-        "> **Agile Framework:** 7 Sprints · 14 Weeks · 8 Team Members  ",
-        "> **Overall Platform Completion:** **98%** (Sprints 1–6 Completed, Sprint 7 in Final Verification)  ",
+        "> **Agile Framework:** 9 Sprints · 18 Weeks · 8 Team Members  ",
+        "> **Platform Implementation Status:** **100% Core Feature Complete** (Sprints 1–7 Landed & Tested · 125 Pytest + 38 Jest Passing)  ",
+        "> **Overall Project Progress toward Enterprise Steady-State:** **78%** (Sprints 8–9 Upcoming Production Rollout & SLAs)  ",
         "",
         "---",
         "",
         "## 💡 How to Beat the 20-Card Limit on Trello Free Plan",
         "",
-        "Trello's CSV Importer Power-Up imposes a **20-row limit on free accounts**. Furthermore, team member initials (`SE1`, `DA1`, etc.) will show as unassigned unless you purchase 8 paid Trello seats.",
+        "Trello's CSV Importer Power-Up imposes a **20-row limit on free accounts**. Furthermore, team member initials (`SE1`, `DA1`, etc.) show as unassigned unless you purchase 8 paid Trello seats.",
         "",
         "We have solved both issues for you in two zero-cost ways:",
         "",
-        "1. **Pre-Split CSV Batches (≤ 20 cards each):** Simply import 3 small CSV files in under 2 minutes. No upgrade needed!",
-        "2. **Embedded Card Titles:** Member roles and domains (`[SE1][Backend]`) are now directly embedded in the card titles so they appear boldly on the card faces without needing member accounts or label setup.",
+        "1. **Pre-Split CSV Batches (≤ 20 cards each):** Simply import 5 small CSV files in under 2 minutes. No upgrade needed!",
+        "2. **Embedded Card Titles:** Member roles and domains (`[SE1][Backend]`) are directly embedded in card titles so they appear boldly on the card faces without needing member accounts or label setup.",
         "3. **Native Multi-Card Paste (0 Power-Ups):** Copy any code block below, paste it directly into Trello's *+ Add a card*, and click *Create X cards* to generate the whole list in 2 seconds.",
         "",
         "---",
         "",
         "## 📥 1. Free-Tier Import Files (All ≤ 20 Rows)",
         "",
-        "Upload these 3 files consecutively into your Trello board via the CSV Importer Power-Up:",
+        "Upload these 5 files consecutively into your Trello board via the CSV Importer Power-Up:",
         "",
         "| Batch File | Contents | Card Count | Status | Direct File Link |",
         "|---|---|---|---|---|",
-        "| **`batch_1_sprints_1_to_3.csv`** | Sprints 1, 2, and 3 | **19 cards** (≤ 20 limit) | Free Eligible | [**`batch_1_sprints_1_to_3.csv`**](file:///c:/Users/Ekwebelam%20C%20Williams/Desktop/NDI-G5/wellqc/Documentations/trello_batches/batch_1_sprints_1_to_3.csv) |",
-        "| **`batch_2_sprints_4_to_5.csv`** | Sprints 4 and 5 | **12 cards** (≤ 20 limit) | Free Eligible | [**`batch_2_sprints_4_to_5.csv`**](file:///c:/Users/Ekwebelam%20C%20Williams/Desktop/NDI-G5/wellqc/Documentations/trello_batches/batch_2_sprints_4_to_5.csv) |",
-        "| **`batch_3_sprints_6_to_7.csv`** | Sprints 6 and 7 | **19 cards** (≤ 20 limit) | Free Eligible | [**`batch_3_sprints_6_to_7.csv`**](file:///c:/Users/Ekwebelam%20C%20Williams/Desktop/NDI-G5/wellqc/Documentations/trello_batches/batch_3_sprints_6_to_7.csv) |",
+        "| **`batch_1_sprints_1_to_2.csv`** | Sprints 1 and 2 | **13 cards** (≤ 20 limit) | Free Eligible | [**`batch_1_sprints_1_to_2.csv`**](file:///c:/Users/Ekwebelam%20C%20Williams/Desktop/NDI-G5/wellqc/Documentations/trello_batches/batch_1_sprints_1_to_2.csv) |",
+        "| **`batch_2_sprints_3_to_4.csv`** | Sprints 3 and 4 | **12 cards** (≤ 20 limit) | Free Eligible | [**`batch_2_sprints_3_to_4.csv`**](file:///c:/Users/Ekwebelam%20C%20Williams/Desktop/NDI-G5/wellqc/Documentations/trello_batches/batch_2_sprints_3_to_4.csv) |",
+        "| **`batch_3_sprints_5_to_6.csv`** | Sprints 5 and 6 | **15 cards** (≤ 20 limit) | Free Eligible | [**`batch_3_sprints_5_to_6.csv`**](file:///c:/Users/Ekwebelam%20C%20Williams/Desktop/NDI-G5/wellqc/Documentations/trello_batches/batch_3_sprints_5_to_6.csv) |",
+        "| **`batch_4_sprint_7.csv`** | Sprint 7 (Completed) | **13 cards** (≤ 20 limit) | Free Eligible | [**`batch_4_sprint_7.csv`**](file:///c:/Users/Ekwebelam%20C%20Williams/Desktop/NDI-G5/wellqc/Documentations/trello_batches/batch_4_sprint_7.csv) |",
+        "| **`batch_5_sprints_8_to_9.csv`** | Sprints 8 and 9 (Upcoming) | **13 cards** (≤ 20 limit) | Free Eligible | [**`batch_5_sprints_8_to_9.csv`**](file:///c:/Users/Ekwebelam%20C%20Williams/Desktop/NDI-G5/wellqc/Documentations/trello_batches/batch_5_sprints_8_to_9.csv) |",
         "",
         "> Alternatively, if you prefer importing sprint by sprint, individual CSV files are available in [**`Documentations/trello_batches/`**](file:///c:/Users/Ekwebelam%20C%20Williams/Desktop/NDI-G5/wellqc/Documentations/trello_batches/).",
         "",
@@ -331,7 +345,12 @@ def generate_exports():
             labels_badge = " ".join([f"`{l}`" for l in labels])
             primary_label = labels[0] if labels else "Feature"
             title = format_card_title(t, primary_label)
-            status_badge = "✅ **100%**" if t["Percent_Complete"] == "100%" else f"🔄 **{t['Percent_Complete']}**"
+            if t["Percent_Complete"] == "100%":
+                status_badge = "✅ **100%**"
+            elif t["Percent_Complete"] == "0%":
+                status_badge = "⏳ **Upcoming (0%)**"
+            else:
+                status_badge = f"🔄 **{t['Percent_Complete']}**"
             md_lines.append(f"| **#{t['ID']}** | {title} | `{t['Resource_Names']}` | {status_badge} | {labels_badge} | {t['Finish_Date']} |")
         md_lines.append("")
         md_lines.append("---")
