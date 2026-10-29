@@ -1223,7 +1223,14 @@ export default function DashboardPage() {
       </div>
 
       {/* Interactive Guided Onboarding Tour */}
-      <DashboardTour isOpen={isTourOpen} onClose={() => setIsTourOpen(false)} />
+      <DashboardTour
+        isOpen={isTourOpen}
+        onClose={() => setIsTourOpen(false)}
+        currentMode={dashboardMode}
+        onSelectMode={handleModeChange}
+        currentScope={filterScope}
+        onSelectScope={handleScopeChange}
+      />
     </AppShell>
   );
 }
