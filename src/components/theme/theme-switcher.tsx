@@ -1,20 +1,18 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore } from "react";
+
+const emptySubscribe = () => () => {};
 import { Palette, Check, Sliders, Sparkles, ChevronRight } from "lucide-react";
 import { useTheme, ThemeConfig } from "./theme-provider";
 import { ThemeCustomizerModal } from "./theme-customizer-modal";
 
 export function ThemeSwitcher() {
   const { theme, setTheme, themes, currentTheme } = useTheme();
-  const [mounted, setMounted] = useState(false);
+  const mounted = useSyncExternalStore(emptySubscribe, () => true, () => false);
   const [open, setOpen] = useState(false);
   const [customizerOpen, setCustomizerOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
 
   const displayTheme = mounted ? currentTheme : (themes.find((t) => t.id === "slate") || themes[0]);
 

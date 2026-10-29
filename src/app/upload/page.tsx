@@ -96,19 +96,21 @@ export default function LASUploadPage() {
 
   // Restore previous session from localStorage after initial client mount to guarantee 100% SSR hydration fidelity
   useEffect(() => {
+    isHydratedRef.current = true;
     const session = getInitialUploadWorkspace();
     if (session && session.parsedLAS && session.qaResult) {
-      setFileName(session.fileName || "restored-well-log.las");
-      setRawText(session.rawText || "");
-      setParsedLAS(session.parsedLAS);
-      setQaResult(session.qaResult);
-      setAiOutput(session.aiOutput || null);
-      setSavedSuccess(Boolean(session.savedSuccess));
-      setSavedWell(session.savedWell || null);
-      setUploadQueue(session.uploadQueue || []);
-      setRestoredFromStorage(true);
+      queueMicrotask(() => {
+        setFileName(session.fileName || "restored-well-log.las");
+        setRawText(session.rawText || "");
+        setParsedLAS(session.parsedLAS);
+        setQaResult(session.qaResult);
+        setAiOutput(session.aiOutput || null);
+        setSavedSuccess(Boolean(session.savedSuccess));
+        setSavedWell(session.savedWell || null);
+        setUploadQueue(session.uploadQueue || []);
+        setRestoredFromStorage(true);
+      });
     }
-    isHydratedRef.current = true;
   }, []);
 
   // Persist complete un-downsampled raw LAS text to IndexedDB on file change only

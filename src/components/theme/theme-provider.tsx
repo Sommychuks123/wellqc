@@ -305,15 +305,16 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     try {
       const storedCustom = getStoredCustomTheme();
-      setCustomThemeState(storedCustom);
-
       const saved = localStorage.getItem("wellqc_theme") as ThemeId;
-      if (saved && (saved === "custom" || THEMES.some((t) => t.id === saved))) {
-        setThemeState(saved);
-        applyThemeToDOM(saved, storedCustom);
-      } else {
-        applyThemeToDOM("slate", storedCustom);
-      }
+      queueMicrotask(() => {
+        setCustomThemeState(storedCustom);
+        if (saved && (saved === "custom" || THEMES.some((t) => t.id === saved))) {
+          setThemeState(saved);
+          applyThemeToDOM(saved, storedCustom);
+        } else {
+          applyThemeToDOM("slate", storedCustom);
+        }
+      });
     } catch {}
   }, []);
 
