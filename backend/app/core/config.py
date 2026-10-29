@@ -25,7 +25,18 @@ def _get_default_frontend_url() -> str:
         
     return "http://localhost:3000"
 
+DEFAULT_DEV_SECRET = "wellqc-local-development-secret"
 
+
+def validate_auth_secret(secret: str, environment: str, on_render: bool) -> None:
+    """Refuse to start in production with a missing, default or short AUTH_SECRET."""
+    production_like = on_render or (environment or "").lower() == "production"
+    if not production_like:
+        return
+    if not secret or secret == DEFAULT_DEV_SECRET or len(secret) < 32:
+        raise RuntimeError(
+            "AUTH_SECRET must be set to a unique value of at least 32 characters in production."
+        )
 class Settings(BaseSettings):
     PROJECT_NAME: str = "WellQC API"
     VERSION: str = "1.0.0"
@@ -87,3 +98,4 @@ class Settings(BaseSettings):
         return self.CORS_ORIGINS + extra
 
 settings = Settings()
+validate_auth_secret(settings.AUTH_SECRET, settings.ENVIRONMENT, bool(os.getenv("RENDER")))
