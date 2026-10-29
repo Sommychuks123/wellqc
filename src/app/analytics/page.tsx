@@ -85,7 +85,7 @@ export default function AnalyticsPage() {
               Petrophysical Analytics & Operator Benchmarks
             </h1>
             <p className="text-xs text-wellqc-muted font-mono mt-0.5">
-              Analytics calculated from committed LAS validation reports and anomaly records.
+              Analytics calculated from uploaded LAS validation reports and anomaly records.
             </p>
           </div>
         </div>
@@ -106,7 +106,7 @@ export default function AnalyticsPage() {
               {isLoading ? (
                 <LoadingPanel label="Loading operator benchmarks" />
               ) : analytics.operatorScores.length === 0 ? (
-                <EmptyPanel label="No committed wells available" />
+                <EmptyPanel label="No uploaded wells available" />
               ) : (
                 <OperatorScoreChart data={analytics.operatorScores} />
               )}

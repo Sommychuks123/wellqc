@@ -11,7 +11,8 @@ interface WellOverviewCardProps {
   savedSuccess: boolean;
   saveError: string;
   savedWell: { id: string; name: string; qualityScore: number } | null;
-  onCommitToDatabase: () => void;
+  onCommitToDatabase?: () => void;
+  onUploadToDatabase?: () => void;
 }
 
 export function WellOverviewCard({
@@ -23,7 +24,9 @@ export function WellOverviewCard({
   saveError,
   savedWell,
   onCommitToDatabase,
+  onUploadToDatabase,
 }: WellOverviewCardProps) {
+  const handleUpload = onUploadToDatabase || onCommitToDatabase;
   return (
     <div className="space-y-4">
       <div className="bg-wellqc-panel border border-wellqc-border rounded-2xl p-6 flex flex-col lg:flex-row lg:items-center justify-between gap-6 shadow-xl">
@@ -82,13 +85,13 @@ export function WellOverviewCard({
 
             <button
               type="button"
-              onClick={onCommitToDatabase}
+              onClick={handleUpload}
               disabled={isSaving}
               className="w-full sm:w-auto flex items-center justify-center space-x-2 px-5 py-3.5 rounded-xl bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-500 hover:to-cyan-400 text-white font-bold text-xs shadow-lg shadow-cyan-500/25 transition-all disabled:opacity-60 cursor-pointer"
               title="Save and index this well in the WellQC database"
             >
               {isSaving ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Database className="w-4 h-4" />}
-              <span>{isSaving ? "Saving to DB..." : savedSuccess ? "Saved to Database ✓" : "Upload to Database"}</span>
+              <span>{isSaving ? "Saving to DB..." : savedSuccess ? "Uploaded to Database ✓" : "Upload to Database"}</span>
             </button>
           </div>
         </div>
@@ -105,7 +108,7 @@ export function WellOverviewCard({
           <div className="flex items-center space-x-3 text-xs font-mono text-emerald-300">
             <CheckCircle2 className="w-4 h-4 shrink-0 text-emerald-400" />
             <span>
-              Committed to database as <strong>{savedWell.name}</strong> (Audit Score: {savedWell.qualityScore}/100)
+              Uploaded to database as <strong>{savedWell.name}</strong> (Audit Score: {savedWell.qualityScore}/100)
             </span>
           </div>
           <div className="flex items-center gap-2 shrink-0">

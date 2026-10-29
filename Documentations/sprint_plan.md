@@ -220,14 +220,17 @@ Architecture    & Auth Setup  LAS Ingestion   Visualisation Monetization     Rel
 
 ### 🟣 SPRINT 7 (Weeks 13–14): Multi-Well Comparison, NUPRC Compliance Reports & Batch Processing [ACTIVE SPRINT]
 
-* **Theme:** Advanced subsurface correlation, regulatory reporting compliance, background batch ingestion queue, unsupervised lithology classification, and full test suite verification.
-* **Current Progress:** 94% complete — Multi-Well Comparison & Stratigraphic Correlation Engine completed, Hybrid Formation Marker database architecture (Option C) implemented with interactive verification modal, RLS cascade integrity and SQL injection hardening verified, automated test harness expanded to 105 Pytest backend tests and 38 Jest frontend tests (100% passing).
+* **Theme:** Advanced subsurface correlation, regulatory reporting compliance, background batch ingestion queue, unsupervised lithology classification, dynamic wireline log exploration, onboarding guidance, and full test suite verification.
+* **Current Progress:** 98% complete — Multi-Well Comparison & Stratigraphic Correlation Engine completed, Hybrid Formation Marker database architecture (Option C) implemented with interactive verification modal, Dynamic Multi-Curve Wireline Log Viewer with toolbar selector deployed, Dashboard Onboarding Tour Guide with spotlight overlay integrated, Upload Workspace analysis tabs prioritized, database persistence terminology standardized to "Uploaded", RLS cascade integrity and privilege context resolved, automated test harness expanded to 125 Pytest backend tests and 38 Jest frontend tests (100% passing).
 * **SE1 (Core Engine & Correlation Mathematics):**
   - **P1 — Well Comparison Engine (Completed):** Built multi-well depth alignment (0.5 ft resampling grid), curve normalization (Z-score and min-max), Pearson correlation coefficient ($r$), optimal structural lag shift ($\Delta z$), RMSD, MAE, stratigraphic continuity grading (`HIGH`, `MODERATE`, `LOW`, `DISCONTINUOUS`), and composite correlation match scoring across offset wells.
-  - **P4 — ML Lithology Classification (In Progress - 85%):** Unsupervised clustering (K-Means / Gaussian Mixture) on GR-RHOB-NPHI crossplots to detect shale, sand, and carbonate intervals.
-* **SE2 (Frontend Navigation & Comparison Visualizer):**
+  - **P4 — ML Lithology Classification (In Progress - 90%):** Unsupervised clustering (K-Means / Gaussian Mixture) on GR-RHOB-NPHI crossplots to detect shale, sand, and carbonate intervals.
+* **SE2 (Frontend Navigation, Workstation & UX Lead):**
   - **P1 — Well Comparison Workstation UI (`src/app/comparison/page.tsx`) (Completed):** Full multi-well workstation with 4 interactive tabs (Correlation Matrix, SVG Resampled Overlaid Track with differential fill, Side-by-Side Dual Log Tracks, and Formation Markers Alignment). Implemented interactive formation tops verification modal with live database updates.
-  - **P2 — NUPRC Regulatory Audit Reports UI (`src/app/reports/page.tsx`) (In Progress - 90%):** Formal Nigerian Upstream Petroleum Regulatory Commission submission templates with digital signatures and print layout.
+  - **P2 — NUPRC Regulatory Audit Reports UI (`src/app/reports/page.tsx`) (In Progress - 92%):** Formal Nigerian Upstream Petroleum Regulatory Commission submission templates with digital signatures and print layout.
+  - **P3 — Dynamic Multi-Curve Wireline Log Viewer (`src/components/well-log/log-viewer.tsx`) (Completed):** Replaced hardcoded tracks with dynamic multi-curve workstation capable of rendering any curve channel in the LAS dataset. Added toolbar dropdown selector with active/total count badges, search filtering, quick presets (Standard 3, Select All, Clear), one-click "Only" track isolation, and per-track inline curve switching and removal.
+  - **P4 — Interactive Dashboard Onboarding Tour Guide (`src/components/dashboard/dashboard-tour.tsx`, `src/app/dashboard/page.tsx`) (Completed):** 6-step guided walkthrough featuring visual spotlight overlays, auto-scrolling, keyboard controls (`Escape`), non-intrusive first-time welcome banner, persistent "Tour Guide" trigger button, and React 19 `useSyncExternalStore` hydration-safe storage.
+  - **P5 — Upload Workspace Layout Optimization & Terminology Standardization (Completed):** Repositioned Detailed Analysis Tabs directly after the Well Quality Scorecard for immediate petrophysical inspection; standardized all database persistence terminology to "Uploaded to database" / "Upload to database" across frontend and backend services.
 * **DA1 & DA2 (Petrophysical Rules & Formation Markers Calibration):**
   - Designed hybrid regional formation markers dictionary (Benin, Agbada, Akata) and custom reservoir sand tracking.
   - Calibrated Gamma Ray baseline trend heuristics for algorithmic fallback when unpicked wells are ingested.
@@ -235,13 +238,14 @@ Architecture    & Auth Setup  LAS Ingestion   Visualisation Monetization     Rel
   - Benchmarked NUPRC regulatory validation rules (casing shoe markers, TD verification, calibration records).
   - Prepared multi-well demonstration package with offset Niger Delta wells for cross-correlation validation.
 * **CE1 (Batch Ingestion & Background Task Queue):**
-  - **P3 — Automated Batch Ingestion Queue (In Progress - 85%):** Asynchronous background task workers (FastAPI `BackgroundTasks`) for multi-file LAS directory uploads with live progress bar and bulk ZIP download.
+  - **P3 — Automated Batch Ingestion Queue (In Progress - 90%):** Asynchronous background task workers (FastAPI `BackgroundTasks`) for multi-file LAS directory uploads with live progress bar and bulk ZIP download.
 * **CE2 (Database & Security Architecture):**
   - **P1 — Hybrid Formation Marker DB Layer (Completed):** Added `FormationMarker` PostgreSQL model with unique constraint, automatic table initialization in FastAPI lifespan, and `GET`/`POST /api/wells/{id}/markers` endpoints with tenant isolation and audit logging.
-  - **P5 — Webhook Event Dispatcher (In Progress - 80%):** Outbound HTTP webhook dispatch notifying external cloud storage (S3/Blob) and subsurface databases upon well certification.
+  - **P5 — Webhook Event Dispatcher (In Progress - 85%):** Outbound HTTP webhook dispatch notifying external cloud storage (S3/Blob) and subsurface databases upon well certification.
 * **Security & Quality Hardening (Completed):**
   - Foreign key cascade integrity, RLS application prep, SQL injection form protection, and zero ghost-token auto-provisioning verified.
-  - Test harness expanded to **105 Pytest backend tests** and **38 Jest unit tests** with 100% green pass rate and 0 TypeScript compilation errors.
+  - Resolved PostgreSQL RLS transaction privilege context in automated tests.
+  - Test harness expanded to **125 Pytest backend tests** and **38 Jest unit tests** with 100% green pass rate, 0 TypeScript compilation errors, and 0 ESLint warnings.
 
 ---
 

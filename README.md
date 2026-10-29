@@ -38,13 +38,34 @@ WellQC is a full-stack cloud platform that automatically validates, cleans, stan
   - Cubic Spline, Linear Interpolation, Mean Fill, Median Fill, Row Dropping
   - Ground-truth masking cross-validation computing RMSE, MAE, R², Variance Preservation %, and Execution Speed
 
-### 📊 Interactive Petrophysical Log Viewer
-- Multi-track log curve viewer rendering:
-  - **Track 1**: Gamma Ray (GR) & SP
-  - **Track 2**: Deep Resistivity (RT, log scale)
-  - **Track 3**: Density (RHOB) vs Porosity (NPHI) crossover with missing gap overlay
-  - **Anomaly Ribbon**: Depth-indexed flags with interactive tooltips
-- Dual view modes: **Classic Paper Log View** and **Dark Subsurface View**
+### 📊 Interactive Petrophysical Log Viewer & Dynamic Track Selector
+- **Dynamic Multi-Curve Track Viewer** — dynamically renders any and all available curve channels from the uploaded LAS dataset (GR, RT, RHOB, NPHI, DT, CALI, SP, PEF, and custom logging mnemonics).
+- **Interactive Track Toolbar & Dropdown Selector**:
+  - Multi-select dropdown button displaying active and total track counts.
+  - Search filter input to instantly locate curves in complex multi-channel logging suites.
+  - Quick presets: **Standard 3 (GR, RT, DT)**, **Select All**, and **Clear All**.
+  - One-click **"Only"** isolation button on each curve item to instantly focus on an individual log track.
+- **Inline Track Controls**: Per-track header `<select>` dropdown to seamlessly hot-swap curves in place, plus a close button (`✕`) to dismiss individual tracks.
+- **Log Scales & Visualizations**:
+  - Dynamic linear and logarithmic scale handling (e.g. logarithmic for resistivity channels).
+  - Density vs Porosity (RHOB/NPHI) crossover with missing gap overlays.
+  - **Anomaly Ribbon**: Depth-indexed flags with interactive tooltips correlating anomalies to wireline depths.
+- **Dual View Modes**: **Classic Paper Log View** and **Dark Subsurface View**.
+
+### 🧭 Interactive Dashboard Onboarding Tour
+- **Step-by-Step Guided Walkthrough**: Interactive, multi-step product tour guiding new petrophysicists and engineers through the core features of the Command Centre:
+  - Welcome & platform architecture introduction
+  - Real-time fleet KPI telemetry cards (8 live indicators)
+  - 7-Day composite quality score rolling trends
+  - Cross-basin field performance breakdown
+  - Recent LAS well ingestion activity stream
+  - Quick action launchpad (LAS Upload, Standardisation, Reports)
+- **Visual Spotlight Overlay**: Dynamic element spotlighting with darkened backdrop focus, animated tooltip popovers, progress indicator badges, and smooth scroll tracking.
+- **First-Time User Experience**:
+  - Non-intrusive onboarding welcome banner with direct "Take Tour" launcher and dismiss state.
+  - SSR/hydration-safe `localStorage` state tracking via React 19 `useSyncExternalStore`.
+  - Permanent "Tour Guide" header trigger button for on-demand walkthrough re-runs anytime.
+  - Full keyboard accessibility with `Escape` dismiss and keyboard navigation.
 
 ### 💳 Paystack Payment & Subscription Portal
 - Full **Paystack-powered subscription gateway** supporting:
@@ -77,9 +98,9 @@ WellQC is a full-stack cloud platform that automatically validates, cleans, stan
 ### 🏢 Enterprise Platform Modules
 | Module | Description |
 |---|---|
-| **Command Dashboard** | 8 KPI telemetry cards, 7-day rolling quality trend, field performance breakdown, payment success banners |
+| **Command Dashboard** | 8 KPI telemetry cards, 7-day rolling quality trend, field performance breakdown, interactive onboarding tour guide, payment success banners |
 | **Well Management** | Full CRUD asset management with coordinates, curve inventory & quality history |
-| **LAS Upload Workspace** | Drag-and-drop uploader with real-time parsing, pre-check QA scoring, freemium gate & DB commit |
+| **LAS Upload Workspace** | Drag-and-drop uploader with real-time parsing, pre-check QA scoring, instant analysis tabs (Curve Health, Wireline Viewer, Anomalies, Headers) directly below quality score, and database upload |
 | **Curve Standardisation Dictionary** | Alias mapping dictionary & manual override controls with persistent custom aliases |
 | **QA Rule Engine Inspector** | Threshold tuning, live batch evaluation & stakeholder alignment mode |
 | **Basin Analytics** | Operator comparison charts, error frequency & anomaly distribution |
@@ -226,6 +247,8 @@ WellQC/
     │       │   └── webhook/       # Paystack charge.success webhook (HMAC-SHA512)
     │       └── checkout/          # Payment intent router
     ├── components/
+    │   ├── dashboard/
+    │   │   └── dashboard-tour.tsx # Interactive product tour, spotlight overlay & welcome banner
     │   ├── pwa/
     │   │   └── pwa-client.tsx     # Service Worker registration, install banner & offline toasts
     │   ├── theme/

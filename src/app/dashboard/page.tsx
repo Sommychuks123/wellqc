@@ -18,6 +18,11 @@ import {
   ArrowRight,
 } from "lucide-react";
 import dynamic from "next/dynamic";
+import {
+  DashboardTour,
+  OnboardingWelcomeBanner,
+  TourGuideButton,
+} from "@/components/dashboard/dashboard-tour";
 
 const TrendChart = dynamic(
   () => import("@/components/dashboard/trend-chart").then((m) => m.TrendChart),
@@ -54,6 +59,7 @@ export default function DashboardPage() {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [error, setError] = useState("");
   const [filterScope, setFilterScope] = useState<"ALL" | "COMMITTED" | "ATTENTION">("ALL");
+  const [isTourOpen, setIsTourOpen] = useState(false);
   const [paymentNotice, setPaymentNotice] = useState<{ status: string; plan?: string; ref?: string } | null>(() => {
     if (typeof window !== "undefined") {
       try {
@@ -177,7 +183,7 @@ export default function DashboardPage() {
             <span className="text-slate-400 dark:text-slate-600">|</span>
 
             {/* Dynamic Dashboard Layout & Themes Mode Switcher */}
-            <div className="flex items-center bg-slate-100 dark:bg-slate-900/90 border border-slate-300 dark:border-slate-800 rounded-xl p-1 shadow-inner">
+            <div id="tour-dashboard-mode" className="flex items-center bg-slate-100 dark:bg-slate-900/90 border border-slate-300 dark:border-slate-800 rounded-xl p-1 shadow-inner">
               <button
                 onClick={() => handleModeChange("executive")}
                 className={`px-3.5 py-1.5 rounded-lg text-[11px] font-bold transition-all flex items-center space-x-1.5 ${
@@ -215,7 +221,7 @@ export default function DashboardPage() {
           </div>
 
           <div className="flex items-center flex-wrap gap-2.5 text-[11px] text-slate-500 dark:text-slate-400">
-            <div className="flex items-center space-x-1 bg-slate-100 dark:bg-slate-900/90 border border-slate-300 dark:border-slate-800 rounded-xl p-1 shadow-inner">
+            <div id="tour-scope-filter" className="flex items-center space-x-1 bg-slate-100 dark:bg-slate-900/90 border border-slate-300 dark:border-slate-800 rounded-xl p-1 shadow-inner">
               <button
                 onClick={() => handleScopeChange("ALL")}
                 className={`px-3 py-1 rounded-lg transition-all flex items-center space-x-1.5 ${
@@ -245,9 +251,9 @@ export default function DashboardPage() {
                     ? "bg-[#0071e3] text-white font-bold shadow-sm"
                     : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
                 }`}
-                title="View wells with verified committed LAS log suites"
+                title="View wells with verified uploaded LAS log suites"
               >
-                <span>Committed</span>
+                <span>Uploaded</span>
                 {summary.counts?.totalCommitted !== undefined && (
                   <span
                     className={`text-[10px] px-1.5 py-0.2 rounded-full font-mono font-bold ${
@@ -291,7 +297,8 @@ export default function DashboardPage() {
               </strong>
             </span>
 
-            <div className="flex items-center space-x-1.5 pl-1">
+            <div id="tour-actions" className="flex items-center space-x-1.5 pl-1">
+              <TourGuideButton onClick={() => setIsTourOpen(true)} />
               <Link
                 href="/upload"
                 title="Ingest New LAS"
@@ -320,6 +327,9 @@ export default function DashboardPage() {
             </div>
           </div>
         </div>
+
+        {/* Onboarding Welcome Banner for new users */}
+        <OnboardingWelcomeBanner onStartTour={() => setIsTourOpen(true)} />
 
         {/* Executive Summary Notice Banner (Apple Clean Style) - Temporarily commented out */}
         {/* {showNotice && (
@@ -379,13 +389,13 @@ export default function DashboardPage() {
         )}
 
         {/* ── 3-TIER ENTERPRISE KPI GRID ─────────── */}
-        <div className="space-y-2.5 font-mono">
+        <div id="tour-kpi-grid" className="space-y-2.5 font-mono">
           {/* Row 1: Discovery & Quality Index */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5">
             <EnterpriseKpiCard
               label={
                 filterScope === "COMMITTED"
-                  ? "Committed Wells"
+                  ? "Uploaded Wells"
                   : filterScope === "ATTENTION"
                   ? "Flagged Wells"
                   : "Discovered Wells"
@@ -412,7 +422,7 @@ export default function DashboardPage() {
                   ? "Verified LAS Files"
                   : filterScope === "ATTENTION"
                   ? "Problem Log Suites"
-                  : "Committed LAS Logs"
+                  : "Uploaded LAS Logs"
               }
               value={summary.lasFilesUploaded.toLocaleString()}
               subtext={
@@ -433,7 +443,7 @@ export default function DashboardPage() {
             <EnterpriseKpiCard
               label={
                 filterScope === "COMMITTED"
-                  ? "Committed Fleet Score"
+                  ? "Uploaded Fleet Score"
                   : filterScope === "ATTENTION"
                   ? "Flagged Defect Score"
                   : "Composite QA Score"
@@ -470,7 +480,7 @@ export default function DashboardPage() {
                 accentColor="text-emerald-600 dark:text-emerald-400"
               />
               <EnterpriseKpiCard
-                label="Committed Today"
+                label="Uploaded Today"
                 value={summary.uploadedToday.toLocaleString()}
                 subtext="New Wells Ingested Today"
                 accentColor="text-cyan-600 dark:text-cyan-300"
@@ -499,7 +509,7 @@ export default function DashboardPage() {
                   {filterScope === "ATTENTION"
                     ? "Remediation Defect Rate"
                     : filterScope === "COMMITTED"
-                    ? "Committed Log Readiness"
+                    ? "Uploaded Log Readiness"
                     : "Fleet QA Pass Rate"}
                 </div>
                 <div className="text-2xl font-bold text-slate-900 dark:text-white mt-1">
@@ -529,7 +539,7 @@ export default function DashboardPage() {
                       <strong className="text-emerald-600 dark:text-emerald-400 font-bold">
                         {summary.totalWells}
                       </strong>{" "}
-                      Committed logs meet interpretation standard
+                      Uploaded logs meet interpretation standard
                     </span>
                   ) : (
                     <span>
@@ -606,7 +616,7 @@ export default function DashboardPage() {
         {/* 1. EXECUTIVE CALM MODE: Clean 2-column dial + 7-day trend + quick actions */}
         {dashboardMode === "executive" && (
           <div className="space-y-3 font-mono">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
+            <div id="tour-trend-section" className="grid grid-cols-1 lg:grid-cols-2 gap-3">
               {/* Composite Fleet Quality Dial */}
               <div className="bg-wellqc-panel border border-wellqc-border p-5 rounded-2xl flex flex-col justify-between shadow-sm">
                 <div className="flex items-center justify-between border-b border-wellqc-border pb-2 text-xs">
@@ -1074,7 +1084,7 @@ export default function DashboardPage() {
             )}
 
             {/* Bottom Row: 7-Day Trend + (Quality Scan Runs table if in Telemetry mode, or Mnemonic list if in Workstation mode) */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 font-mono text-xs">
+            <div id="tour-trend-section-alt" className="grid grid-cols-1 lg:grid-cols-2 gap-3 font-mono text-xs">
               {/* Left: 7-Day Ingestion & Detections Trend */}
               <div className="bg-wellqc-panel border border-wellqc-border p-5 rounded-2xl space-y-3 shadow-sm">
                 <div className="flex items-center justify-between border-b border-wellqc-border pb-2">
@@ -1195,6 +1205,9 @@ export default function DashboardPage() {
           wells={summary.scopeWells || []}
         />
       </div>
+
+      {/* Interactive Guided Onboarding Tour */}
+      <DashboardTour isOpen={isTourOpen} onClose={() => setIsTourOpen(false)} />
     </AppShell>
   );
 }
