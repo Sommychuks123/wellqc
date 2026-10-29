@@ -1,0 +1,92 @@
+Card Name,Card Description,List Name,Labels,Members,Due Date
+[CE1] [DevOps & Cloud] Multi-Region Cloud Deployment & Kubernetes Orchestration (CE1) (⏳ Upcoming),"**Task ID:** Task #63
+**Sprint:** Sprint 8: Production Deployment, NUPRC Operator Pilot & Cloud Scale
+**Assigned Team:** CE1
+**Duration:** 5d (2026-11-02 to 2026-11-06)
+**Completion Status:** 0%
+
+### Description & Scope:
+Implementation of Multi-Region Cloud Deployment & Kubernetes Orchestration (CE1) as part of WellQC subsurface platform.
+
+### Acceptance Criteria:
+- [ ] Upcoming sprint planning and architectural review
+- [ ] Code review & staging testing
+- [ ] End-to-end integration pass","Sprint 8: Production Deployment, NUPRC Operator Pilot & Cloud Scale [0%]","DevOps & Cloud,Upcoming",CE1,2026-11-06
+"[DA4] [Compliance] Live NUPRC Operator Pilot Program & Formal Submission Validation (DA4, SE2) (⏳ Upcoming)","**Task ID:** Task #64
+**Sprint:** Sprint 8: Production Deployment, NUPRC Operator Pilot & Cloud Scale
+**Assigned Team:** DA4, SE2
+**Duration:** 6d (2026-11-03 to 2026-11-10)
+**Completion Status:** 0%
+
+### Description & Scope:
+Implementation of Live NUPRC Operator Pilot Program & Formal Submission Validation (DA4, SE2) as part of WellQC subsurface platform.
+
+### Acceptance Criteria:
+- [ ] Upcoming sprint planning and architectural review
+- [ ] Code review & staging testing
+- [ ] End-to-end integration pass","Sprint 8: Production Deployment, NUPRC Operator Pilot & Cloud Scale [0%]","Compliance,Upcoming","DA4, SE2",2026-11-10
+"[SE1] [Backend] Real-Time Wellsite Telemetry Streaming Ingestion (WITSML / OPC-UA) (SE1, CE2) (⏳ Upcoming)","**Task ID:** Task #65
+**Sprint:** Sprint 8: Production Deployment, NUPRC Operator Pilot & Cloud Scale
+**Assigned Team:** SE1, CE2
+**Duration:** 6d (2026-11-04 to 2026-11-11)
+**Completion Status:** 0%
+
+### Description & Scope:
+Implementation of Real-Time Wellsite Telemetry Streaming Ingestion (WITSML / OPC-UA) (SE1, CE2) as part of WellQC subsurface platform.
+
+### Acceptance Criteria:
+- [ ] Upcoming sprint planning and architectural review
+- [ ] Code review & staging testing
+- [ ] End-to-end integration pass","Sprint 8: Production Deployment, NUPRC Operator Pilot & Cloud Scale [0%]","Backend,ML & Analytics,Upcoming","SE1, CE2",2026-11-11
+"[DA1] [Petrophysics] Advanced Reservoir Rock Physics Module (Sw, Permeability, Net-to-Gross) (DA1, DA2) (⏳ Upcoming)","**Task ID:** Task #66
+**Sprint:** Sprint 8: Production Deployment, NUPRC Operator Pilot & Cloud Scale
+**Assigned Team:** DA1, DA2
+**Duration:** 5d (2026-11-05 to 2026-11-11)
+**Completion Status:** 0%
+
+### Description & Scope:
+Implementation of Advanced Reservoir Rock Physics Module (Sw, Permeability, Net-to-Gross) (DA1, DA2) as part of WellQC subsurface platform.
+
+### Acceptance Criteria:
+- [ ] Upcoming sprint planning and architectural review
+- [ ] Code review & staging testing
+- [ ] End-to-end integration pass","Sprint 8: Production Deployment, NUPRC Operator Pilot & Cloud Scale [0%]","Petrophysics,Upcoming","DA1, DA2",2026-11-11
+"[CE2] [Security] Enterprise SSO Integration (SAML 2.0 / Azure AD / Okta) & Audit Access Logs (CE2, SE2) (⏳ Upcoming)","**Task ID:** Task #67
+**Sprint:** Sprint 8: Production Deployment, NUPRC Operator Pilot & Cloud Scale
+**Assigned Team:** CE2, SE2
+**Duration:** 5d (2026-11-06 to 2026-11-12)
+**Completion Status:** 0%
+
+### Description & Scope:
+Implementation of Enterprise SSO Integration (SAML 2.0 / Azure AD / Okta) & Audit Access Logs (CE2, SE2) as part of WellQC subsurface platform.
+
+### Acceptance Criteria:
+- [ ] Upcoming sprint planning and architectural review
+- [ ] Code review & staging testing
+- [ ] End-to-end integration pass","Sprint 8: Production Deployment, NUPRC Operator Pilot & Cloud Scale [0%]","Security,ML & Analytics,Compliance,Upcoming","CE2, SE2",2026-11-12
+"[DA3] [ML & Analytics] Offset Well Basin Correlation ML Enhancement (DA3, SE1) (⏳ Upcoming)","**Task ID:** Task #68
+**Sprint:** Sprint 8: Production Deployment, NUPRC Operator Pilot & Cloud Scale
+**Assigned Team:** DA3, SE1
+**Duration:** 5d (2026-11-09 to 2026-11-13)
+**Completion Status:** 0%
+
+### Description & Scope:
+Implementation of Offset Well Basin Correlation ML Enhancement (DA3, SE1) as part of WellQC subsurface platform.
+
+### Acceptance Criteria:
+- [ ] Upcoming sprint planning and architectural review
+- [ ] Code review & staging testing
+- [ ] End-to-end integration pass","Sprint 8: Production Deployment, NUPRC Operator Pilot & Cloud Scale [0%]","ML & Analytics,Upcoming","DA3, SE1",2026-11-13
+[SE1] [Milestone] Milestone: Production Release & NUPRC Pilot Sign-off (All) (⏳ Upcoming),"**Task ID:** Task #69
+**Sprint:** Sprint 8: Production Deployment, NUPRC Operator Pilot & Cloud Scale
+**Assigned Team:** SE1, SE2, CE1, CE2, DA1, DA2, DA3, DA4
+**Duration:** 0d (2026-11-13 to 2026-11-13)
+**Completion Status:** 0%
+
+### Description & Scope:
+Implementation of Milestone: Production Release & NUPRC Pilot Sign-off (All) as part of WellQC subsurface platform.
+
+### Acceptance Criteria:
+- [ ] Upcoming sprint planning and architectural review
+- [ ] Code review & staging testing
+- [ ] End-to-end integration pass","Sprint 8: Production Deployment, NUPRC Operator Pilot & Cloud Scale [0%]","Milestone,Compliance,Upcoming","SE1, SE2, CE1, CE2, DA1, DA2, DA3, DA4",2026-11-13

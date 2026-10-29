@@ -1,10 +1,10 @@
-<?xml version="1.0" ?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project xmlns="http://schemas.microsoft.com/project">
   <Name>WellQC Platform Development Plan</Name>
   <Title>WellQC Subsurface Log QA Schedule</Title>
   <Company>NDI-G5 WellQC Team</Company>
   <StartDate>2026-07-20T08:00:00</StartDate>
-  <FinishDate>2026-10-23T17:00:00</FinishDate>
+  <FinishDate>2026-11-27T17:00:00</FinishDate>
   <ScheduleFromStart>1</ScheduleFromStart>
   <Calendars>
     <Calendar>
@@ -19,13 +19,13 @@
       <ID>1</ID>
       <Name>WellQC Platform Development</Name>
       <OutlineLevel>1</OutlineLevel>
-      <Duration>PT560H0M0S</Duration>
+      <Duration>PT720H0M0S</Duration>
       <DurationFormat>7</DurationFormat>
       <Start>2026-07-20T08:00:00</Start>
-      <Finish>2026-10-23T17:00:00</Finish>
+      <Finish>2026-11-27T17:00:00</Finish>
       <Milestone>0</Milestone>
       <Summary>1</Summary>
-      <PercentComplete>98</PercentComplete>
+      <PercentComplete>78</PercentComplete>
     </Task>
     <Task>
       <UID>2</UID>
@@ -904,15 +904,15 @@
     <Task>
       <UID>48</UID>
       <ID>48</ID>
-      <Name>Sprint 7: Multi-Well Comparison, NUPRC Compliance &amp; Batch Processing</Name>
+      <Name>Sprint 7: Multi-Well Comparison, Dynamic Workstation &amp; UX Enhancements</Name>
       <OutlineLevel>2</OutlineLevel>
-      <Duration>PT80H0M0S</Duration>
+      <Duration>PT112H0M0S</Duration>
       <DurationFormat>7</DurationFormat>
       <Start>2026-10-12T08:00:00</Start>
-      <Finish>2026-10-23T17:00:00</Finish>
+      <Finish>2026-10-29T17:00:00</Finish>
       <Milestone>0</Milestone>
       <Summary>1</Summary>
-      <PercentComplete>88</PercentComplete>
+      <PercentComplete>100</PercentComplete>
       <PredecessorLink>
         <PredecessorUID>47</PredecessorUID>
         <Type>1</Type>
@@ -921,7 +921,7 @@
     <Task>
       <UID>49</UID>
       <ID>49</ID>
-      <Name>Multi-Well Depth Alignment &amp; Correlation Engine (SE1)</Name>
+      <Name>Multi-Well Depth Alignment &amp; Stratigraphic Correlation Engine (SE1)</Name>
       <OutlineLevel>3</OutlineLevel>
       <Duration>PT40H0M0S</Duration>
       <DurationFormat>7</DurationFormat>
@@ -938,7 +938,7 @@
     <Task>
       <UID>50</UID>
       <ID>50</ID>
-      <Name>Cross-Well Canvas UI with Synchronized Depth Scrolling (SE2)</Name>
+      <Name>Cross-Well Workstation UI &amp; Interactive SVG Overlaid Track (SE2)</Name>
       <OutlineLevel>3</OutlineLevel>
       <Duration>PT40H0M0S</Duration>
       <DurationFormat>7</DurationFormat>
@@ -946,7 +946,7 @@
       <Finish>2026-10-19T17:00:00</Finish>
       <Milestone>0</Milestone>
       <Summary>0</Summary>
-      <PercentComplete>95</PercentComplete>
+      <PercentComplete>100</PercentComplete>
       <PredecessorLink>
         <PredecessorUID>49</PredecessorUID>
         <Type>1</Type>
@@ -955,7 +955,7 @@
     <Task>
       <UID>51</UID>
       <ID>51</ID>
-      <Name>Unsupervised ML Lithology Classification on GR-RHOB-NPHI (SE1)</Name>
+      <Name>Unsupervised ML Lithology Clustering on GR-RHOB-NPHI (SE1, DA2)</Name>
       <OutlineLevel>3</OutlineLevel>
       <Duration>PT32H0M0S</Duration>
       <DurationFormat>7</DurationFormat>
@@ -963,7 +963,7 @@
       <Finish>2026-10-20T17:00:00</Finish>
       <Milestone>0</Milestone>
       <Summary>0</Summary>
-      <PercentComplete>85</PercentComplete>
+      <PercentComplete>100</PercentComplete>
       <PredecessorLink>
         <PredecessorUID>49</PredecessorUID>
         <Type>1</Type>
@@ -980,7 +980,7 @@
       <Finish>2026-10-20T17:00:00</Finish>
       <Milestone>0</Milestone>
       <Summary>0</Summary>
-      <PercentComplete>90</PercentComplete>
+      <PercentComplete>100</PercentComplete>
       <PredecessorLink>
         <PredecessorUID>47</PredecessorUID>
         <Type>1</Type>
@@ -989,7 +989,7 @@
     <Task>
       <UID>53</UID>
       <ID>53</ID>
-      <Name>Niger Delta Formation Cutoffs (Akata, Agbada, Benin) (DA1, DA2)</Name>
+      <Name>Niger Delta Formation Cutoffs &amp; Hybrid Markers DB Schema (DA1, CE2)</Name>
       <OutlineLevel>3</OutlineLevel>
       <Duration>PT40H0M0S</Duration>
       <DurationFormat>7</DurationFormat>
@@ -1014,7 +1014,7 @@
       <Finish>2026-10-19T17:00:00</Finish>
       <Milestone>0</Milestone>
       <Summary>0</Summary>
-      <PercentComplete>95</PercentComplete>
+      <PercentComplete>100</PercentComplete>
       <PredecessorLink>
         <PredecessorUID>53</PredecessorUID>
         <Type>1</Type>
@@ -1031,7 +1031,7 @@
       <Finish>2026-10-21T17:00:00</Finish>
       <Milestone>0</Milestone>
       <Summary>0</Summary>
-      <PercentComplete>85</PercentComplete>
+      <PercentComplete>100</PercentComplete>
       <PredecessorLink>
         <PredecessorUID>47</PredecessorUID>
         <Type>1</Type>
@@ -1048,7 +1048,7 @@
       <Finish>2026-10-22T17:00:00</Finish>
       <Milestone>0</Milestone>
       <Summary>0</Summary>
-      <PercentComplete>80</PercentComplete>
+      <PercentComplete>100</PercentComplete>
       <PredecessorLink>
         <PredecessorUID>47</PredecessorUID>
         <Type>1</Type>
@@ -1057,54 +1057,388 @@
     <Task>
       <UID>57</UID>
       <ID>57</ID>
-      <Name>End-to-End System Integration &amp; Acceptance Testing Suite (All)</Name>
+      <Name>Dynamic Multi-Curve Wireline Log Viewer &amp; Channel Selector (SE1, SE2)</Name>
       <OutlineLevel>3</OutlineLevel>
       <Duration>PT40H0M0S</Duration>
       <DurationFormat>7</DurationFormat>
-      <Start>2026-10-19T08:00:00</Start>
-      <Finish>2026-10-23T17:00:00</Finish>
+      <Start>2026-10-20T08:00:00</Start>
+      <Finish>2026-10-26T17:00:00</Finish>
       <Milestone>0</Milestone>
       <Summary>0</Summary>
-      <PercentComplete>95</PercentComplete>
+      <PercentComplete>100</PercentComplete>
       <PredecessorLink>
         <PredecessorUID>50</PredecessorUID>
-        <Type>1</Type>
-      </PredecessorLink>
-      <PredecessorLink>
-        <PredecessorUID>51</PredecessorUID>
-        <Type>1</Type>
-      </PredecessorLink>
-      <PredecessorLink>
-        <PredecessorUID>52</PredecessorUID>
-        <Type>1</Type>
-      </PredecessorLink>
-      <PredecessorLink>
-        <PredecessorUID>54</PredecessorUID>
-        <Type>1</Type>
-      </PredecessorLink>
-      <PredecessorLink>
-        <PredecessorUID>55</PredecessorUID>
-        <Type>1</Type>
-      </PredecessorLink>
-      <PredecessorLink>
-        <PredecessorUID>56</PredecessorUID>
         <Type>1</Type>
       </PredecessorLink>
     </Task>
     <Task>
       <UID>58</UID>
       <ID>58</ID>
-      <Name>Milestone: Final Production Platform Release &amp; NUPRC Audit Readiness</Name>
+      <Name>Interactive Dashboard Onboarding Tour Guide &amp; Spotlight Walkthrough (SE2)</Name>
+      <OutlineLevel>3</OutlineLevel>
+      <Duration>PT32H0M0S</Duration>
+      <DurationFormat>7</DurationFormat>
+      <Start>2026-10-22T08:00:00</Start>
+      <Finish>2026-10-27T17:00:00</Finish>
+      <Milestone>0</Milestone>
+      <Summary>0</Summary>
+      <PercentComplete>100</PercentComplete>
+      <PredecessorLink>
+        <PredecessorUID>50</PredecessorUID>
+        <Type>1</Type>
+      </PredecessorLink>
+    </Task>
+    <Task>
+      <UID>59</UID>
+      <ID>59</ID>
+      <Name>Subsurface Basin Analytics Engine &amp; Real-Time Visualization API (DA3, SE2)</Name>
+      <OutlineLevel>3</OutlineLevel>
+      <Duration>PT32H0M0S</Duration>
+      <DurationFormat>7</DurationFormat>
+      <Start>2026-10-23T08:00:00</Start>
+      <Finish>2026-10-28T17:00:00</Finish>
+      <Milestone>0</Milestone>
+      <Summary>0</Summary>
+      <PercentComplete>100</PercentComplete>
+      <PredecessorLink>
+        <PredecessorUID>54</PredecessorUID>
+        <Type>1</Type>
+      </PredecessorLink>
+    </Task>
+    <Task>
+      <UID>60</UID>
+      <ID>60</ID>
+      <Name>End-to-End System Test Suite (125 Pytest + 38 Jest Passing) (All)</Name>
+      <OutlineLevel>3</OutlineLevel>
+      <Duration>PT40H0M0S</Duration>
+      <DurationFormat>7</DurationFormat>
+      <Start>2026-10-24T08:00:00</Start>
+      <Finish>2026-10-29T17:00:00</Finish>
+      <Milestone>0</Milestone>
+      <Summary>0</Summary>
+      <PercentComplete>100</PercentComplete>
+      <PredecessorLink>
+        <PredecessorUID>57</PredecessorUID>
+        <Type>1</Type>
+      </PredecessorLink>
+      <PredecessorLink>
+        <PredecessorUID>58</PredecessorUID>
+        <Type>1</Type>
+      </PredecessorLink>
+      <PredecessorLink>
+        <PredecessorUID>59</PredecessorUID>
+        <Type>1</Type>
+      </PredecessorLink>
+    </Task>
+    <Task>
+      <UID>61</UID>
+      <ID>61</ID>
+      <Name>Milestone: Multi-Well Platform, Dynamic Workstation &amp; Core Feature Complete</Name>
       <OutlineLevel>3</OutlineLevel>
       <Duration>PT0H0M0S</Duration>
       <DurationFormat>7</DurationFormat>
-      <Start>2026-10-23T08:00:00</Start>
-      <Finish>2026-10-23T17:00:00</Finish>
+      <Start>2026-10-29T08:00:00</Start>
+      <Finish>2026-10-29T17:00:00</Finish>
       <Milestone>1</Milestone>
       <Summary>0</Summary>
-      <PercentComplete>75</PercentComplete>
+      <PercentComplete>100</PercentComplete>
       <PredecessorLink>
-        <PredecessorUID>57</PredecessorUID>
+        <PredecessorUID>60</PredecessorUID>
+        <Type>1</Type>
+      </PredecessorLink>
+    </Task>
+    <Task>
+      <UID>62</UID>
+      <ID>62</ID>
+      <Name>Sprint 8: Production Deployment, NUPRC Operator Pilot &amp; Cloud Scale</Name>
+      <OutlineLevel>2</OutlineLevel>
+      <Duration>PT80H0M0S</Duration>
+      <DurationFormat>7</DurationFormat>
+      <Start>2026-11-02T08:00:00</Start>
+      <Finish>2026-11-13T17:00:00</Finish>
+      <Milestone>0</Milestone>
+      <Summary>1</Summary>
+      <PercentComplete>0</PercentComplete>
+      <PredecessorLink>
+        <PredecessorUID>61</PredecessorUID>
+        <Type>1</Type>
+      </PredecessorLink>
+    </Task>
+    <Task>
+      <UID>63</UID>
+      <ID>63</ID>
+      <Name>Multi-Region Cloud Deployment &amp; Kubernetes Orchestration (CE1)</Name>
+      <OutlineLevel>3</OutlineLevel>
+      <Duration>PT40H0M0S</Duration>
+      <DurationFormat>7</DurationFormat>
+      <Start>2026-11-02T08:00:00</Start>
+      <Finish>2026-11-06T17:00:00</Finish>
+      <Milestone>0</Milestone>
+      <Summary>0</Summary>
+      <PercentComplete>0</PercentComplete>
+      <PredecessorLink>
+        <PredecessorUID>61</PredecessorUID>
+        <Type>1</Type>
+      </PredecessorLink>
+    </Task>
+    <Task>
+      <UID>64</UID>
+      <ID>64</ID>
+      <Name>Live NUPRC Operator Pilot Program &amp; Formal Submission Validation (DA4, SE2)</Name>
+      <OutlineLevel>3</OutlineLevel>
+      <Duration>PT48H0M0S</Duration>
+      <DurationFormat>7</DurationFormat>
+      <Start>2026-11-03T08:00:00</Start>
+      <Finish>2026-11-10T17:00:00</Finish>
+      <Milestone>0</Milestone>
+      <Summary>0</Summary>
+      <PercentComplete>0</PercentComplete>
+      <PredecessorLink>
+        <PredecessorUID>61</PredecessorUID>
+        <Type>1</Type>
+      </PredecessorLink>
+    </Task>
+    <Task>
+      <UID>65</UID>
+      <ID>65</ID>
+      <Name>Real-Time Wellsite Telemetry Streaming Ingestion (WITSML / OPC-UA) (SE1, CE2)</Name>
+      <OutlineLevel>3</OutlineLevel>
+      <Duration>PT48H0M0S</Duration>
+      <DurationFormat>7</DurationFormat>
+      <Start>2026-11-04T08:00:00</Start>
+      <Finish>2026-11-11T17:00:00</Finish>
+      <Milestone>0</Milestone>
+      <Summary>0</Summary>
+      <PercentComplete>0</PercentComplete>
+      <PredecessorLink>
+        <PredecessorUID>63</PredecessorUID>
+        <Type>1</Type>
+      </PredecessorLink>
+    </Task>
+    <Task>
+      <UID>66</UID>
+      <ID>66</ID>
+      <Name>Advanced Reservoir Rock Physics Module (Sw, Permeability, Net-to-Gross) (DA1, DA2)</Name>
+      <OutlineLevel>3</OutlineLevel>
+      <Duration>PT40H0M0S</Duration>
+      <DurationFormat>7</DurationFormat>
+      <Start>2026-11-05T08:00:00</Start>
+      <Finish>2026-11-11T17:00:00</Finish>
+      <Milestone>0</Milestone>
+      <Summary>0</Summary>
+      <PercentComplete>0</PercentComplete>
+      <PredecessorLink>
+        <PredecessorUID>61</PredecessorUID>
+        <Type>1</Type>
+      </PredecessorLink>
+    </Task>
+    <Task>
+      <UID>67</UID>
+      <ID>67</ID>
+      <Name>Enterprise SSO Integration (SAML 2.0 / Azure AD / Okta) &amp; Audit Access Logs (CE2, SE2)</Name>
+      <OutlineLevel>3</OutlineLevel>
+      <Duration>PT40H0M0S</Duration>
+      <DurationFormat>7</DurationFormat>
+      <Start>2026-11-06T08:00:00</Start>
+      <Finish>2026-11-12T17:00:00</Finish>
+      <Milestone>0</Milestone>
+      <Summary>0</Summary>
+      <PercentComplete>0</PercentComplete>
+      <PredecessorLink>
+        <PredecessorUID>63</PredecessorUID>
+        <Type>1</Type>
+      </PredecessorLink>
+    </Task>
+    <Task>
+      <UID>68</UID>
+      <ID>68</ID>
+      <Name>Offset Well Basin Correlation ML Enhancement (DA3, SE1)</Name>
+      <OutlineLevel>3</OutlineLevel>
+      <Duration>PT40H0M0S</Duration>
+      <DurationFormat>7</DurationFormat>
+      <Start>2026-11-09T08:00:00</Start>
+      <Finish>2026-11-13T17:00:00</Finish>
+      <Milestone>0</Milestone>
+      <Summary>0</Summary>
+      <PercentComplete>0</PercentComplete>
+      <PredecessorLink>
+        <PredecessorUID>66</PredecessorUID>
+        <Type>1</Type>
+      </PredecessorLink>
+    </Task>
+    <Task>
+      <UID>69</UID>
+      <ID>69</ID>
+      <Name>Milestone: Production Release &amp; NUPRC Pilot Sign-off (All)</Name>
+      <OutlineLevel>3</OutlineLevel>
+      <Duration>PT0H0M0S</Duration>
+      <DurationFormat>7</DurationFormat>
+      <Start>2026-11-13T08:00:00</Start>
+      <Finish>2026-11-13T17:00:00</Finish>
+      <Milestone>1</Milestone>
+      <Summary>0</Summary>
+      <PercentComplete>0</PercentComplete>
+      <PredecessorLink>
+        <PredecessorUID>63</PredecessorUID>
+        <Type>1</Type>
+      </PredecessorLink>
+      <PredecessorLink>
+        <PredecessorUID>64</PredecessorUID>
+        <Type>1</Type>
+      </PredecessorLink>
+      <PredecessorLink>
+        <PredecessorUID>65</PredecessorUID>
+        <Type>1</Type>
+      </PredecessorLink>
+      <PredecessorLink>
+        <PredecessorUID>66</PredecessorUID>
+        <Type>1</Type>
+      </PredecessorLink>
+      <PredecessorLink>
+        <PredecessorUID>67</PredecessorUID>
+        <Type>1</Type>
+      </PredecessorLink>
+      <PredecessorLink>
+        <PredecessorUID>68</PredecessorUID>
+        <Type>1</Type>
+      </PredecessorLink>
+    </Task>
+    <Task>
+      <UID>70</UID>
+      <ID>70</ID>
+      <Name>Sprint 9: Enterprise Scale, Real-Time Analytics &amp; Hypercare Operational Handoff</Name>
+      <OutlineLevel>2</OutlineLevel>
+      <Duration>PT80H0M0S</Duration>
+      <DurationFormat>7</DurationFormat>
+      <Start>2026-11-16T08:00:00</Start>
+      <Finish>2026-11-27T17:00:00</Finish>
+      <Milestone>0</Milestone>
+      <Summary>1</Summary>
+      <PercentComplete>0</PercentComplete>
+      <PredecessorLink>
+        <PredecessorUID>69</PredecessorUID>
+        <Type>1</Type>
+      </PredecessorLink>
+    </Task>
+    <Task>
+      <UID>71</UID>
+      <ID>71</ID>
+      <Name>High-Availability Multi-AZ Database Clustering &amp; Disaster Recovery (CE2)</Name>
+      <OutlineLevel>3</OutlineLevel>
+      <Duration>PT40H0M0S</Duration>
+      <DurationFormat>7</DurationFormat>
+      <Start>2026-11-16T08:00:00</Start>
+      <Finish>2026-11-20T17:00:00</Finish>
+      <Milestone>0</Milestone>
+      <Summary>0</Summary>
+      <PercentComplete>0</PercentComplete>
+      <PredecessorLink>
+        <PredecessorUID>69</PredecessorUID>
+        <Type>1</Type>
+      </PredecessorLink>
+    </Task>
+    <Task>
+      <UID>72</UID>
+      <ID>72</ID>
+      <Name>Automated Periodic AI Model Drift Detection &amp; Petrophysical Re-calibration (SE1, DA2)</Name>
+      <OutlineLevel>3</OutlineLevel>
+      <Duration>PT40H0M0S</Duration>
+      <DurationFormat>7</DurationFormat>
+      <Start>2026-11-17T08:00:00</Start>
+      <Finish>2026-11-23T17:00:00</Finish>
+      <Milestone>0</Milestone>
+      <Summary>0</Summary>
+      <PercentComplete>0</PercentComplete>
+      <PredecessorLink>
+        <PredecessorUID>69</PredecessorUID>
+        <Type>1</Type>
+      </PredecessorLink>
+    </Task>
+    <Task>
+      <UID>73</UID>
+      <ID>73</ID>
+      <Name>24/7 SLI/SLO Telemetry Observability, Prometheus Metrics &amp; Alerting (CE1)</Name>
+      <OutlineLevel>3</OutlineLevel>
+      <Duration>PT40H0M0S</Duration>
+      <DurationFormat>7</DurationFormat>
+      <Start>2026-11-18T08:00:00</Start>
+      <Finish>2026-11-24T17:00:00</Finish>
+      <Milestone>0</Milestone>
+      <Summary>0</Summary>
+      <PercentComplete>0</PercentComplete>
+      <PredecessorLink>
+        <PredecessorUID>71</PredecessorUID>
+        <Type>1</Type>
+      </PredecessorLink>
+    </Task>
+    <Task>
+      <UID>74</UID>
+      <ID>74</ID>
+      <Name>Enterprise User Training Portal, API Knowledge Base &amp; Interactive Video Guides (DA3, DA4, SE2)</Name>
+      <OutlineLevel>3</OutlineLevel>
+      <Duration>PT48H0M0S</Duration>
+      <DurationFormat>7</DurationFormat>
+      <Start>2026-11-19T08:00:00</Start>
+      <Finish>2026-11-26T17:00:00</Finish>
+      <Milestone>0</Milestone>
+      <Summary>0</Summary>
+      <PercentComplete>0</PercentComplete>
+      <PredecessorLink>
+        <PredecessorUID>69</PredecessorUID>
+        <Type>1</Type>
+      </PredecessorLink>
+    </Task>
+    <Task>
+      <UID>75</UID>
+      <ID>75</ID>
+      <Name>Client Acceptance Review &amp; Regulatory Compliance Handoff (DA4, CE2)</Name>
+      <OutlineLevel>3</OutlineLevel>
+      <Duration>PT40H0M0S</Duration>
+      <DurationFormat>7</DurationFormat>
+      <Start>2026-11-23T08:00:00</Start>
+      <Finish>2026-11-27T17:00:00</Finish>
+      <Milestone>0</Milestone>
+      <Summary>0</Summary>
+      <PercentComplete>0</PercentComplete>
+      <PredecessorLink>
+        <PredecessorUID>73</PredecessorUID>
+        <Type>1</Type>
+      </PredecessorLink>
+      <PredecessorLink>
+        <PredecessorUID>74</PredecessorUID>
+        <Type>1</Type>
+      </PredecessorLink>
+    </Task>
+    <Task>
+      <UID>76</UID>
+      <ID>76</ID>
+      <Name>Milestone: Enterprise General Availability (GA) &amp; Steady-State SLAs (All)</Name>
+      <OutlineLevel>3</OutlineLevel>
+      <Duration>PT0H0M0S</Duration>
+      <DurationFormat>7</DurationFormat>
+      <Start>2026-11-27T08:00:00</Start>
+      <Finish>2026-11-27T17:00:00</Finish>
+      <Milestone>1</Milestone>
+      <Summary>0</Summary>
+      <PercentComplete>0</PercentComplete>
+      <PredecessorLink>
+        <PredecessorUID>71</PredecessorUID>
+        <Type>1</Type>
+      </PredecessorLink>
+      <PredecessorLink>
+        <PredecessorUID>72</PredecessorUID>
+        <Type>1</Type>
+      </PredecessorLink>
+      <PredecessorLink>
+        <PredecessorUID>73</PredecessorUID>
+        <Type>1</Type>
+      </PredecessorLink>
+      <PredecessorLink>
+        <PredecessorUID>74</PredecessorUID>
+        <Type>1</Type>
+      </PredecessorLink>
+      <PredecessorLink>
+        <PredecessorUID>75</PredecessorUID>
         <Type>1</Type>
       </PredecessorLink>
     </Task>
