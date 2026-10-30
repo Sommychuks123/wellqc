@@ -18,6 +18,11 @@ import {
   ArrowRight,
 } from "lucide-react";
 import dynamic from "next/dynamic";
+import {
+  DashboardTour,
+  OnboardingWelcomeBanner,
+  TourGuideButton,
+} from "@/components/dashboard/dashboard-tour";
 
 const TrendChart = dynamic(
   () => import("@/components/dashboard/trend-chart").then((m) => m.TrendChart),
@@ -44,6 +49,8 @@ const EMPTY_SUMMARY: DashboardSummary = {
     totalAll: 0,
     totalCommitted: 0,
     totalFlagged: 0,
+    totalCommittedFiles: 0,
+    totalAllFiles: 0,
   },
   scopeWells: [],
 };
@@ -54,6 +61,7 @@ export default function DashboardPage() {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [error, setError] = useState("");
   const [filterScope, setFilterScope] = useState<"ALL" | "COMMITTED" | "ATTENTION">("ALL");
+  const [isTourOpen, setIsTourOpen] = useState(false);
   const [paymentNotice, setPaymentNotice] = useState<{ status: string; plan?: string; ref?: string } | null>(() => {
     if (typeof window !== "undefined") {
       try {
@@ -177,7 +185,7 @@ export default function DashboardPage() {
             <span className="text-slate-400 dark:text-slate-600">|</span>
 
             {/* Dynamic Dashboard Layout & Themes Mode Switcher */}
-            <div className="flex items-center bg-slate-100 dark:bg-slate-900/90 border border-slate-300 dark:border-slate-800 rounded-xl p-1 shadow-inner">
+            <div id="tour-dashboard-mode" className="flex items-center bg-slate-100 dark:bg-slate-900/90 border border-slate-300 dark:border-slate-800 rounded-xl p-1 shadow-inner">
               <button
                 onClick={() => handleModeChange("executive")}
                 className={`px-3.5 py-1.5 rounded-lg text-[11px] font-bold transition-all flex items-center space-x-1.5 ${
@@ -215,7 +223,7 @@ export default function DashboardPage() {
           </div>
 
           <div className="flex items-center flex-wrap gap-2.5 text-[11px] text-slate-500 dark:text-slate-400">
-            <div className="flex items-center space-x-1 bg-slate-100 dark:bg-slate-900/90 border border-slate-300 dark:border-slate-800 rounded-xl p-1 shadow-inner">
+            <div id="tour-scope-filter" className="flex items-center space-x-1 bg-slate-100 dark:bg-slate-900/90 border border-slate-300 dark:border-slate-800 rounded-xl p-1 shadow-inner">
               <button
                 onClick={() => handleScopeChange("ALL")}
                 className={`px-3 py-1 rounded-lg transition-all flex items-center space-x-1.5 ${
@@ -231,7 +239,7 @@ export default function DashboardPage() {
                     className={`text-[10px] px-1.5 py-0.2 rounded-full font-mono font-bold ${
                       filterScope === "ALL"
                         ? "bg-white/20 text-white"
-                        : "bg-slate-200 dark:bg-slate-800 text-slate-500"
+                        : "bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-medium"
                     }`}
                   >
                     {summary.counts.totalAll}
@@ -245,18 +253,30 @@ export default function DashboardPage() {
                     ? "bg-[#0071e3] text-white font-bold shadow-sm"
                     : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
                 }`}
-                title="View wells with verified committed LAS log suites"
+                title={`View ${summary.counts?.totalCommitted ?? summary.totalWells} uploaded wells containing ${summary.counts?.totalCommittedFiles ?? summary.lasFilesUploaded} verified LAS files`}
               >
-                <span>Committed</span>
+                <span>Uploaded Wells</span>
                 {summary.counts?.totalCommitted !== undefined && (
                   <span
                     className={`text-[10px] px-1.5 py-0.2 rounded-full font-mono font-bold ${
                       filterScope === "COMMITTED"
                         ? "bg-white/20 text-white"
-                        : "bg-slate-200 dark:bg-slate-800 text-slate-500"
+                        : "bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-medium"
                     }`}
                   >
                     {summary.counts.totalCommitted}
+                  </span>
+                )}
+                {(summary.counts?.totalCommittedFiles !== undefined ? summary.counts.totalCommittedFiles : summary.lasFilesUploaded) > 0 && (
+                  <span
+                    className={`text-[9px] px-1 py-0.2 rounded font-mono ${
+                      filterScope === "COMMITTED"
+                        ? "bg-white/15 text-white/95"
+                        : "text-slate-500 dark:text-slate-400"
+                    }`}
+                    title={`${summary.counts?.totalCommittedFiles ?? summary.lasFilesUploaded} verified LAS log files across these wells`}
+                  >
+                    ({summary.counts?.totalCommittedFiles ?? summary.lasFilesUploaded} files)
                   </span>
                 )}
               </button>
@@ -269,7 +289,7 @@ export default function DashboardPage() {
                 }`}
                 title="View wells with quality score < 75 or critical anomalies"
               >
-                <span>Flagged</span>
+                <span>Flagged Wells</span>
                 {summary.counts?.totalFlagged !== undefined && (
                   <span
                     className={`text-[10px] px-1.5 py-0.2 rounded-full font-mono font-bold ${
@@ -291,7 +311,8 @@ export default function DashboardPage() {
               </strong>
             </span>
 
-            <div className="flex items-center space-x-1.5 pl-1">
+            <div id="tour-actions" className="flex items-center space-x-1.5 pl-1">
+              <TourGuideButton onClick={() => setIsTourOpen(true)} />
               <Link
                 href="/upload"
                 title="Ingest New LAS"
@@ -320,6 +341,9 @@ export default function DashboardPage() {
             </div>
           </div>
         </div>
+
+        {/* Onboarding Welcome Banner for new users */}
+        <OnboardingWelcomeBanner onStartTour={() => setIsTourOpen(true)} />
 
         {/* Executive Summary Notice Banner (Apple Clean Style) - Temporarily commented out */}
         {/* {showNotice && (
@@ -379,13 +403,13 @@ export default function DashboardPage() {
         )}
 
         {/* ── 3-TIER ENTERPRISE KPI GRID ─────────── */}
-        <div className="space-y-2.5 font-mono">
+        <div id="tour-kpi-grid" className="space-y-2.5 font-mono">
           {/* Row 1: Discovery & Quality Index */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5">
             <EnterpriseKpiCard
               label={
                 filterScope === "COMMITTED"
-                  ? "Committed Wells"
+                  ? "Uploaded Wells"
                   : filterScope === "ATTENTION"
                   ? "Flagged Wells"
                   : "Discovered Wells"
@@ -412,7 +436,7 @@ export default function DashboardPage() {
                   ? "Verified LAS Files"
                   : filterScope === "ATTENTION"
                   ? "Problem Log Suites"
-                  : "Committed LAS Logs"
+                  : "Uploaded LAS Logs"
               }
               value={summary.lasFilesUploaded.toLocaleString()}
               subtext={
@@ -433,7 +457,7 @@ export default function DashboardPage() {
             <EnterpriseKpiCard
               label={
                 filterScope === "COMMITTED"
-                  ? "Committed Fleet Score"
+                  ? "Uploaded Fleet Score"
                   : filterScope === "ATTENTION"
                   ? "Flagged Defect Score"
                   : "Composite QA Score"
@@ -470,7 +494,7 @@ export default function DashboardPage() {
                 accentColor="text-emerald-600 dark:text-emerald-400"
               />
               <EnterpriseKpiCard
-                label="Committed Today"
+                label="Uploaded Today"
                 value={summary.uploadedToday.toLocaleString()}
                 subtext="New Wells Ingested Today"
                 accentColor="text-cyan-600 dark:text-cyan-300"
@@ -499,7 +523,7 @@ export default function DashboardPage() {
                   {filterScope === "ATTENTION"
                     ? "Remediation Defect Rate"
                     : filterScope === "COMMITTED"
-                    ? "Committed Log Readiness"
+                    ? "Uploaded Log Readiness"
                     : "Fleet QA Pass Rate"}
                 </div>
                 <div className="text-2xl font-bold text-slate-900 dark:text-white mt-1">
@@ -529,7 +553,7 @@ export default function DashboardPage() {
                       <strong className="text-emerald-600 dark:text-emerald-400 font-bold">
                         {summary.totalWells}
                       </strong>{" "}
-                      Committed logs meet interpretation standard
+                      Uploaded logs meet interpretation standard
                     </span>
                   ) : (
                     <span>
@@ -606,7 +630,7 @@ export default function DashboardPage() {
         {/* 1. EXECUTIVE CALM MODE: Clean 2-column dial + 7-day trend + quick actions */}
         {dashboardMode === "executive" && (
           <div className="space-y-3 font-mono">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
+            <div id="tour-trend-section" className="grid grid-cols-1 lg:grid-cols-2 gap-3">
               {/* Composite Fleet Quality Dial */}
               <div className="bg-wellqc-panel border border-wellqc-border p-5 rounded-2xl flex flex-col justify-between shadow-sm">
                 <div className="flex items-center justify-between border-b border-wellqc-border pb-2 text-xs">
@@ -616,7 +640,7 @@ export default function DashboardPage() {
                       Composite Fleet Quality Dial
                     </span>
                   </div>
-                  <span className="text-[10px] text-slate-500 font-mono">API RP 66 Benchmark</span>
+                  <span className="text-[10px] text-slate-600 dark:text-slate-300 font-mono font-medium">API RP 66 Benchmark</span>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 items-center py-4">
@@ -640,18 +664,19 @@ export default function DashboardPage() {
                         strokeLinecap="round"
                         className="transition-all duration-1000 ease-out"
                       />
-                      <text x="20" y="118" fill="#64748b" fontSize="10" fontWeight="bold" textAnchor="middle">0</text>
-                      <text x="100" y="26" fill="#64748b" fontSize="10" fontWeight="bold" textAnchor="middle">50</text>
-                      <text x="180" y="118" fill="#64748b" fontSize="10" fontWeight="bold" textAnchor="middle">100</text>
+                      <text x="20" y="118" fill="currentColor" className="text-slate-700 dark:text-slate-100 font-mono text-[11px] font-bold" textAnchor="middle">0</text>
+                      <text x="100" y="8" fill="currentColor" className="text-slate-800 dark:text-slate-100 font-mono text-[11px] font-bold" textAnchor="middle">50</text>
+                      <text x="180" y="118" fill="currentColor" className="text-slate-700 dark:text-slate-100 font-mono text-[11px] font-bold" textAnchor="middle">100</text>
                     </svg>
 
                     <div className="text-center -mt-6">
                       <div className="text-3xl font-black text-slate-900 dark:text-white font-mono tracking-tight">{score}</div>
                       <div
-                        className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full inline-block mt-0.5"
+                        className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full inline-block mt-1 border shadow-xs"
                         style={{
                           color: getScoreColor(summary.averageQualityScore),
-                          backgroundColor: `${getScoreColor(summary.averageQualityScore)}15`,
+                          backgroundColor: `${getScoreColor(summary.averageQualityScore)}25`,
+                          borderColor: `${getScoreColor(summary.averageQualityScore)}60`,
                         }}
                       >
                         {summary.averageQualityGrade}
@@ -660,8 +685,8 @@ export default function DashboardPage() {
                   </div>
 
                   <div className="space-y-2 text-xs border-l border-wellqc-border/60 pl-3">
-                    <div className="text-[11px] text-slate-600 dark:text-slate-400">
-                      Total Flagged Anomalies: <strong className="text-slate-900 dark:text-white font-mono">{summary.anomaliesFound}</strong>
+                    <div className="text-[11px] text-slate-700 dark:text-slate-200 font-medium">
+                      Total Flagged Anomalies: <strong className="text-slate-900 dark:text-white font-mono font-bold ml-1">{summary.anomaliesFound}</strong>
                     </div>
 
                     <div className="grid grid-cols-2 gap-2 text-[10px]">
@@ -685,8 +710,8 @@ export default function DashboardPage() {
                   </div>
                 </div>
 
-                <div className="pt-2.5 border-t border-wellqc-border flex items-center justify-between text-[10px] text-slate-500">
-                  <span>Evaluated Assets: <strong className="text-slate-900 dark:text-white font-mono">{summary.totalWells} Wells</strong></span>
+                <div className="pt-2.5 border-t border-wellqc-border flex items-center justify-between text-[11px] text-slate-600 dark:text-slate-300">
+                  <span>Evaluated Assets: <strong className="text-slate-900 dark:text-white font-mono font-bold ml-1">{summary.totalWells} Wells</strong></span>
                   <Link href="/wells" className="text-cyan-700 dark:text-cyan-400 hover:underline font-semibold flex items-center space-x-1">
                     <span>View Registry</span>
                     <ArrowRight className="w-3 h-3" />
@@ -767,7 +792,7 @@ export default function DashboardPage() {
                       Composite Fleet Quality Dial
                     </span>
                   </div>
-                  <span className="text-[10px] text-slate-500 font-mono">API RP 66 Benchmark</span>
+                  <span className="text-[10px] text-slate-600 dark:text-slate-300 font-mono font-medium">API RP 66 Benchmark</span>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 items-center py-4">
@@ -792,18 +817,19 @@ export default function DashboardPage() {
                         strokeLinecap="round"
                         className="transition-all duration-1000 ease-out"
                       />
-                      <text x="20" y="118" fill="#64748b" fontSize="10" fontWeight="bold" textAnchor="middle">0</text>
-                      <text x="100" y="26" fill="#64748b" fontSize="10" fontWeight="bold" textAnchor="middle">50</text>
-                      <text x="180" y="118" fill="#64748b" fontSize="10" fontWeight="bold" textAnchor="middle">100</text>
+                      <text x="20" y="118" fill="currentColor" className="text-slate-700 dark:text-slate-100 font-mono text-[11px] font-bold" textAnchor="middle">0</text>
+                      <text x="100" y="8" fill="currentColor" className="text-slate-800 dark:text-slate-100 font-mono text-[11px] font-bold" textAnchor="middle">50</text>
+                      <text x="180" y="118" fill="currentColor" className="text-slate-700 dark:text-slate-100 font-mono text-[11px] font-bold" textAnchor="middle">100</text>
                     </svg>
 
                     <div className="text-center -mt-6">
                       <div className="text-3xl font-black text-slate-900 dark:text-white font-mono tracking-tight">{score}</div>
                       <div
-                        className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full inline-block mt-0.5"
+                        className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full inline-block mt-1 border shadow-xs"
                         style={{
                           color: getScoreColor(summary.averageQualityScore),
-                          backgroundColor: `${getScoreColor(summary.averageQualityScore)}15`,
+                          backgroundColor: `${getScoreColor(summary.averageQualityScore)}25`,
+                          borderColor: `${getScoreColor(summary.averageQualityScore)}60`,
                         }}
                       >
                         {summary.averageQualityGrade}
@@ -813,8 +839,8 @@ export default function DashboardPage() {
 
                   {/* Contributing Breakdown */}
                   <div className="space-y-2 text-xs border-l border-wellqc-border/60 pl-3">
-                    <div className="text-[11px] text-slate-600 dark:text-slate-400">
-                      Total Flagged Anomalies: <strong className="text-slate-900 dark:text-white font-mono">{summary.anomaliesFound}</strong>
+                    <div className="text-[11px] text-slate-700 dark:text-slate-200 font-medium">
+                      Total Flagged Anomalies: <strong className="text-slate-900 dark:text-white font-mono font-bold ml-1">{summary.anomaliesFound}</strong>
                     </div>
 
                     <div className="grid grid-cols-2 gap-2 text-[10px]">
@@ -838,9 +864,9 @@ export default function DashboardPage() {
                   </div>
                 </div>
 
-                <div className="pt-2.5 border-t border-wellqc-border flex items-center justify-between text-[10px] text-slate-500">
-                  <span>Total Active Wells: <strong className="text-slate-900 dark:text-white font-mono">{summary.totalWells}</strong></span>
-                  <span>Total Channels: <strong className="text-slate-900 dark:text-white font-mono">{summary.curvesAnalysed}</strong></span>
+                <div className="pt-2.5 border-t border-wellqc-border flex items-center justify-between text-[11px] text-slate-600 dark:text-slate-300">
+                  <span>Total Active Wells: <strong className="text-slate-900 dark:text-white font-mono font-bold ml-1">{summary.totalWells}</strong></span>
+                  <span>Total Channels: <strong className="text-slate-900 dark:text-white font-mono font-bold ml-1">{summary.curvesAnalysed}</strong></span>
                 </div>
               </div>
 
@@ -1074,7 +1100,7 @@ export default function DashboardPage() {
             )}
 
             {/* Bottom Row: 7-Day Trend + (Quality Scan Runs table if in Telemetry mode, or Mnemonic list if in Workstation mode) */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 font-mono text-xs">
+            <div id="tour-trend-section-alt" className="grid grid-cols-1 lg:grid-cols-2 gap-3 font-mono text-xs">
               {/* Left: 7-Day Ingestion & Detections Trend */}
               <div className="bg-wellqc-panel border border-wellqc-border p-5 rounded-2xl space-y-3 shadow-sm">
                 <div className="flex items-center justify-between border-b border-wellqc-border pb-2">
@@ -1195,6 +1221,16 @@ export default function DashboardPage() {
           wells={summary.scopeWells || []}
         />
       </div>
+
+      {/* Interactive Guided Onboarding Tour */}
+      <DashboardTour
+        isOpen={isTourOpen}
+        onClose={() => setIsTourOpen(false)}
+        currentMode={dashboardMode}
+        onSelectMode={handleModeChange}
+        currentScope={filterScope}
+        onSelectScope={handleScopeChange}
+      />
     </AppShell>
   );
 }
@@ -1215,7 +1251,7 @@ function EnterpriseKpiCard({
   return (
     <div className="enterprise-kpi-card bg-wellqc-panel border border-wellqc-border p-4 rounded-2xl flex flex-col justify-between hover:border-slate-400 dark:hover:border-slate-700 shadow-sm hover:shadow-md hover:scale-[1.01] transition-all duration-200">
       <div className="flex items-center justify-between">
-        <span className="text-[10px] text-slate-500 dark:text-slate-400 uppercase tracking-wider font-bold truncate">
+        <span className="text-[10px] text-slate-600 dark:text-slate-300 uppercase tracking-wider font-bold truncate">
           {label}
         </span>
         {badge && (
@@ -1227,7 +1263,7 @@ function EnterpriseKpiCard({
       <div className={`text-2xl font-black font-mono tracking-tight my-1.5 ${accentColor}`}>
         {value}
       </div>
-      <div className="text-[10px] text-slate-500 truncate">{subtext}</div>
+      <div className="text-[10px] text-slate-600 dark:text-slate-300 font-medium truncate">{subtext}</div>
     </div>
   );
 }

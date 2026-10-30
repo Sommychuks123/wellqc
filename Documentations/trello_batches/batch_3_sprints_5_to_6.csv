@@ -1,0 +1,196 @@
+Card Name,Card Description,List Name,Labels,Members,Due Date
+[SE1] [Security] Server-Side RBAC Enforcement & Ghost Token Elimination (✅),"**Task ID:** Task #32
+**Sprint:** Sprint 5: Security Hardening, Default-to-Deny RBAC & Admin Tools
+**Assigned Team:** SE1, CE2
+**Duration:** 5d (2026-09-14 to 2026-09-18)
+**Completion Status:** 100%
+
+### Description & Scope:
+Implementation of Server-Side RBAC Enforcement & Ghost Token Elimination as part of WellQC subsurface platform.
+
+### Acceptance Criteria:
+- [x] Feature implementation verified in active branch
+- [x] Peer review and code quality compliance
+- [x] Automated test suite coverage","Sprint 5: Security Hardening, Default-to-Deny RBAC & Admin Tools [100%]","Security,Completed","SE1, CE2",2026-09-18
+[SE1] [Security] Self-Registration Role Escalation Block (403 on ADMIN role) (✅),"**Task ID:** Task #33
+**Sprint:** Sprint 5: Security Hardening, Default-to-Deny RBAC & Admin Tools
+**Assigned Team:** SE1
+**Duration:** 4d (2026-09-16 to 2026-09-21)
+**Completion Status:** 100%
+
+### Description & Scope:
+Implementation of Self-Registration Role Escalation Block (403 on ADMIN role) as part of WellQC subsurface platform.
+
+### Acceptance Criteria:
+- [x] Feature implementation verified in active branch
+- [x] Peer review and code quality compliance
+- [x] Automated test suite coverage","Sprint 5: Security Hardening, Default-to-Deny RBAC & Admin Tools [100%]","Security,Completed",SE1,2026-09-21
+[CE2] [Security] Interactive Admin Management CLI (`manage_admin.py`) (✅),"**Task ID:** Task #34
+**Sprint:** Sprint 5: Security Hardening, Default-to-Deny RBAC & Admin Tools
+**Assigned Team:** CE2
+**Duration:** 4d (2026-09-17 to 2026-09-22)
+**Completion Status:** 100%
+
+### Description & Scope:
+Implementation of Interactive Admin Management CLI (`manage_admin.py`) as part of WellQC subsurface platform.
+
+### Acceptance Criteria:
+- [x] Feature implementation verified in active branch
+- [x] Peer review and code quality compliance
+- [x] Automated test suite coverage","Sprint 5: Security Hardening, Default-to-Deny RBAC & Admin Tools [100%]","Security,Completed",CE2,2026-09-22
+[SE2] [Security] Admin Panel UI with Tabbed User Management & Tokens (✅),"**Task ID:** Task #35
+**Sprint:** Sprint 5: Security Hardening, Default-to-Deny RBAC & Admin Tools
+**Assigned Team:** SE2
+**Duration:** 5d (2026-09-18 to 2026-09-24)
+**Completion Status:** 100%
+
+### Description & Scope:
+Implementation of Admin Panel UI with Tabbed User Management & Tokens as part of WellQC subsurface platform.
+
+### Acceptance Criteria:
+- [x] Feature implementation verified in active branch
+- [x] Peer review and code quality compliance
+- [x] Automated test suite coverage","Sprint 5: Security Hardening, Default-to-Deny RBAC & Admin Tools [100%]","Security,Frontend,Completed",SE2,2026-09-24
+[DA4] [Security] Automated Security Test Suite (19 Tests in `test_admin_auth.py`) (✅),"**Task ID:** Task #36
+**Sprint:** Sprint 5: Security Hardening, Default-to-Deny RBAC & Admin Tools
+**Assigned Team:** DA4, CE1
+**Duration:** 5d (2026-09-21 to 2026-09-25)
+**Completion Status:** 100%
+
+### Description & Scope:
+Implementation of Automated Security Test Suite (19 Tests in `test_admin_auth.py`) as part of WellQC subsurface platform.
+
+### Acceptance Criteria:
+- [x] Feature implementation verified in active branch
+- [x] Peer review and code quality compliance
+- [x] Automated test suite coverage","Sprint 5: Security Hardening, Default-to-Deny RBAC & Admin Tools [100%]","Security,Frontend,Completed","DA4, CE1",2026-09-25
+[SE1] [Milestone] Milestone: Default-to-Deny Security & Administrative Center (✅),"**Task ID:** Task #37
+**Sprint:** Sprint 5: Security Hardening, Default-to-Deny RBAC & Admin Tools
+**Assigned Team:** SE1, SE2, CE2
+**Duration:** 0d (2026-09-25 to 2026-09-25)
+**Completion Status:** 100%
+
+### Description & Scope:
+Implementation of Milestone: Default-to-Deny Security & Administrative Center as part of WellQC subsurface platform.
+
+### Acceptance Criteria:
+- [x] Feature implementation verified in active branch
+- [x] Peer review and code quality compliance
+- [x] Automated test suite coverage","Sprint 5: Security Hardening, Default-to-Deny RBAC & Admin Tools [100%]","Milestone,Security,Completed","SE1, SE2, CE2",2026-09-25
+[SE1] [Petrophysics] Item 1-2: Per-Row Anomaly Approvals & Specific Method Routing (✅),"**Task ID:** Task #39
+**Sprint:** Sprint 6: Production Hardening & Quality Engine 12-Item Overhaul
+**Assigned Team:** SE1, SE2
+**Duration:** 5d (2026-09-28 to 2026-10-02)
+**Completion Status:** 100%
+
+### Description & Scope:
+Implementation of Item 1-2: Per-Row Anomaly Approvals & Specific Method Routing as part of WellQC subsurface platform.
+
+### Acceptance Criteria:
+- [x] Feature implementation verified in active branch
+- [x] Peer review and code quality compliance
+- [x] Automated test suite coverage",Sprint 6: Production Hardening & Quality Engine 12-Item Overhaul [100%],"Petrophysics,Completed","SE1, SE2",2026-10-02
+[DA2] [Backend] Item 3: AUTO Imputation Gap Ranking via Cross-Validation (✅),"**Task ID:** Task #40
+**Sprint:** Sprint 6: Production Hardening & Quality Engine 12-Item Overhaul
+**Assigned Team:** DA2, SE1
+**Duration:** 5d (2026-09-29 to 2026-10-05)
+**Completion Status:** 100%
+
+### Description & Scope:
+Implementation of Item 3: AUTO Imputation Gap Ranking via Cross-Validation as part of WellQC subsurface platform.
+
+### Acceptance Criteria:
+- [x] Feature implementation verified in active branch
+- [x] Peer review and code quality compliance
+- [x] Automated test suite coverage",Sprint 6: Production Hardening & Quality Engine 12-Item Overhaul [100%],"Backend,Completed","DA2, SE1",2026-10-05
+[DA1] [Frontend] Item 4: Impossible Values Action Suite (Remove / Clip / Delete Row) (✅),"**Task ID:** Task #41
+**Sprint:** Sprint 6: Production Hardening & Quality Engine 12-Item Overhaul
+**Assigned Team:** DA1, SE1
+**Duration:** 5d (2026-09-30 to 2026-10-06)
+**Completion Status:** 100%
+
+### Description & Scope:
+Implementation of Item 4: Impossible Values Action Suite (Remove / Clip / Delete Row) as part of WellQC subsurface platform.
+
+### Acceptance Criteria:
+- [x] Feature implementation verified in active branch
+- [x] Peer review and code quality compliance
+- [x] Automated test suite coverage",Sprint 6: Production Hardening & Quality Engine 12-Item Overhaul [100%],"Frontend,Completed","DA1, SE1",2026-10-06
+[DA2] [Completed] Item 5: Long Null Cluster Guards & Unfillable Flag Boundaries (✅),"**Task ID:** Task #42
+**Sprint:** Sprint 6: Production Hardening & Quality Engine 12-Item Overhaul
+**Assigned Team:** DA2, DA1
+**Duration:** 4d (2026-10-01 to 2026-10-06)
+**Completion Status:** 100%
+
+### Description & Scope:
+Implementation of Item 5: Long Null Cluster Guards & Unfillable Flag Boundaries as part of WellQC subsurface platform.
+
+### Acceptance Criteria:
+- [x] Feature implementation verified in active branch
+- [x] Peer review and code quality compliance
+- [x] Automated test suite coverage",Sprint 6: Production Hardening & Quality Engine 12-Item Overhaul [100%],Completed,"DA2, DA1",2026-10-06
+[SE1] [Completed] Item 6-7: Duplicate Depth Prune & 2-Point Neighbour Despiking (✅),"**Task ID:** Task #43
+**Sprint:** Sprint 6: Production Hardening & Quality Engine 12-Item Overhaul
+**Assigned Team:** SE1
+**Duration:** 4d (2026-10-02 to 2026-10-07)
+**Completion Status:** 100%
+
+### Description & Scope:
+Implementation of Item 6-7: Duplicate Depth Prune & 2-Point Neighbour Despiking as part of WellQC subsurface platform.
+
+### Acceptance Criteria:
+- [x] Feature implementation verified in active branch
+- [x] Peer review and code quality compliance
+- [x] Automated test suite coverage",Sprint 6: Production Hardening & Quality Engine 12-Item Overhaul [100%],Completed,SE1,2026-10-07
+[DA4] [Backend] Item 8-9: Real Change Report Telemetry & Audit Certificate ID (✅),"**Task ID:** Task #44
+**Sprint:** Sprint 6: Production Hardening & Quality Engine 12-Item Overhaul
+**Assigned Team:** DA4, SE1
+**Duration:** 4d (2026-10-05 to 2026-10-08)
+**Completion Status:** 100%
+
+### Description & Scope:
+Implementation of Item 8-9: Real Change Report Telemetry & Audit Certificate ID as part of WellQC subsurface platform.
+
+### Acceptance Criteria:
+- [x] Feature implementation verified in active branch
+- [x] Peer review and code quality compliance
+- [x] Automated test suite coverage",Sprint 6: Production Hardening & Quality Engine 12-Item Overhaul [100%],"Backend,Compliance,Completed","DA4, SE1",2026-10-08
+[SE2] [Frontend] Item 10-12: Staged Non-Destructive QA UI & Cleaned Export Suite (✅),"**Task ID:** Task #45
+**Sprint:** Sprint 6: Production Hardening & Quality Engine 12-Item Overhaul
+**Assigned Team:** SE2
+**Duration:** 5d (2026-10-05 to 2026-10-09)
+**Completion Status:** 100%
+
+### Description & Scope:
+Implementation of Item 10-12: Staged Non-Destructive QA UI & Cleaned Export Suite as part of WellQC subsurface platform.
+
+### Acceptance Criteria:
+- [x] Feature implementation verified in active branch
+- [x] Peer review and code quality compliance
+- [x] Automated test suite coverage",Sprint 6: Production Hardening & Quality Engine 12-Item Overhaul [100%],"Frontend,Completed",SE2,2026-10-09
+[CE2] [Security] Sliding-Window IP Rate Limiter & Security Stabilization (✅),"**Task ID:** Task #46
+**Sprint:** Sprint 6: Production Hardening & Quality Engine 12-Item Overhaul
+**Assigned Team:** CE2, CE1
+**Duration:** 5d (2026-09-28 to 2026-10-02)
+**Completion Status:** 100%
+
+### Description & Scope:
+Implementation of Sliding-Window IP Rate Limiter & Security Stabilization as part of WellQC subsurface platform.
+
+### Acceptance Criteria:
+- [x] Feature implementation verified in active branch
+- [x] Peer review and code quality compliance
+- [x] Automated test suite coverage",Sprint 6: Production Hardening & Quality Engine 12-Item Overhaul [100%],"Security,Completed","CE2, CE1",2026-10-02
+[SE1] [Milestone] Milestone: Certified Quality Engine Overhaul & Audit Pipeline (✅),"**Task ID:** Task #47
+**Sprint:** Sprint 6: Production Hardening & Quality Engine 12-Item Overhaul
+**Assigned Team:** SE1, SE2, DA1, DA2, DA4
+**Duration:** 0d (2026-10-09 to 2026-10-09)
+**Completion Status:** 100%
+
+### Description & Scope:
+Implementation of Milestone: Certified Quality Engine Overhaul & Audit Pipeline as part of WellQC subsurface platform.
+
+### Acceptance Criteria:
+- [x] Feature implementation verified in active branch
+- [x] Peer review and code quality compliance
+- [x] Automated test suite coverage",Sprint 6: Production Hardening & Quality Engine 12-Item Overhaul [100%],"Milestone,Compliance,Completed","SE1, SE2, DA1, DA2, DA4",2026-10-09

@@ -731,7 +731,7 @@ def get_well_detail(
 
     return {
         "well": _to_well_list_item(well),
-        "aiSummary": latest_report.aiSummary if latest_report and latest_report.aiSummary else "Upload and commit a LAS file to generate a petrophysical summary.",
+        "aiSummary": latest_report.aiSummary if latest_report and latest_report.aiSummary else "Upload a LAS file to generate a petrophysical summary.",
         "recommendations": recs,
         "curvesData": curves_matrix,
         "curvesMatrix": curves_matrix,

@@ -193,9 +193,9 @@ export default function WellDetailPage({ params }: { params: Promise<{ id: strin
             ) : (
               <div className="bg-wellqc-panel border border-wellqc-border rounded-2xl p-8 text-center space-y-3">
                 <Database className="w-8 h-8 text-cyan-400 mx-auto" />
-                <h2 className="text-base font-bold text-white">No LAS curves committed for this well</h2>
+                <h2 className="text-base font-bold text-white">No LAS curves uploaded for this well</h2>
                 <p className="text-xs text-wellqc-muted font-mono">
-                  Upload and validate a LAS file, then commit it to render curves and QA anomalies here.
+                  Upload and validate a LAS file, then upload it to render curves and QA anomalies here.
                 </p>
                 <Link
                   href="/upload"

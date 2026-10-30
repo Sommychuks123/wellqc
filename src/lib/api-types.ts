@@ -134,6 +134,8 @@ export interface DashboardSummary {
     totalAll: number;
     totalCommitted: number;
     totalFlagged: number;
+    totalCommittedFiles?: number;
+    totalAllFiles?: number;
   };
   scopeWells?: DashboardScopeWell[];
 }
@@ -162,16 +164,66 @@ export interface WellDetailResponse {
 
 /** Response shape from GET /api/analytics */
 export interface AnalyticsResponse {
+  summary?: {
+    totalWells: number;
+    totalFiles: number;
+    avgQualityScore: number;
+    totalAnomalies: number;
+    criticalAnomalies: number;
+    cleanWellsCount: number;
+    flaggedWellsCount: number;
+    topOperator: string;
+    topBasin: string;
+  };
   operatorScores: Array<{
     operator: string;
     score: number;
     files: number;
+    wells?: number;
+  }>;
+  basinScores?: Array<{
+    basin: string;
+    score: number;
+    wells: number;
+    files: number;
   }>;
   anomalyDistribution: Array<{
     name: string;
+    rawType?: string;
     value: number;
+    percentage?: number;
     color: string;
   }>;
+  severityDistribution?: Array<{
+    severity: string;
+    count: number;
+    color: string;
+  }>;
+  curveAnomalyDistribution?: Array<{
+    curve: string;
+    count: number;
+  }>;
+  gradeDistribution?: Array<{
+    grade: string;
+    count: number;
+    color: string;
+  }>;
+  wells?: Array<{
+    id: string;
+    name: string;
+    apiNo: string;
+    operator: string;
+    field: string;
+    basin: string;
+    qualityScore: number;
+    qualityGrade: string;
+    filesCount: number;
+    anomalyCount: number;
+    tdFt?: number;
+    createdAt?: string | null;
+  }>;
+  availableBasins?: string[];
+  availableOperators?: string[];
 }
 
 // ─── Upload / LAS Pre-Check ───────────────────────────────────────────────────

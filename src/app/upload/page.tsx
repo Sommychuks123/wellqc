@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { AppShell } from "@/components/layout/app-shell";
 import { ParsedLAS } from "@/lib/las/parser";
 import { QualityAnalysisResult } from "@/lib/las/quality-engine";
@@ -78,34 +78,51 @@ function getInitialUploadWorkspace(): UploadWorkspaceState {
 }
 
 export default function LASUploadPage() {
-  const [initialWorkspace] = useState(getInitialUploadWorkspace);
+  const isHydratedRef = useRef(false);
 
-  const [rawText, setRawText] = useState<string>(initialWorkspace.rawText);
-  const [fileName, setFileName] = useState<string>(initialWorkspace.fileName);
-  const [parsedLAS, setParsedLAS] = useState<ParsedLAS | null>(initialWorkspace.parsedLAS);
-  const [qaResult, setQaResult] = useState<QualityAnalysisResult | null>(initialWorkspace.qaResult);
-  const [aiOutput, setAiOutput] = useState<AIAnalysisOutput | null>(initialWorkspace.aiOutput);
+  const [rawText, setRawText] = useState<string>("");
+  const [fileName, setFileName] = useState<string>("");
+  const [parsedLAS, setParsedLAS] = useState<ParsedLAS | null>(null);
+  const [qaResult, setQaResult] = useState<QualityAnalysisResult | null>(null);
+  const [aiOutput, setAiOutput] = useState<AIAnalysisOutput | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
-  const [savedSuccess, setSavedSuccess] = useState(initialWorkspace.savedSuccess);
+  const [savedSuccess, setSavedSuccess] = useState(false);
   const [saveError, setSaveError] = useState("");
-  const [savedWell, setSavedWell] = useState<{ id: string; name: string; qualityScore: number } | null>(
-    initialWorkspace.savedWell,
-  );
-  const [uploadQueue, setUploadQueue] = useState<QueuedLASFile[]>(initialWorkspace.uploadQueue);
-  const [restoredFromStorage, setRestoredFromStorage] = useState(initialWorkspace.restoredFromStorage);
+  const [savedWell, setSavedWell] = useState<{ id: string; name: string; qualityScore: number } | null>(null);
+  const [uploadQueue, setUploadQueue] = useState<QueuedLASFile[]>([]);
+  const [restoredFromStorage, setRestoredFromStorage] = useState(false);
   const [activeTab, setActiveTab] = useState<"curves" | "anomalies" | "headers" | "raw" | "viewer">("curves");
+
+  // Restore previous session from localStorage after initial client mount to guarantee 100% SSR hydration fidelity
+  useEffect(() => {
+    isHydratedRef.current = true;
+    const session = getInitialUploadWorkspace();
+    if (session && session.parsedLAS && session.qaResult) {
+      queueMicrotask(() => {
+        setFileName(session.fileName || "restored-well-log.las");
+        setRawText(session.rawText || "");
+        setParsedLAS(session.parsedLAS);
+        setQaResult(session.qaResult);
+        setAiOutput(session.aiOutput || null);
+        setSavedSuccess(Boolean(session.savedSuccess));
+        setSavedWell(session.savedWell || null);
+        setUploadQueue(session.uploadQueue || []);
+        setRestoredFromStorage(true);
+      });
+    }
+  }, []);
 
   // Persist complete un-downsampled raw LAS text to IndexedDB on file change only
   useEffect(() => {
     if (fileName && rawText) {
-      saveFullLasText(fileName, rawText).catch(() => {});
+      saveFullLasText(fileName, rawText).catch(() => { });
     }
   }, [fileName, rawText]);
 
   // Persist state to localStorage on changes with quota protection
   useEffect(() => {
-    if (!parsedLAS || !qaResult) return;
+    if (!isHydratedRef.current || !parsedLAS || !qaResult) return;
 
     try {
       const activeUserId = localStorage.getItem("wellqc_active_user_id") || undefined;
@@ -146,15 +163,15 @@ export default function LASUploadPage() {
           updatedAt: Date.now(),
         };
         localStorage.setItem("wellqc_upload_workspace", JSON.stringify(minimal));
-      } catch {}
+      } catch { }
     }
   }, [parsedLAS, qaResult, aiOutput, rawText, fileName, savedSuccess, savedWell, uploadQueue]);
 
   const handleClearSession = () => {
-    clearFullLasText().catch(() => {});
+    clearFullLasText().catch(() => { });
     try {
       localStorage.removeItem("wellqc_upload_workspace");
-    } catch {}
+    } catch { }
     setRawText("");
     setFileName("");
     setParsedLAS(null);
@@ -237,7 +254,7 @@ export default function LASUploadPage() {
     }
 
     if (!response.ok || !result?.well) {
-      throw new Error(result?.error || `Unable to commit this LAS file (HTTP ${response.status}).`);
+      throw new Error(result?.error || `Unable to upload this LAS file (HTTP ${response.status}).`);
     }
     return result as { message: string; well: { id: string; name: string; qualityScore: number } };
   };
@@ -251,7 +268,7 @@ export default function LASUploadPage() {
 
     if (!rawText && isDownsampled) {
       setSaveError(
-        "Only a downsampled preview is currently in browser memory. Please re-select or drop the original LAS file to ensure the complete, untouched raw log is committed to the database.",
+        "Only a downsampled preview is currently in browser memory. Please re-select or drop the original LAS file to ensure the complete, untouched raw log is uploaded to the database.",
       );
       return;
     }
@@ -305,10 +322,10 @@ export default function LASUploadPage() {
             timestamp: Date.now(),
           }),
         );
-      } catch {}
+      } catch { }
     } catch (error) {
       setSavedSuccess(false);
-      setSaveError(error instanceof Error ? error.message : "Unable to commit this LAS file.");
+      setSaveError(error instanceof Error ? error.message : "Unable to upload this LAS file.");
     } finally {
       setIsSaving(false);
     }
@@ -340,7 +357,7 @@ export default function LASUploadPage() {
             ? reconstructRawLASText(file.parsed)
             : "");
         if (!fileContent) {
-          throw new Error(`File ${file.name} has no content to commit.`);
+          throw new Error(`File ${file.name} has no content to upload.`);
         }
         const result = await commitFile(file.name, fileContent);
         const savedFile = { ...file, status: "saved" as const, savedWell: result.well, error: undefined };
@@ -360,7 +377,7 @@ export default function LASUploadPage() {
               timestamp: Date.now(),
             }),
           );
-        } catch {}
+        } catch { }
       } catch (error) {
         const message = error instanceof Error ? error.message : "Unable to commit this LAS file.";
         setUploadQueue((files) =>
@@ -393,14 +410,6 @@ export default function LASUploadPage() {
           </div>
         )}
 
-        <BatchQueueList
-          uploadQueue={uploadQueue}
-          isSaving={isSaving}
-          onCommitAll={handleCommitAll}
-          onLoadFile={loadQueuedFile}
-          onRemoveFile={(id) => setUploadQueue((files) => files.filter((item) => item.id !== id))}
-        />
-
         {restoredFromStorage && parsedLAS && (
           <RestoredSessionBanner
             fileName={fileName}
@@ -420,6 +429,7 @@ export default function LASUploadPage() {
               savedSuccess={savedSuccess}
               saveError={saveError}
               savedWell={savedWell}
+              onUploadToDatabase={handleCommitToDatabase}
               onCommitToDatabase={handleCommitToDatabase}
             />
 
@@ -437,27 +447,19 @@ export default function LASUploadPage() {
               </div>
             )}
 
-            <AuditSummaryCards
-              parsedLAS={parsedLAS}
-              qaResult={qaResult}
-            />
-
-            <AIInsightsPanel aiOutput={aiOutput} />
-
             {/* Tabbed Detailed Analysis Inspector */}
             <section
               aria-label="Detailed Analysis Tabs"
-              className="bg-wellqc-panel border border-wellqc-border rounded-2xl overflow-hidden shadow-lg"
+              className="bg-wellqc-panel border border-wellqc-border rounded-2xl shadow-lg"
             >
-              <div className="flex items-center border-b border-wellqc-border bg-wellqc-card/40 px-4 overflow-x-auto">
+              <div className="flex items-center border-b border-wellqc-border bg-wellqc-card/40 px-4 overflow-x-auto rounded-t-2xl">
                 <button
                   type="button"
                   onClick={() => setActiveTab("curves")}
-                  className={`px-4 py-3 text-xs font-mono font-bold border-b-2 transition-all flex items-center space-x-2 shrink-0 ${
-                    activeTab === "curves"
+                  className={`px-4 py-3 text-xs font-mono font-bold border-b-2 transition-all flex items-center space-x-2 shrink-0 ${activeTab === "curves"
                       ? "border-cyan-400 text-cyan-300 bg-cyan-500/5"
                       : "border-transparent text-slate-400 hover:text-slate-200"
-                  }`}
+                    }`}
                 >
                   <Table className="w-3.5 h-3.5" />
                   <span>Curve Health & Standardisation ({qaResult.curveSummaries.length})</span>
@@ -465,11 +467,10 @@ export default function LASUploadPage() {
                 <button
                   type="button"
                   onClick={() => setActiveTab("viewer")}
-                  className={`px-4 py-3 text-xs font-mono font-bold border-b-2 transition-all flex items-center space-x-2 shrink-0 ${
-                    activeTab === "viewer"
+                  className={`px-4 py-3 text-xs font-mono font-bold border-b-2 transition-all flex items-center space-x-2 shrink-0 ${activeTab === "viewer"
                       ? "border-cyan-400 text-cyan-300 bg-cyan-500/5"
                       : "border-transparent text-slate-400 hover:text-slate-200"
-                  }`}
+                    }`}
                 >
                   <Layers className="w-3.5 h-3.5 text-cyan-400" />
                   <span>Wireline Log Viewer</span>
@@ -477,11 +478,10 @@ export default function LASUploadPage() {
                 <button
                   type="button"
                   onClick={() => setActiveTab("anomalies")}
-                  className={`px-4 py-3 text-xs font-mono font-bold border-b-2 transition-all flex items-center space-x-2 shrink-0 ${
-                    activeTab === "anomalies"
+                  className={`px-4 py-3 text-xs font-mono font-bold border-b-2 transition-all flex items-center space-x-2 shrink-0 ${activeTab === "anomalies"
                       ? "border-cyan-400 text-cyan-300 bg-cyan-500/5"
                       : "border-transparent text-slate-400 hover:text-slate-200"
-                  }`}
+                    }`}
                 >
                   <AlertTriangle className="w-3.5 h-3.5" />
                   <span>Quality Anomalies ({qaResult.anomalies.length})</span>
@@ -489,11 +489,10 @@ export default function LASUploadPage() {
                 <button
                   type="button"
                   onClick={() => setActiveTab("headers")}
-                  className={`px-4 py-3 text-xs font-mono font-bold border-b-2 transition-all flex items-center space-x-2 shrink-0 ${
-                    activeTab === "headers"
+                  className={`px-4 py-3 text-xs font-mono font-bold border-b-2 transition-all flex items-center space-x-2 shrink-0 ${activeTab === "headers"
                       ? "border-cyan-400 text-cyan-300 bg-cyan-500/5"
                       : "border-transparent text-slate-400 hover:text-slate-200"
-                  }`}
+                    }`}
                 >
                   <FileText className="w-3.5 h-3.5" />
                   <span>Header Metadata (~WELL & ~CURVE)</span>
@@ -501,16 +500,17 @@ export default function LASUploadPage() {
                 <button
                   type="button"
                   onClick={() => setActiveTab("raw")}
-                  className={`px-4 py-3 text-xs font-mono font-bold border-b-2 transition-all flex items-center space-x-2 shrink-0 ${
-                    activeTab === "raw"
+                  className={`px-4 py-3 text-xs font-mono font-bold border-b-2 transition-all flex items-center space-x-2 shrink-0 ${activeTab === "raw"
                       ? "border-cyan-400 text-cyan-300 bg-cyan-500/5"
                       : "border-transparent text-slate-400 hover:text-slate-200"
-                  }`}
+                    }`}
                 >
                   <Activity className="w-3.5 h-3.5" />
                   <span>Raw LAS Header</span>
                 </button>
               </div>
+
+
 
               {activeTab === "curves" && (
                 <CurveInventoryTable
@@ -518,6 +518,8 @@ export default function LASUploadPage() {
                   parsedLAS={parsedLAS}
                 />
               )}
+
+
 
               {activeTab === "viewer" && parsedLAS && (
                 <div className="p-4">
@@ -548,8 +550,26 @@ export default function LASUploadPage() {
                 </div>
               )}
             </section>
+
+
+            <BatchQueueList
+              uploadQueue={uploadQueue}
+              isSaving={isSaving}
+              onUploadAll={handleCommitAll}
+              onCommitAll={handleCommitAll}
+              onLoadFile={loadQueuedFile}
+              onRemoveFile={(id) => setUploadQueue((files) => files.filter((item) => item.id !== id))}
+            />
+
+            <AuditSummaryCards
+              parsedLAS={parsedLAS}
+              qaResult={qaResult}
+            />
+
+            <AIInsightsPanel aiOutput={aiOutput} />
           </main>
         )}
+
       </div>
     </AppShell>
   );
